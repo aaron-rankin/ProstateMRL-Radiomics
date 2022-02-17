@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-# This was a waste of time
+
 url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
 url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
 ptDir = os.listdir(url_SABR)
