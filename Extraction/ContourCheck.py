@@ -1,3 +1,6 @@
+import sys
+from wsgiref.simple_server import sys_version
+print(sys_version)
 import SimpleITK as sitk
 import numpy as np
 from matplotlib import pyplot
