@@ -32,7 +32,7 @@ end
 
 dataT = [[D:\data\prostateMR_radiomics\patientData\SABR\]]
 
---output = [[D:\data\prostateMR_radiomics\patientData\nifti\new20fractions\]]
+output = [[D:\data\D:\data\Aaron\ProstateMRL\Extraction\patientDatainfo\]]
 headerFlag = true
 --file = io.output(output..[[result.txt]], 'a')
 
@@ -43,6 +43,9 @@ folderPatients = scandir(dataT)
 
 headerFlag = true
 
+outputfile = io.open(output..[[patientDataSABR.txt]], 'w')
+io.output(outputfile)
+print(io.read())
 
 -- list patients
 for i = 1, #folderPatients do
@@ -72,37 +75,31 @@ for i = 1, #folderPatients do
         end
       end
       
-    -- 
+    -- Calculate number of contours and save
     contours = {}
     print("Number of contours: "..wm.Delineation.len)
     for m=1, wm.Delineation.len do
       contours[m] = (wm.Delineation[m-1].name)
-      print(contours[m])
+      --print(contours[m])
     end
     
-    --print("Contour: "..contours[1])
-    
-    
-    --print("Patient ID: "..wm.Scan[1].Properties.PatientID)
-    --print("Age: "..wm.Scan[1].Properties.PatientAge)
-    --print("Scan: "..folderVisits[j])
-    --print("Number of contours: "..wm.Delineation.len)
-    --for m=1, wm.Delineation.len do
-     -- print(wm.Delineation[m-1].name)
-    --end
-    --print("Field Strength: "..wm.Scan[1].Properties.MagneticFieldStrength)
-    --print("Axial slice pixels: "..wm.Scan[1].Properties.Rows..","..wm.Scan[1].Properties.Columns)
-    --print("Spacing between pixels: "..wm.Scan[1].Properties.PixelSpacing)
-    --print("Slice thickness: "..wm.Scan[1].Properties.SliceThickness)
-    --print("Space between slices: "..wm.Scan[1].Properties.SpacingBetweenSlices)
-    
-    row = {wm.Scan[1].Properties.PatientID, wm.Scan[1].Properties.PatientAge, folderVisits[j], contours, wm.Delineation.len,wm.Scan[1].Properties.MagneticFieldStrength,wm.Scan[1].Properties.Rows,wm.Scan[1].Properties.Columns,wm.Scan[1].Properties.PixelSpacing,wm.Scan[1].Properties.SliceThickness,wm.Scan[1].Properties.SpacingBetweenSlices}
-    --print("row contours: "..row[4])
-    --contour_name:write(row.. '\n')
-
-
+    -- write to output file scan properties
+    outputfile:write("test")
+    outputfile:write(wm.Scan[1].Properties.PatientID..", ")
+    outputfile:write(wm.Scan[1].Properties.PatientAge..", ")
+    outputfile:write(folderVisits[j]..", ")
+    outputfile:write(wm.Delineation.len..", ")
+    for m=1, wm.Delineation.len do
+      outputfile:write(wm.Delineation[m-1].name..", ")
+    end
+    outputfile:write(wm.Scan[1].Properties.MagneticFieldStrength..", ")
+    outputfile:write(wm.Scan[1].Properties.Rows..wm.Scan[1].Properties.Columns..", ")
+    outputfile:write(wm.Scan[1].Properties.PixelSpacing..", ")
+    outputfile:write(wm.Scan[1].Properties.SliceThickness..", ")
+    outputfile:write(wm.Scan[1].Properties.SpacingBetweenSlices.."\n")
+      
 --savepack('**.pack')
 
 end
 end  
-contour_name:close()
+outputfile:close()
