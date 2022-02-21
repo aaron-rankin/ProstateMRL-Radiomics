@@ -48,32 +48,28 @@ for i in ptDir:
                 maskArray = sitk.GetArrayFromImage(readMask)
                 #maskArray = maskArray.flatten()
 
-                print(imageArray.shape)
-                print(maskArray.shape)
+                maskedImage = maskArray * imageArray
 
-                maskNp = np.array(maskArray)
-                imageNp = np.array(imageArray)
+                maskedImage = maskedImage.flatten()
+                imageArray = imageArray.flatten()
                 
-                maskedImage = np.where(maskNp < 1,  imageNp = 0)
-
-                '''
                 # Open figure
                 plt.figure("Intensity Histogram")
                 plt.hist(imageArray, bins = 128, range=(1, imageArray.max()), facecolor = "red", alpha = 0.75, histtype = "step", density = True)
-                #plt.hist(maskArray, bins = 64, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, histtype = "step", density = True)
+                plt.hist(maskedImage, bins = 64, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, histtype = "step", fill = True, density = True)
                 plt.xlabel("MR Intensity")
                 plt.ylabel("Percentage")
 
-                outputfolder = "D:\\data\\Aaron\\ProstateMRL\\Extraction\\Histograms\\Raw\\20fractions\\" + str(i)
+                outputfolder = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\20fractions\\" + str(i)
                 if not os.path.exists(outputfolder):
                     os.mkdir(outputfolder)
                 else:
                     print()
 
-                plt.savefig("D:\\data\\Aaron\\ProstateMRL\\Extraction\\Histograms\\Raw\\20fractions\\" + str(i) + "\\" + str(i) + "_" + str(j) + ".png", dpi = 300)
+                plt.savefig("D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\20fractions\\" + str(i) + "\\" + str(i) + "_" + str(j) + "_" + str(k) ".png", dpi = 300)
                 plt.clf()
             else:
                 segmentation = False
-                '''
+               
         if segmentation == False:
             print ("Check segmentation list for "+j)
