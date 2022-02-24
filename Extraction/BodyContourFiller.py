@@ -10,8 +10,11 @@ url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
 url_20f_new = 'D:/data/prostateMR_radiomics/nifti_new/new_20fractions/'
 url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
 url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
-url = url_20f
+
+url = url_SABR
+
 ptDir = os.listdir(url)
+print(ptDir)
 
 
 # Loop through ptDir
@@ -21,11 +24,7 @@ for i in ptDir:
     # Loop through patient visits
     for j in scanWeeks:
         niiFiles = os.listdir(url+str(i)+"\\"+str(j))
-        # print(niiFiles)
         print ("Processing: "+i+"  Timepoint: "+j)	
-        #imageName = i +" "+ j
-        #image = url_20f_new+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_image.nii"
-        #print ("Image: "+ imageName)
 
         # Loop through patient files
         for k in niiFiles:   
@@ -43,7 +42,7 @@ for i in ptDir:
 
                 structExample = generate_binary_structure(3, 3)  
                 dilateMaskArray = binary_dilation(dilateMaskArray, structExample, iterations = 10) #edit number of iterations to make sure all gaps in mask are being filled
-                erodeMaskArray = binary_erosion(dilateMaskArray, structExample, iterations = 12)
+                erodeMaskArray = binary_erosion(dilateMaskArray, structExample, iterations = 13)
                 newMaskArray[:,:,:] = 0
                 newMaskArray[np.where(erodeMaskArray == True)] = 1
                 erodedMask = sitk.GetImageFromArray(newMaskArray)

@@ -82,7 +82,7 @@ for i = 1, #folderPatients do
       finalMask = Scan:new()
       wm.scan[3] =wm.scan[3]/255
       wm.scan[3].data = wm.scan[3].data:asshort()
-      wm.scan[3]:write_nifty(output..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..[[BodyMask.nii]])
+      wm.scan[3]:write_nifty(output..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..i..[[_]]..j..[[_body_mask.nii]])
       --.Scan[3] = wm.Scan[1]
       --wm.Scan[3].Data:treshold(339)
         
