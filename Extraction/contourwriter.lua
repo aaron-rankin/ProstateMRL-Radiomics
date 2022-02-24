@@ -32,7 +32,7 @@ end
 
 dataT = [[D:\data\prostateMR_radiomics\patientData\SABR\]]
 
-output = [[D:\data\D:\data\Aaron\ProstateMRL\Extraction\patientDatainfo\]]
+--output = [[D:\data\D:\data\Aaron\ProstateMRL\Extraction\patientDatainfo\]]
 headerFlag = true
 --file = io.output(output..[[result.txt]], 'a')
 
@@ -43,9 +43,14 @@ folderPatients = scandir(dataT)
 
 headerFlag = true
 
-outputfile = io.open(output..[[patientDataSABR.txt]], 'w')
-io.output(outputfile)
-print(io.read())
+
+
+output = io.open([[D:\data\D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv]], "at", "csv")
+--io.output(outputfile)
+--print(io.read())
+--output:write("Patient, Scan, Age, DateofScan, Manufacturer, Model, Sequence, AcquisitionType, MagneticFieldStrength, PixelSpacing, Rows, Columns, Slices, SliceThickness, SpacingBetweenSlices, Contours \n")
+
+properties_to_collect = {'PatientAge, AcquisitionDate, Manufacturer, ManufacturerModel, StudyDescription, MRAcquisitionType, MagneticFieldStrength, PixelSpacing, Rows, Columns, NumberofSlicesMR, SliceThickness, SpacingBetweenSlices'}
 
 -- list patients
 for i = 1, #folderPatients do
@@ -83,23 +88,27 @@ for i = 1, #folderPatients do
       --print(contours[m])
     end
     
-    -- write to output file scan properties
-    outputfile:write("test")
-    outputfile:write(wm.Scan[1].Properties.PatientID..", ")
-    outputfile:write(wm.Scan[1].Properties.PatientAge..", ")
-    outputfile:write(folderVisits[j]..", ")
-    outputfile:write(wm.Delineation.len..", ")
-    for m=1, wm.Delineation.len do
-      outputfile:write(wm.Delineation[m-1].name..", ")
+    prop_table = {}
+    prop_table[1] = folderPatients[i]
+    prop_table[2] = folderVisits[j]
+  
+     for l = 1,#properties_to_collect  do
+      if type(wm.scan[1].Properties[properties_to_collect[l]]) ~= "table" then
+        prop_table[l+1] = wm.scan[1].Properties[properties_to_collect[l]]
+      else
+        prop_table[l+1] = 'NA'
+      end
     end
-    outputfile:write(wm.Scan[1].Properties.MagneticFieldStrength..", ")
-    outputfile:write(wm.Scan[1].Properties.Rows..wm.Scan[1].Properties.Columns..", ")
-    outputfile:write(wm.Scan[1].Properties.PixelSpacing..", ")
-    outputfile:write(wm.Scan[1].Properties.SliceThickness..", ")
-    outputfile:write(wm.Scan[1].Properties.SpacingBetweenSlices.."\n")
-      
---savepack('**.pack')
-
+    
+    y = prop_table.len
+    print("Length of prop_table before: "..prop_table.len)
+    for m = 1, wm.Delineation.len do
+      prop_table[y+m] = wm.Delineation[m-1].name
+    end
+    print("Length of prop_table after: "..prop_table.len)
+    print('done')
+    output:write(table.concat(prop_table, ", "))
+    
 end
 end  
-outputfile:close()
+output:close()
