@@ -17,10 +17,10 @@ url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
 url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
 
 # output directories
-out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\20fractions\\"
-out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\20fractions_new\\"
-out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\SABR\\"
-out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\SABR_new\\"
+out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions\\"
+out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
+out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
+out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
 # set working directories
 url = url_20f_new
@@ -37,8 +37,12 @@ else:                       # for original patients (multiple contours)
     check = "ostate"
 
 
+ProsContourMeans = np.array([])
+MuscleContourMeans = np.array([])
+Timepoints = np.array([])
+
 # Loop through ptDir
-for i in ptDir: 
+for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
     
     # Loop through patient visits
@@ -89,32 +93,45 @@ for i in ptDir:
                 else:
                     pltColour = "purple"
 
-                print("max: " + str(imageArray.max()))
+                print("Mean: " + str(maskedImage.mean()))
                 # Open figure
-                plt.figure("Intensity Histogram")
-                plt.title("Patient: " + i + " " + j)
+
+                ProstateMean = maskedImage.mean()
+                np.append(ProsContourMeans, ProstateMean)
+                #MuscleMean = maskedMuscle.mean()
+                #np.append(MuscleContourMeans, MuscleMean)
+
+            
+            else:
+                segmentation = False
+            
+            if segmentation == False:
+                print ("Check segmentation list for "+j)
+        
+        np.append(Timepoints, j)
+
+    # plot 
+
+    plt.figure("Mean Intensity Plot")
+                plt.title("Patient: " + i)
                 
-                plt.hist(maskedImage, bins = 256, range=(1, imageArray.max()), alpha = 0.5, histtype = "step", color=pltColour, fill = True, density = True, label = maskName)
+                plt.scatter(Timepoints,ProsContourMeans,
                 plt.xlabel("MR Intensity")
                 plt.xlim(0,400)
                 plt.ylim(0, 0.03)
                 plt.ylabel("Percentage")
                 
-            else:
-                segmentation = False
-
-        outputfolder = output + i
-        if not os.path.exists(outputfolder):
-            os.mkdir(outputfolder)
-        else:
-            print()
-        plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
-        plt.legend()
-        plt.savefig(outputfolder + "\\" + str(i) + "_" + str(j)+ ".png", dpi = 300)
-        plt.clf()
+    outputfolder = output + i
+    if not os.path.exists(outputfolder):
+        os.mkdir(outputfolder)
+    else:
+        print()
+    plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
+    plt.legend()
+    plt.savefig(outputfolder + "\\" + str(i) + "_" + str(j)+ ".png", dpi = 300)
+    plt.clf()
+        
             
-               
-        if segmentation == False:
-            print ("Check segmentation list for "+j)
+        
 
 print("---------- Done ----------")
