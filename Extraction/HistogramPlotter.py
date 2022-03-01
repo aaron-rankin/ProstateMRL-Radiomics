@@ -23,8 +23,8 @@ out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\SAB
 out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\SABR_new\\"
 
 # set working directories
-url = url_20f_new
-output = out_20f_new
+url = url_SABR_new
+output = out_SABR_new
 
 ptDir = os.listdir(url)
 print("Patient Directory: " + url)
@@ -94,7 +94,7 @@ for i in ptDir:
                 plt.figure("Intensity Histogram")
                 plt.title("Patient: " + i + " " + j)
                 
-                plt.hist(maskedImage, bins = 256, range=(1, imageArray.max()), alpha = 0.5, histtype = "step", color=pltColour, fill = True, density = True, label = maskName)
+                plt.hist(maskedImage, bins = 256, range=(1, 400), alpha = 0.5, histtype = "step", color=pltColour, fill = True, density = True, label = maskName)
                 plt.xlabel("MR Intensity")
                 plt.xlim(0,400)
                 plt.ylim(0, 0.03)
@@ -103,14 +103,14 @@ for i in ptDir:
             else:
                 segmentation = False
 
-        outputfolder = output + i
+        outputfolder = output #+ i
         if not os.path.exists(outputfolder):
             os.mkdir(outputfolder)
         else:
             print()
         plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
         plt.legend()
-        plt.savefig(outputfolder + "\\" + str(i) + "_" + str(j)+ ".png", dpi = 300)
+        plt.savefig(outputfolder + str(i) + "_" + str(j)+ ".png", dpi = 300)
         plt.clf()
             
                
