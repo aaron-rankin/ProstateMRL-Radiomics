@@ -2,6 +2,7 @@ from cProfile import label
 from wsgiref.simple_server import sys_version
 import SimpleITK as sitk
 import numpy as np
+import numpy.ma as ma
 from matplotlib import pyplot
 import matplotlib.pyplot as plt
 import os
@@ -19,12 +20,13 @@ url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
 # output directories
 out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions\\"
 out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
+#out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\"
 out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
 out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
 # set working directories
-url = url_20f_new
-output = out_20f_new
+url = url_SABR_new
+output = out_SABR_new
 
 ptDir = os.listdir(url)
 print("Patient Directory: " + url)
@@ -37,14 +39,22 @@ else:                       # for original patients (multiple contours)
     check = "ostate"
 
 
-ProsContourMeans = np.array([])
-MuscleContourMeans = np.array([])
-Timepoints = np.array([])
-
 # Loop through ptDir
 for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
-    
+    print(scanWeeks) 
+
+    ProsContourMeans = np.array([]) 
+    MuscleContourMeans = np.array([])
+    Timepoints = np.array([])
+
+    plt.figure("Mean Intensity Plot")
+    plt.title("Mean Signal Intensity Patient: " + i)
+    plt.ylabel("MR Intensity")
+    plt.xlabel("MR Scan")
+    #plt.xlim(0,400)
+    plt.ylim(0, 160)
+
     # Loop through patient visits
     for j in scanWeeks:
         niiFiles = os.listdir(url+str(i)+"\\"+str(j))
@@ -73,62 +83,40 @@ for i in ptDir:
                 imageArray = sitk.GetArrayFromImage(readImage)
                 # remove stray pixel values
                 imageArray = imageArray * bodyMaskArray
-
+                #print(imageArray.shape)
+                #print(np.mean(imageArray.flatten()))
+               
                 # read in mask
                 readMask = sitk.ReadImage(mask)
                 maskArray = sitk.GetArrayFromImage(readMask)
+                #print(maskArray.shape)
+                #print(np.mean(maskArray.flatten()))
 
-                # for plotting intensity only in contour
-                maskedImage = maskArray * imageArray
+                maskedImage = imageArray * maskArray
+                #print(np.mean(maskedImage.flatten()))
 
-                maskedImage = maskedImage.flatten()
-                imageArray = imageArray.flatten()
+                ch_masked = ma.masked_array(imageArray, mask=np.logical_not(maskArray), keep_mask=True, hard_mask=True)
+                mean_pros = np.mean(ch_masked.flatten())
+                #print(mean_pros)
+                time = str(j)
+                time = time[2:]
+                Timepoints = np.append(Timepoints, time)
+                ProsContourMeans = np.append(ProsContourMeans, mean_pros)
 
-                if "RP" in maskName:
-                    pltColour = "tomato"
-                elif "JZ" in maskName:
-                    pltColour = "limegreen"
-                elif "MA" in maskName:
-                    pltColour = "dodgerblue"
-                else:
-                    pltColour = "purple"
+                #print(ProsContourMeans)
+                #print(Timepoints)
 
-                print("Mean: " + str(maskedImage.mean()))
-                # Open figure
 
-                ProstateMean = maskedImage.mean()
-                np.append(ProsContourMeans, ProstateMean)
-                #MuscleMean = maskedMuscle.mean()
-                #np.append(MuscleContourMeans, MuscleMean)
-
-            
-            else:
-                segmentation = False
-            
-            if segmentation == False:
-                print ("Check segmentation list for "+j)
-        
-        np.append(Timepoints, j)
-
-    # plot 
-
-    plt.figure("Mean Intensity Plot")
-                plt.title("Patient: " + i)
-                
-                plt.scatter(Timepoints,ProsContourMeans,
-                plt.xlabel("MR Intensity")
-                plt.xlim(0,400)
-                plt.ylim(0, 0.03)
-                plt.ylabel("Percentage")
-                
-    outputfolder = output + i
-    if not os.path.exists(outputfolder):
-        os.mkdir(outputfolder)
-    else:
-        print()
-    plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
-    plt.legend()
-    plt.savefig(outputfolder + "\\" + str(i) + "_" + str(j)+ ".png", dpi = 300)
+    plt.scatter(x=Timepoints, y=ProsContourMeans)
+    print(ProsContourMeans)            
+    # outputfolder = output + i
+    # if not os.path.exists(outputfolder):
+    #     os.mkdir(outputfolder)
+    # else:
+    #     print()
+    # plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
+    # plt.legend()
+    plt.savefig(output + str(i) + ".png", dpi = 300)
     plt.clf()
         
             
