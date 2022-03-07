@@ -2,6 +2,7 @@ from cProfile import label
 from wsgiref.simple_server import sys_version
 import SimpleITK as sitk
 import numpy as np
+import numpy.ma as ma
 from matplotlib import pyplot
 import matplotlib.pyplot as plt
 import os
@@ -75,7 +76,8 @@ for i in ptDir:
                 maskArray = sitk.GetArrayFromImage(readMask)
 
                 # for plotting intensity only in contour
-                maskedImage = maskArray * imageArray
+                #maskedImage = maskArray * imageArray
+                maskedImage = ma.masked_array(imageArray, mask=np.logical_not(maskArray), keep_mask=True, hard_mask=True)
 
                 maskedImage = maskedImage.flatten()
                 imageArray = imageArray.flatten()
@@ -94,7 +96,7 @@ for i in ptDir:
                 plt.figure("Intensity Histogram")
                 plt.title("Patient: " + i + " " + j)
                 
-                plt.hist(maskedImage, bins = 256, range=(1, 400), alpha = 0.5, histtype = "step", color=pltColour, fill = True, density = True, label = maskName)
+                plt.hist(maskedImage, bins = 256, range=(1, imageArray.max()), alpha = 0.5, histtype = "step", color=pltColour, fill = True, density = True, label = maskName)
                 plt.xlabel("MR Intensity")
                 plt.xlim(0,400)
                 plt.ylim(0, 0.03)
@@ -110,7 +112,7 @@ for i in ptDir:
             print()
         plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
         plt.legend()
-        plt.savefig(outputfolder + str(i) + "_" + str(j)+ ".png", dpi = 300)
+        plt.savefig(outputfolder + str(i) + "_" + str(j)+ "_newtest.png", dpi = 300)
         plt.clf()
             
                
