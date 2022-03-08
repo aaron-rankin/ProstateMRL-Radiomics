@@ -1,3 +1,6 @@
+-- Aaron Rankin 08/03/22 
+-- Loads in dicom files and delineations 
+-- Saves as niftis
 
 function scandir(directory)
     local i, t, popen = 0, {}, io.popen

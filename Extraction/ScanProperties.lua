@@ -1,3 +1,10 @@
+-- Aaron Rankin 08/03/22
+-- Load in dicoms and extract info from headers
+-- Patient, Scan, Age, DateofScan, Manufacturer, Model, Sequence,
+-- AcquisitionType, MagneticFieldStrength, PixelSpacing, Rows, Columns, Slices, 
+-- SliceThickness, SpacingBetweenSlices, NumberofContours, Contours
+-- write to csv
+
 function scandir(directory)
     local i, t, popen = 0, {}, io.popen
     for filename in popen('dir "'..directory..'" /o:n /b'):lines() do
