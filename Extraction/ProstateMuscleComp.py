@@ -1,3 +1,10 @@
+"""""
+
+Aaron Rankin 08/03/22
+Reads in nifti images, prostate contours and muscle clicks (outside dose field) and calculates mean and std
+Saves to csv
+
+"""""
 from cProfile import label
 import string
 from turtle import title
@@ -30,7 +37,9 @@ out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw
 
 # set working directories
 url = url_SABR
-output = out_SABR
+
+# change depending on dataset
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions.csv"
 
 
 ptDir = os.listdir(url)
@@ -43,27 +52,14 @@ if "new" in url:            # for new patients  (one contour)
 else:                       # for original patients (multiple contours)
     check = "ostate"
 
-df_all = pd.DataFrame(columns=("PatID", "Scan", "Observer", "Mean Prostate", "Mean Muscle"))
+df_all = pd.DataFrame(columns=("PatID", "Scan", "Observer", "Mean Prostate", "Std Prostate", "Mean Muscle", "Std Muscle"))
 
 # Loop through ptDir
 for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
     print(scanWeeks) 
-
-    ProsContourMeans = np.array([]) 
-    MuscleContourMeans = np.array([])
-    Timepoints = np.array([])
-
-    # plt.figure("Mean Intensity Plot")
-    # plt.title("Mean Signal Intensity Patient: " + i)
-    # plt.ylabel("MR Intensity")
-    # plt.xlabel("MR Scan")
-    # #plt.xlim(0,400)
-    # plt.ylim(0, 160)
-
-    df_pat = pd.DataFrame(columns=("PatID", "Scan", "Observer", "Mean Prostate", "Mean Muscle"))
     
-    scanValues = {"PatID":[], "Scan":[], "Observer": [], "Mean Prostate":[], "Mean Muscle":[]}
+    scanValues = {"PatID":[], "Scan":[], "Observer": [], "Mean Prostate":[], "Std Prostate":[], "Mean Muscle":[], "Std Muscle":[]}
     scanValues["PatID"] = str(i)
 
     # Loop through patient visits
@@ -120,42 +116,20 @@ for i in ptDir:
 
                 maskedImagePros = ma.masked_array(imageArray, mask=np.logical_not(maskArray), keep_mask=True, hard_mask=True)
                 meanPros = np.mean(maskedImagePros.flatten())
-                ProsContourMeans = np.append(ProsContourMeans, meanPros)
+                stdPros = np.std(maskedImagePros.flatten())
                 
                 scanValues["Mean Prostate"] = meanPros
-                #print(ProsContourMeans)
-                #print(Timepoints)
-                df_pat = df_pat.append(scanValues, ignore_index=True)
-                df_pat["Scan"] = pd.to_numeric(df_pat["Scan"])
+                scanValues["Std Prostate"] = stdPros
 
+                maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)
+                meanMuscle = np.mean(maskedImageMuscle.flatten())
+                stdMuscle = np.std(maskedImageMuscle.flatten())
 
-    plt.figure("Mean Intensity Plot")
-    plt.title("Mean Signal Intensity Patient: " + i)
-    plt.ylabel("MR Intensity")
-    plt.xlabel("MR Scan")
+                df_all = df_all.append(scanValues, ignore_index=True)
+                df_all["Scan"] = pd.to_numeric(df_all["Scan"])
 
-    groupedObs = df_pat.groupby("Observer")
-    for name, group in groupedObs:
-        fig = plt.plot(groupedObs["Scan"], groupedObs["Mean Prostate"], marker="o", linestyle="", label = name)
-    plt.legend
-    fig.savefig(output + str(i) + ".png", dpi = 300)
-    plt.clf
-
-    df_all = df_all.append(df_pat)
-    # plt.scatter(x=Timepoints, y=ProsContourMeans)
-    # print(ProsContourMeans)            
-    # # outputfolder = output + i
-    # # if not os.path.exists(outputfolder):
-    # #     os.mkdir(outputfolder)
-    # # else:
-    # #     print()
-    # # plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
-    # # plt.legend()
-    # plt.savefig(output + str(i) + ".png", dpi = 300)
-    # plt.clf()
-        
   
-# df.to_csv(output+"data.csv")
+df_all.to_csv(output)
 
-print(df_all)
+print(df_all.head)
 print("---------- Done ----------")

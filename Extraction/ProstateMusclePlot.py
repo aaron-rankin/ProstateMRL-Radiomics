@@ -32,27 +32,26 @@ output = out_20f
 
 df = pd.read_csv(url)
 
- plt.figure("Mean Intensity Plot")
-    plt.title("Mean Signal Intensity Patient: " + i)
-    plt.ylabel("MR Intensity")
-    plt.xlabel("MR Scan")
+plt.figure("Mean Intensity Plot")
+plt.title("Mean Signal Intensity Patient: " + i)
+plt.ylabel("MR Intensity")
+plt.xlabel("MR Scan")
 
-    groupedObs = df_pat.groupby("Observer")
-    for name, group in groupedObs:
-        fig = plt.plot(groupedObs["Scan"], groupedObs["Mean Prostate"], marker="o", linestyle="", label = name)
-    plt.legend
-    fig.savefig(output + str(i) + ".png", dpi = 300)
-    plt.clf
+groupedObs = df.groupby("Observer")
+for name, group in groupedObs:
+    fig = plt.plot(groupedObs["Scan"], groupedObs["Mean Prostate"], marker="o", linestyle="", label = name)
+plt.legend
+fig.savefig(output + str(i) + ".png", dpi = 300)
+plt.clf
 
-    df_all = df_all.append(df_pat)
-    # plt.scatter(x=Timepoints, y=ProsContourMeans)
-    # print(ProsContourMeans)            
-    # # outputfolder = output + i
-    # # if not os.path.exists(outputfolder):
-    # #     os.mkdir(outputfolder)
-    # # else:
-    # #     print()
-    # # plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
-    # # plt.legend()
-    # plt.savefig(output + str(i) + ".png", dpi = 300)
-    # plt.clf()
+# plt.scatter(x=Timepoints, y=ProsContourMeans)
+# print(ProsContourMeans)            
+# # outputfolder = output + i
+# # if not os.path.exists(outputfolder):
+# #     os.mkdir(outputfolder)
+# # else:
+# #     print()
+# # plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
+# # plt.legend()
+# plt.savefig(output + str(i) + ".png", dpi = 300)
+# plt.clf()
