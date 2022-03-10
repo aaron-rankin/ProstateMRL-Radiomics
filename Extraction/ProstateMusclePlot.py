@@ -6,43 +6,59 @@ Plots values
 
 """""
 
-from cProfile import label
-import string
-from turtle import title
-from wsgiref.simple_server import sys_version
-import SimpleITK as sitk
+from cv2 import rotate
 import numpy as np
-import numpy.ma as ma
-from matplotlib import pyplot
-import matplotlib.pyplot as plt
-import os
-import sys
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # load in csv -- Change according to dataset
-url = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions.csv"
+url = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\20fractions.csv"
 
 # output directories for plots
-out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions\\"
-out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
-out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
-out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
+out_20f = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\\\20fractions\\"
+out_20f_new = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
+out_SABR = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
+out_SABR_new = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
 output = out_20f
 
 df = pd.read_csv(url)
 
-plt.figure("Mean Intensity Plot")
-plt.title("Mean Signal Intensity Patient: " + i)
-plt.ylabel("MR Intensity")
-plt.xlabel("MR Scan")
+#print(df)
 
-groupedObs = df.groupby("Observer")
-for name, group in groupedObs:
-    fig = plt.plot(groupedObs["Scan"], groupedObs["Mean Prostate"], marker="o", linestyle="", label = name)
-plt.legend
-fig.savefig(output + str(i) + ".png", dpi = 300)
-plt.clf
+patIDs = df.PatID.unique()
+print(patIDs.size)
+print(patIDs)
+
+Obs = df.Observer.unique()
+rgb_vals = sns.color_palette("Set3", len(Obs))
+colourmap = dict(zip(Obs, rgb_vals))
+
+for i in patIDs:
+    print("Processing patient: " + str(i))
+    patient = [i]
+    
+    fig = plt.figure(figsize=(7,5))
+    plt.title("Mean MR signal - Patient: " + str(i))
+    plt.xlabel("MR Scan")
+    plt.ylabel("Signal Intensity")
+
+    temp_df = df[df["PatID"].isin(patient)]
+    temp_df = temp_df.sort_values(by="Scan")
+    timepoints = temp_df.Scan.unique()
+
+    plot = sns.scatterplot(x="Scan", y="Mean Prostate", hue="Observer",palette=colourmap,data=temp_df)
+    plt.legend(loc="upper right")
+    plt.xticks(timepoints, rotation=20)
+    fig.savefig(output + str(i) + ".png", dpi=300)
+    print("-------------------------------------")
+
+# plt.figure("Mean Intensity Plot")
+# plt.title("Mean Signal Intensity Patient: " + i)
+# plt.ylabel("MR Intensity")
+# plt.xlabel("MR Scan")
+
 
 # plt.scatter(x=Timepoints, y=ProsContourMeans)
 # print(ProsContourMeans)            
@@ -55,3 +71,4 @@ plt.clf
 # # plt.legend()
 # plt.savefig(output + str(i) + ".png", dpi = 300)
 # plt.clf()
+
