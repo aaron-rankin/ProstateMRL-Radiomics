@@ -52,14 +52,14 @@ if "new" in url:            # for new patients  (one contour)
 else:                       # for original patients (multiple contours)
     check = "ostate"
 
-df_all = pd.DataFrame(columns=("PatID", "Scan", "Observer", "Mean Prostate", "Std Prostate", "Mean Muscle", "Std Muscle"))
+df_all = pd.DataFrame(columns=("PatID", "Scan", "Observer", "Region", "Mean", "Std"))
 
 # Loop through ptDir
 for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
     print(scanWeeks) 
     
-    scanValues = {"PatID":[], "Scan":[], "Observer": [], "Mean Prostate":[], "Std Prostate":[], "Mean Muscle":[], "Std Muscle":[]}
+    scanValues = {"PatID":[], "Scan":[], "Observer": [], "Region": [], "Mean":[], "Std":[]}
     scanValues["PatID"] = str(i)
 
     # Loop through patient visits
@@ -88,6 +88,7 @@ for i in ptDir:
             
             """""
             if check in k:                       
+                scanValues["Region"] = "Prostate"
                 maskName = str(k)
                 maskName = maskName[:-4]
                 
@@ -122,8 +123,8 @@ for i in ptDir:
                 meanPros = np.mean(maskedImagePros.flatten())
                 stdPros = np.std(maskedImagePros.flatten())
                 
-                scanValues["Mean Prostate"] = meanPros
-                scanValues["Std Prostate"] = stdPros
+                scanValues["Mean"] = meanPros
+                scanValues["Std"] = stdPros
 
                 """"
                 maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)

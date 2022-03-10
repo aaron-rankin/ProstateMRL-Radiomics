@@ -6,9 +6,11 @@ Plots values
 
 """""
 
+from random import randint
 from cv2 import rotate
 import numpy as np
 import pandas as pd
+from scipy import rand
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -25,32 +27,33 @@ output = out_20f
 
 df = pd.read_csv(url)
 
-#print(df)
-
 patIDs = df.PatID.unique()
 print(patIDs.size)
 print(patIDs)
 
 Obs = df.Observer.unique()
-rgb_vals = sns.color_palette("Set3", len(Obs))
+rgb_vals = sns.color_palette("colorblind", len(Obs))
 colourmap = dict(zip(Obs, rgb_vals))
+df["Mean Muscle"] = np.random.randint(50,100)
+print(df)
 
 for i in patIDs:
     print("Processing patient: " + str(i))
     patient = [i]
-    
+
     fig = plt.figure(figsize=(7,5))
     plt.title("Mean MR signal - Patient: " + str(i))
     plt.xlabel("MR Scan")
     plt.ylabel("Signal Intensity")
+    plt.ylim(0,110)
 
     temp_df = df[df["PatID"].isin(patient)]
     temp_df = temp_df.sort_values(by="Scan")
     timepoints = temp_df.Scan.unique()
 
-    plot = sns.scatterplot(x="Scan", y="Mean Prostate", hue="Observer",palette=colourmap,data=temp_df)
-    plt.legend(loc="upper right")
-    plt.xticks(timepoints, rotation=20)
+    plot_pros = sns.scatterplot(x="Scan", y="Mean Prostate", hue="Observer",palette=colourmap,data=temp_df)
+    plot_musc = sns.scatterplot(x="Scan", y="Mean Muscle", data=temp_df)
+    plt.legend(loc="lower right")
     fig.savefig(output + str(i) + ".png", dpi=300)
     print("-------------------------------------")
 
