@@ -36,10 +36,10 @@ out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SA
 out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
 # set working directories
-url = url_SABR
+url = url_20f
 
 # change depending on dataset
-output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions.csv"
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
 
 
 ptDir = os.listdir(url)
@@ -82,6 +82,11 @@ for i in ptDir:
                 readBodyMask = sitk.ReadImage(bodyMask)
                 bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
             
+            """""
+
+            Read in muscle clicks 
+            
+            """""
             if check in k:                       
                 maskName = str(k)
                 maskName = maskName[:-4]
@@ -107,13 +112,12 @@ for i in ptDir:
                 imageArray = sitk.GetArrayFromImage(readImage)
                 # remove stray pixel values
                 imageArray = imageArray * bodyMaskArray
-                #print(imageArray.shape)
-                #print(np.mean(imageArray.flatten()))
                
-                # read in mask
-                readMask = sitk.ReadImage(mask)
-                maskArray = sitk.GetArrayFromImage(readMask)
+                # read in prostate mask
+                readprosMask = sitk.ReadImage(mask)
+                maskArray = sitk.GetArrayFromImage(readprosMask)
 
+                # use prostate mask on whole image
                 maskedImagePros = ma.masked_array(imageArray, mask=np.logical_not(maskArray), keep_mask=True, hard_mask=True)
                 meanPros = np.mean(maskedImagePros.flatten())
                 stdPros = np.std(maskedImagePros.flatten())
@@ -121,10 +125,11 @@ for i in ptDir:
                 scanValues["Mean Prostate"] = meanPros
                 scanValues["Std Prostate"] = stdPros
 
+                """"
                 maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)
                 meanMuscle = np.mean(maskedImageMuscle.flatten())
                 stdMuscle = np.std(maskedImageMuscle.flatten())
-
+                """
                 df_all = df_all.append(scanValues, ignore_index=True)
                 df_all["Scan"] = pd.to_numeric(df_all["Scan"])
 
