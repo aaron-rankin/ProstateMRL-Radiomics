@@ -1,3 +1,11 @@
+"""""
+Aaron Rankin 08/03/22
+Reads in nifti files of whole MR, body mask and contour
+Plots histogram of whole image and within contours
+
+Change to just lines - no fill, more bins
+
+"""""
 from cProfile import label
 from wsgiref.simple_server import sys_version
 import SimpleITK as sitk

@@ -1,3 +1,8 @@
+-- Aaron Rankin 08/03/22
+-- Script that loads in dicom scans and burns a nifti mask
+-- of body region to remove stray pixels
+
+
 function scandir(directory)
     local i, t, popen = 0, {}, io.popen
     for filename in popen('dir "'..directory..'" /o:n /b'):lines() do

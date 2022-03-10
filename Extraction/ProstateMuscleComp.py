@@ -1,4 +1,13 @@
+"""""
+
+Aaron Rankin 08/03/22
+Reads in nifti images, prostate contours and muscle clicks (outside dose field) and calculates mean and std
+Saves to csv
+
+"""""
 from cProfile import label
+import string
+from turtle import title
 from wsgiref.simple_server import sys_version
 import SimpleITK as sitk
 import numpy as np
@@ -7,6 +16,9 @@ from matplotlib import pyplot
 import matplotlib.pyplot as plt
 import os
 import sys
+import pandas as pd
+
+
 
 # check version of libraries (Py 3.6.5, PyRad 3.0)
 print("Python version: " + sys_version)
@@ -20,13 +32,15 @@ url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
 # output directories
 out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions\\"
 out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
-#out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\"
 out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
 out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
 # set working directories
-url = url_SABR_new
-output = out_SABR_new
+url = url_20f
+
+# change depending on dataset
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
+
 
 ptDir = os.listdir(url)
 print("Patient Directory: " + url)
@@ -38,22 +52,15 @@ if "new" in url:            # for new patients  (one contour)
 else:                       # for original patients (multiple contours)
     check = "ostate"
 
+df_all = pd.DataFrame(columns=("PatID", "Scan", "Observer", "Mean Prostate", "Std Prostate", "Mean Muscle", "Std Muscle"))
 
 # Loop through ptDir
 for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
     print(scanWeeks) 
-
-    ProsContourMeans = np.array([]) 
-    MuscleContourMeans = np.array([])
-    Timepoints = np.array([])
-
-    plt.figure("Mean Intensity Plot")
-    plt.title("Mean Signal Intensity Patient: " + i)
-    plt.ylabel("MR Intensity")
-    plt.xlabel("MR Scan")
-    #plt.xlim(0,400)
-    plt.ylim(0, 160)
+    
+    scanValues = {"PatID":[], "Scan":[], "Observer": [], "Mean Prostate":[], "Std Prostate":[], "Mean Muscle":[], "Std Muscle":[]}
+    scanValues["PatID"] = str(i)
 
     # Loop through patient visits
     for j in scanWeeks:
@@ -62,6 +69,11 @@ for i in ptDir:
         imageName = i +" "+ j
         image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_image.nii"
 
+        scanNum = str(j)
+        scanNum = int(scanNum[2:])
+        scanValues["Scan"] = scanNum
+    
+        
         # Loop through patient files
         for k in niiFiles:
             # load in body masks
@@ -70,6 +82,11 @@ for i in ptDir:
                 readBodyMask = sitk.ReadImage(bodyMask)
                 bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
             
+            """""
+
+            Read in muscle clicks 
+            
+            """""
             if check in k:                       
                 maskName = str(k)
                 maskName = maskName[:-4]
@@ -78,48 +95,46 @@ for i in ptDir:
                 mask = url+str(i)+"\\"+str(j)+"\\"+str(k)
                 print("Mask: " + maskName)
                 
+                if "new" in url: 
+                    Observer = maskName.replace(j, "")
+                    Observer = Observer.replace(i, "")
+                    Observer = Observer.replace("_", "")
+                else:
+                    Observer = maskName.replace(j, "")
+                    Observer = Observer.replace("Prostate", "")
+                    Observer = Observer.replace("_", "")
+
+                print(Observer)
+                scanValues["Observer"] = Observer
+                
                 # read in whole image
                 readImage = sitk.ReadImage(image)
                 imageArray = sitk.GetArrayFromImage(readImage)
                 # remove stray pixel values
                 imageArray = imageArray * bodyMaskArray
-                #print(imageArray.shape)
-                #print(np.mean(imageArray.flatten()))
                
-                # read in mask
-                readMask = sitk.ReadImage(mask)
-                maskArray = sitk.GetArrayFromImage(readMask)
-                #print(maskArray.shape)
-                #print(np.mean(maskArray.flatten()))
+                # read in prostate mask
+                readprosMask = sitk.ReadImage(mask)
+                maskArray = sitk.GetArrayFromImage(readprosMask)
 
-                maskedImage = imageArray * maskArray
-                #print(np.mean(maskedImage.flatten()))
+                # use prostate mask on whole image
+                maskedImagePros = ma.masked_array(imageArray, mask=np.logical_not(maskArray), keep_mask=True, hard_mask=True)
+                meanPros = np.mean(maskedImagePros.flatten())
+                stdPros = np.std(maskedImagePros.flatten())
+                
+                scanValues["Mean Prostate"] = meanPros
+                scanValues["Std Prostate"] = stdPros
 
-                ch_masked = ma.masked_array(imageArray, mask=np.logical_not(maskArray), keep_mask=True, hard_mask=True)
-                mean_pros = np.mean(ch_masked.flatten())
-                #print(mean_pros)
-                time = str(j)
-                time = time[2:]
-                Timepoints = np.append(Timepoints, time)
-                ProsContourMeans = np.append(ProsContourMeans, mean_pros)
+                """"
+                maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)
+                meanMuscle = np.mean(maskedImageMuscle.flatten())
+                stdMuscle = np.std(maskedImageMuscle.flatten())
+                """
+                df_all = df_all.append(scanValues, ignore_index=True)
+                df_all["Scan"] = pd.to_numeric(df_all["Scan"])
 
-                #print(ProsContourMeans)
-                #print(Timepoints)
+  
+df_all.to_csv(output)
 
-
-    plt.scatter(x=Timepoints, y=ProsContourMeans)
-    print(ProsContourMeans)            
-    # outputfolder = output + i
-    # if not os.path.exists(outputfolder):
-    #     os.mkdir(outputfolder)
-    # else:
-    #     print()
-    # plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
-    # plt.legend()
-    plt.savefig(output + str(i) + ".png", dpi = 300)
-    plt.clf()
-        
-            
-        
-
+print(df_all.head)
 print("---------- Done ----------")

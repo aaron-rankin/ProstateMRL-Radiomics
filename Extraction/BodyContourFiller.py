@@ -1,3 +1,10 @@
+"""""
+
+Aaron Rankin 08/03/22
+Reads in body mask niftis and expands and contracts values
+to fill holes in masks, saves as nifti
+
+"""""
 import SimpleITK as sitk
 import numpy as np
 from matplotlib import pyplot
