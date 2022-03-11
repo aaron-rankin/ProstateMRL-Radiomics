@@ -1,6 +1,6 @@
-import os 
+import os
 
-url = "D:\\data\\prostateMR_radiomics\\patientData\\20fractions\\"
+url = "D:\\data\\prostateMR_radiomics\\patientData\\20fractions_new\\"
 
 ptDir = os.listdir(url)
 

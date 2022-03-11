@@ -75,7 +75,7 @@ for i = 1, #folderPatients do
         end
       end
       for k = 1, #folderScans do
-        if string.find(dataT..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderScans[k], 'AdmireContour'..'_'..folderPatients[i]..'_'..folderVisits[j]) then
+        if string.find(dataT..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderScans[k], 'AdmireContour') then
           wm.Delineation:load([[DCM:]]..dataT..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderScans[k], wm.scan[1])
         end
       end
@@ -99,14 +99,14 @@ for i = 1, #folderPatients do
          -- save files for radiomics analysis
         saveNii = true
         if saveNii == true then
-          radiomicsOutput = [[D:\data\prostateMR_radiomics\patientData\nifti\]]
+          radiomicsOutput = [[D:\data\prostateMR_radiomics\nifti\20fractions\]]
           os.execute('mkdir '..radiomicsOutput..folderPatients[i])
           os.execute('mkdir '..radiomicsOutput..folderPatients[i]..[[\]]..folderVisits[j])
           
           -- need binary masks 1 and 0
           wm.scan[2] = wm.scan[2]/255;  
           
-          wm.scan[1]:write_nifty(radiomicsOutput..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderPatients[i]..[[_]]..folderVisits[j]..[[_image.nii]])
+         -- wm.scan[1]:write_nifty(radiomicsOutput..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderPatients[i]..[[_]]..folderVisits[j]..[[_image.nii]])
           
           wm.scan[2]:write_nifty(radiomicsOutput..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderPatients[i]..[[_]]..folderVisits[j]..[[_Admire.nii]])
          
