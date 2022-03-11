@@ -51,27 +51,10 @@ for i in patIDs:
     temp_df = temp_df.sort_values(by="Scan")
     timepoints = temp_df.Scan.unique()
 
-    plot_pros = sns.scatterplot(x="Scan", y="Mean Prostate", hue="Observer",palette=colourmap,data=temp_df)
-    plot_musc = sns.scatterplot(x="Scan", y="Mean Muscle", data=temp_df)
+    plot = sns.scatterplot(x="Scan", y="Mean", hue="Observer", style="Region", palette=colourmap,data=temp_df)
+    
+    plt.xticks(timepoints)
     plt.legend(loc="lower right")
     fig.savefig(output + str(i) + ".png", dpi=300)
     print("-------------------------------------")
-
-# plt.figure("Mean Intensity Plot")
-# plt.title("Mean Signal Intensity Patient: " + i)
-# plt.ylabel("MR Intensity")
-# plt.xlabel("MR Scan")
-
-
-# plt.scatter(x=Timepoints, y=ProsContourMeans)
-# print(ProsContourMeans)            
-# # outputfolder = output + i
-# # if not os.path.exists(outputfolder):
-# #     os.mkdir(outputfolder)
-# # else:
-# #     print()
-# # plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
-# # plt.legend()
-# plt.savefig(output + str(i) + ".png", dpi = 300)
-# plt.clf()
 

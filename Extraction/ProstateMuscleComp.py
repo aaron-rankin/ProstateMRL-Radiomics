@@ -24,22 +24,16 @@ import pandas as pd
 print("Python version: " + sys_version)
 
 # patient nifti directories
-url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
-url_20f_new = 'D:/data/prostateMR_radiomics/nifti_new/new_20fractions/'
-url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
-
-# output directories
-out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions\\"
-out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
-out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
-out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
+url_20f = 'D:/prostateMR_radiomics/nifti/20fractions/'
+url_20f_new = 'D:/prostateMR_radiomics/nifti_new/new_20fractions/'
+url_SABR = 'D:/prostateMR_radiomics/nifti/SABR/'
+url_SABR_new = 'D:/prostateMR_radiomics/nifti_new/SABR/'
 
 # set working directories
-url = url_20f
+url = url_SABR
 
 # change depending on dataset
-output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
+output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR.csv"
 
 
 ptDir = os.listdir(url)
