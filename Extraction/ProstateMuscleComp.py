@@ -27,13 +27,13 @@ print("Python version: " + sys_version)
 url_20f = 'D:/prostateMR_radiomics/nifti/20fractions/'
 url_20f_new = 'D:/prostateMR_radiomics/nifti_new/new_20fractions/'
 url_SABR = 'D:/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/prostateMR_radiomics/nifti_new/SABR/'
+url_SABR_new = 'D:/prostateMR_radiomics/nifti_new/new_SABR/'
 
 # set working directories
-url = url_SABR
+url = url_SABR_new
 
 # change depending on dataset
-output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR.csv"
+output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR_new.csv"
 
 
 ptDir = os.listdir(url)
@@ -41,7 +41,7 @@ print("Patient Directory: " + url)
 print(ptDir)
 print("Output Directory: " + output)
 
-if "new" in url:            # for new patients  (one contour)
+if "new" in url:            # fsor new patients  (one contour)
     check = "RP"
 else:                       # for original patients (multiple contours)
     check = "ostate"
