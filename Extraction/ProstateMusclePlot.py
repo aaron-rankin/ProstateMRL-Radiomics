@@ -15,27 +15,26 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # load in csv -- Change according to dataset
-url = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\20fractions.csv"
+url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\SABR.csv"
 
 # output directories for plots
-out_20f = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\\\20fractions\\"
-out_20f_new = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
-out_SABR = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
-out_SABR_new = "\\\\130.88.233.166\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
+out_20f = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\\\20fractions\\"
+out_20f_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
+out_SABR = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
+out_SABR_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
-output = out_20f
+output = out_SABR
 
 df = pd.read_csv(url)
 
 patIDs = df.PatID.unique()
-print(patIDs.size)
 print(patIDs)
 
 Obs = df.Observer.unique()
 rgb_vals = sns.color_palette("colorblind", len(Obs))
 colourmap = dict(zip(Obs, rgb_vals))
-df["Mean Muscle"] = np.random.randint(50,100)
-print(df)
+#df["Mean Muscle"] = np.random.randint(50,100)
+
 
 for i in patIDs:
     print("Processing patient: " + str(i))
