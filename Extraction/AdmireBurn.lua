@@ -35,8 +35,9 @@ function clear()
 end
 
 dataT = [[D:\data\prostateMR_radiomics\patientData\20fractions\]]
+dataAdm = [[D:\data\prostateMR_radiomics\AdmireContours\20fractions\]]
 
-output = [[D:\data\prostateMR_radiomics\patientData\nifti\20fractions\]]
+output = [[D:\data\prostateMR_radiomics\patientData\nifti\]]
 headerFlag = true
 --file = io.output(output..[[result.txt]], 'a')
 
@@ -44,18 +45,20 @@ headerFlag = true
 -- read folders
 folderPatients = {}
 folderPatients = scandir(dataT)
+folderPatientsAdm = scandir(dataAdm)
 
 --load data
 -- list patient folders
 for i = 1, #folderPatients do
   folderVisits = {}
   folderVisits = scandir(dataT..folderPatients[i])
-  
+  folderVisitsAdm = {}
+  folderVisitsAdm = scandir(dataAdm..folderPatientsAdm[i])
   --list visits
   for j = 1, #folderVisits do
     folderScans = {}
     folderScans = scandir(dataT..folderPatients[i]..[[\]]..folderVisits[j])
-    
+    AdmContours = scandir(dataAdm..folderPatientsAdm[i]..[[\]]..folderVisitsAdm[j])
     --list scans
     --for k = 1, #folderScans do
      -- PtImages = {}
@@ -75,8 +78,8 @@ for i = 1, #folderPatients do
         end
       end
       for k = 1, #folderScans do
-        if string.find(dataT..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderScans[k], 'AdmireContour') then
-          wm.Delineation:load([[DCM:]]..dataT..folderPatients[i]..[[\]]..folderVisits[j]..[[\]]..folderScans[k], wm.scan[1])
+        if string.find(dataAdm..folderPatientsAdm[i]..[[\]]..folderVisitsAdm[j], 'AdmCont') then
+          wm.Delineation:load([[DCM:]]..dataAdm..folderPatientsAdm[i]..[[\]]..folderVisitsAdm[j], wm.scan[1])-- wm.scan[1])
         end
       end
       
@@ -100,8 +103,8 @@ for i = 1, #folderPatients do
         saveNii = true
         if saveNii == true then
           radiomicsOutput = [[D:\data\prostateMR_radiomics\nifti\20fractions\]]
-          os.execute('mkdir '..radiomicsOutput..folderPatients[i])
-          os.execute('mkdir '..radiomicsOutput..folderPatients[i]..[[\]]..folderVisits[j])
+          --os.execute('mkdir '..radiomicsOutput..folderPatients[i])
+          --os.execute('mkdir '..radiomicsOutput..folderPatients[i]..[[\]]..folderVisits[j])
           
           -- need binary masks 1 and 0
           wm.scan[2] = wm.scan[2]/255;  

@@ -46,8 +46,8 @@ folderPatients = scandir(dataT)
 
 headerFlag = true
 
-outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv]], "w", "csv")
-outputfile:write("Patient, Scan, Age, DateofScan, Manufacturer, Model, Sequence, AcquisitionType, MagneticFieldStrength, PixelSpacing, Rows, Columns, Slices, SliceThickness, SpacingBetweenSlices, NumberofContours, Contours \n")
+outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_20fractions.csv]], "w", "csv")
+outputfile:write("Patient,Scan,Age,DateofScan,Manufacturer,Model,Sequence,AcquisitionType,MagneticFieldStrength,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices,NumberofContours,Contours \n")
 
 properties_to_collect = {'PatientAge', 'AcquisitionDate', 'Manufacturer', 'ManufacturerModelName', 'StudyDescription', 'MRAcquisitionType', 'MagneticFieldStrength', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
 
@@ -83,8 +83,10 @@ for i = 1, #folderPatients do
     contours = {}
     print("Number of contours: "..wm.Delineation.len)
     for m=1, wm.Delineation.len do
+      if string.find(wm.delineation[m-1].name, 'rostate') then
       contours[m] = (wm.Delineation[m-1].name)
       --print(contours[m])
+      end
     end
     
     prop_table = {}
