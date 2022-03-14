@@ -34,7 +34,7 @@ url = url_20f
 scan_info_url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\patientDatainfo\\scaninfo_20fractions.csv"
 
 # change depending on dataset
-output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR_new.csv"
+output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
 
 
 ptDir = os.listdir(url)
@@ -42,17 +42,23 @@ print("Patient Directory: " + url)
 print(ptDir)
 print("Output Directory: " + output)
 
-df_all = pd.DataFrame(columns=("PatID", "ScanDate" "Scan", "Observer", "Region", "Mean", "Std"))
-scan_info = pd.read_csv(scan_info_url)
+df_all = pd.DataFrame(columns=("PatID", "ScanDate", "Scan", "Observer", "Region", "Mean", "Std"))
+col_list = ["Patient", "Scan", "DateofScan"]
+scan_info = pd.read_csv(scan_info_url, usecols=col_list)
 
-print(scan_info.head)
+#print(scan_info)
 # Loop through ptDir
 for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
     print(scanWeeks) 
+    patient = [i]
     
     scanValues = {"PatID":[], "ScanDate":[], "Scan":[], "Observer": [], "Region": [], "Mean":[], "Std":[]}
     scanValues["PatID"] = str(i)
+
+    temp_df = scan_info[scan_info['Patient'].isin(patient)]
+    print(patient)
+    print(temp_df)
 
     # Loop through patient visits
     for j in scanWeeks:
@@ -64,8 +70,12 @@ for i in ptDir:
         scanNum = str(j)
         scanNum = int(scanNum[2:])
         scanValues["Scan"] = scanNum
-    
-        
+        scan = [j]
+
+        temp_df = scan_info[scan_info["Scan"].isin(scan)]
+        print(temp_df)
+        #DoS = temp_df['DateofScan']        
+        #print(DoS)
         # Loop through patient files
         for k in niiFiles:
             # load in body masks
@@ -88,7 +98,8 @@ for i in ptDir:
                 segmentation = True
                 mask = url+str(i)+"\\"+str(j)+"\\"+str(k)
                 print("Mask: " + maskName)
-                
+
+                Observer = maskName.replace(i, "")
                 Observer = maskName.replace(j, "")
                 Observer = Observer.replace("Prostate", "")
                 Observer = Observer.replace("_", "")
