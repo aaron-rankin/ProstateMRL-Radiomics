@@ -30,7 +30,8 @@ url_SABR = 'D:/prostateMR_radiomics/nifti/SABR/'
 url_SABR_new = 'D:/prostateMR_radiomics/nifti_new/new_SABR/'
 
 # set working directories
-url = url_SABR_new
+url = url_20f
+scan_info_url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\patientDatainfo\\scaninfo_20fractions.csv"
 
 # change depending on dataset
 output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR_new.csv"
@@ -41,19 +42,16 @@ print("Patient Directory: " + url)
 print(ptDir)
 print("Output Directory: " + output)
 
-if "new" in url:            # fsor new patients  (one contour)
-    check = "RP"
-else:                       # for original patients (multiple contours)
-    check = "ostate"
+df_all = pd.DataFrame(columns=("PatID", "ScanDate" "Scan", "Observer", "Region", "Mean", "Std"))
+scan_info = pd.read_csv(scan_info_url)
 
-df_all = pd.DataFrame(columns=("PatID", "Scan", "Observer", "Region", "Mean", "Std"))
-
+print(scan_info.head)
 # Loop through ptDir
 for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
     print(scanWeeks) 
     
-    scanValues = {"PatID":[], "Scan":[], "Observer": [], "Region": [], "Mean":[], "Std":[]}
+    scanValues = {"PatID":[], "ScanDate":[], "Scan":[], "Observer": [], "Region": [], "Mean":[], "Std":[]}
     scanValues["PatID"] = str(i)
 
     # Loop through patient visits
@@ -81,7 +79,8 @@ for i in ptDir:
             Read in muscle clicks 
             
             """""
-            if check in k:                       
+            
+            if "ostate" in k:                       
                 scanValues["Region"] = "Prostate"
                 maskName = str(k)
                 maskName = maskName[:-4]
@@ -90,14 +89,9 @@ for i in ptDir:
                 mask = url+str(i)+"\\"+str(j)+"\\"+str(k)
                 print("Mask: " + maskName)
                 
-                if "new" in url: 
-                    Observer = maskName.replace(j, "")
-                    Observer = Observer.replace(i, "")
-                    Observer = Observer.replace("_", "")
-                else:
-                    Observer = maskName.replace(j, "")
-                    Observer = Observer.replace("Prostate", "")
-                    Observer = Observer.replace("_", "")
+                Observer = maskName.replace(j, "")
+                Observer = Observer.replace("Prostate", "")
+                Observer = Observer.replace("_", "")
 
                 print(Observer)
                 scanValues["Observer"] = Observer
