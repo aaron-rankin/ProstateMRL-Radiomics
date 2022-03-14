@@ -36,6 +36,7 @@ colourmap = dict(zip(Obs, rgb_vals))
 #df["Mean Muscle"] = np.random.randint(50,100)
 
 
+
 for i in patIDs:
     print("Processing patient: " + str(i))
     patient = [i]
@@ -44,15 +45,16 @@ for i in patIDs:
     plt.title("Mean MR signal - Patient: " + str(i))
     plt.xlabel("MR Scan")
     plt.ylabel("Signal Intensity")
-    plt.ylim(0,110)
+    plt.ylim(0,130)
 
     temp_df = df[df["PatID"].isin(patient)]
     temp_df = temp_df.sort_values(by="Scan")
-    timepoints = temp_df.Scan.unique()
+
+    Timepoints = df.ScanDate.unique()
 
     plot = sns.scatterplot(x="Scan", y="Mean", hue="Observer", style="Region", palette=colourmap,data=temp_df)
     
-    plt.xticks(timepoints)
+    plt.xticks(Timepoints)
     plt.legend(loc="lower right")
     fig.savefig(output + str(i) + ".png", dpi=300)
     print("-------------------------------------")

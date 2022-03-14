@@ -6,6 +6,7 @@ Saves to csv
 
 """""
 from cProfile import label
+from operator import index
 import string
 from turtle import title
 from wsgiref.simple_server import sys_version
@@ -24,17 +25,17 @@ import pandas as pd
 print("Python version: " + sys_version)
 
 # patient nifti directories
-url_20f = 'D:/prostateMR_radiomics/nifti/20fractions/'
-url_20f_new = 'D:/prostateMR_radiomics/nifti_new/new_20fractions/'
-url_SABR = 'D:/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/prostateMR_radiomics/nifti_new/new_SABR/'
+url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
+url_20f_new = 'D:/data/prostateMR_radiomics/nifti_new/new_20fractions/'
+url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
+url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
 
 # set working directories
 url = url_20f
-scan_info_url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\patientDatainfo\\scaninfo_20fractions.csv"
+scan_info_url = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\patientDatainfo\\scaninfo_20fractions.csv"
 
 # change depending on dataset
-output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
 
 
 ptDir = os.listdir(url)
@@ -44,21 +45,22 @@ print("Output Directory: " + output)
 
 df_all = pd.DataFrame(columns=("PatID", "ScanDate", "Scan", "Observer", "Region", "Mean", "Std"))
 col_list = ["Patient", "Scan", "DateofScan"]
-scan_info = pd.read_csv(scan_info_url, usecols=col_list)
+scan_info = pd.read_csv(scan_info_url, skipinitialspace=True, index_col=False)
 
-#print(scan_info)
+print(scan_info.head)
 # Loop through ptDir
 for i in ptDir:
     scanWeeks = os.listdir(url+str(i))
     print(scanWeeks) 
-    patient = [i]
+    patient = [i.lstrip('0')]
+   # print(patient)
     
     scanValues = {"PatID":[], "ScanDate":[], "Scan":[], "Observer": [], "Region": [], "Mean":[], "Std":[]}
     scanValues["PatID"] = str(i)
 
-    temp_df = scan_info[scan_info['Patient'].isin(patient)]
-    print(patient)
-    print(temp_df)
+    temp_df1 = scan_info[scan_info["Patient"].isin(patient)]
+    #print(patient)
+    #print(temp_df1)
 
     # Loop through patient visits
     for j in scanWeeks:
@@ -72,8 +74,8 @@ for i in ptDir:
         scanValues["Scan"] = scanNum
         scan = [j]
 
-        temp_df = scan_info[scan_info["Scan"].isin(scan)]
-        print(temp_df)
+        temp_df = temp_df1[temp_df1["Scan"].isin(scan)]
+        temp_df["DateofScan"] = temp_df["DateofScan"].apply(str)
         #DoS = temp_df['DateofScan']        
         #print(DoS)
         # Loop through patient files
@@ -106,7 +108,24 @@ for i in ptDir:
 
                 print(Observer)
                 scanValues["Observer"] = Observer
+
+                Date = str(temp_df["DateofScan"])
+                print(Date)
+                Date = str(Date).split("    ")
+                Date = str(Date[1]).split("\n")
+                print(Date[1])
+                Date = str(Date[0])
+                day, month, year = str(Date[6:]), str(Date[4:6]), str(Date[0:4])
+                year, month, day = Date[0:4], Date[4:6], Date[6:8]
+                #print(day+"-"+month+"-"+year)
+                print("Day: "+day)
+                print("month: "+ month)
+                print("year: " + year)
+                newDate = str(day + "_" + month + "_" + year)
+                print(newDate)
+                scanValues["ScanDate"] = (newDate)
                 
+
                 # read in whole image
                 readImage = sitk.ReadImage(image)
                 imageArray = sitk.GetArrayFromImage(readImage)
@@ -126,10 +145,12 @@ for i in ptDir:
                 scanValues["Std"] = stdPros
 
                 """"
-                maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)
-                meanMuscle = np.mean(maskedImageMuscle.flatten())
-                stdMuscle = np.std(maskedImageMuscle.flatten())
+                elif "muscle" in k:
+                    maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)
+                    meanMuscle = np.mean(maskedImageMuscle.flatten())
+                    stdMuscle = np.std(maskedImageMuscle.flatten())
                 """
+                
                 df_all = df_all.append(scanValues, ignore_index=True)
                 df_all["Scan"] = pd.to_numeric(df_all["Scan"])
 

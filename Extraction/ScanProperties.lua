@@ -37,7 +37,7 @@ function clear()
   wm.Delineation:clear()
 end
 
-dataT = [[D:\data\prostateMR_radiomics\patientData\SABR\]]
+dataT = [[D:\data\prostateMR_radiomics\patientData\20fractions\]]
 
 headerFlag = true
 -- read folders
@@ -85,7 +85,7 @@ for i = 1, #folderPatients do
     for m=1, wm.Delineation.len do
       if string.find(wm.delineation[m-1].name, 'rostate') then
       contours[m] = (wm.Delineation[m-1].name)
-      --print(contours[m])
+      print(contours[m])
       end
     end
     
@@ -101,10 +101,11 @@ for i = 1, #folderPatients do
       end
     end
     
-    prop_table[16] = wm.Delineation.len
-    for m = 1, wm.Delineation.len do
-      prop_table[16+m] = wm.Delineation[m-1].name
-    end
+    prop_table[16] = contours.len
+    prop_table[17] = table.concat(contours, " ")
+    --for m = 1, wm.Delineation.len do
+     -- prop_table[16+m] = wm.Delineation[m-1].name
+    --end
 
     outputfile:write(table.concat(prop_table, ", "))
     outputfile:write("\n")
