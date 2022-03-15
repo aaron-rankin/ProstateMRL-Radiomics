@@ -110,19 +110,12 @@ for i in ptDir:
                 scanValues["Observer"] = Observer
 
                 Date = str(temp_df["DateofScan"])
-                print(Date)
                 Date = str(Date).split("    ")
                 Date = str(Date[1]).split("\n")
-                print(Date[1])
                 Date = str(Date[0])
-                day, month, year = str(Date[6:]), str(Date[4:6]), str(Date[0:4])
                 year, month, day = Date[0:4], Date[4:6], Date[6:8]
                 #print(day+"-"+month+"-"+year)
-                print("Day: "+day)
-                print("month: "+ month)
-                print("year: " + year)
-                newDate = str(day + "_" + month + "_" + year)
-                print(newDate)
+                newDate = str(day + "-" + month + "-" + year)
                 scanValues["ScanDate"] = (newDate)
                 
 
@@ -153,6 +146,7 @@ for i in ptDir:
                 
                 df_all = df_all.append(scanValues, ignore_index=True)
                 df_all["Scan"] = pd.to_numeric(df_all["Scan"])
+                df_all["ScanDate"] = pd.to_datetime(df_all["ScanDate"], dayfirst=True)
 
   
 df_all.to_csv(output)
