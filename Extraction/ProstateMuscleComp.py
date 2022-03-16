@@ -35,7 +35,7 @@ url = url_20f
 scan_info_url = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\patientDatainfo\\scaninfo_20fractions.csv"
 
 # change depending on dataset
-output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\DataFiles\\20fractions.csv"
 
 
 ptDir = os.listdir(url)
@@ -59,15 +59,13 @@ for i in ptDir:
     scanValues["PatID"] = str(i)
 
     temp_df1 = scan_info[scan_info["Patient"].isin(patient)]
-    #print(patient)
-    #print(temp_df1)
 
     # Loop through patient visits
     for j in scanWeeks:
         niiFiles = os.listdir(url+str(i)+"\\"+str(j))
         print ("Processing: "+i+"  Timepoint: "+j)	
         imageName = i +" "+ j
-        image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_image.nii"
+        image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_HM1_image.nii"
 
         scanNum = str(j)
         scanNum = int(scanNum[2:])
