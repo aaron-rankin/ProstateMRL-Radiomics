@@ -77,9 +77,16 @@ for i in ptDir:
 
         temp_df = temp_df1[temp_df1["Scan"].isin(scan)]
         temp_df["DateofScan"] = temp_df["DateofScan"].apply(str)
-        #DoS = temp_df['DateofScan']        
-        #print(DoS)
-        # Loop through patient files
+
+        Date = str(temp_df["DateofScan"])
+        Date = str(Date).split("    ")
+        Date = str(Date[1]).split("\n")
+        Date = str(Date[0])
+        year, month, day = Date[0:4], Date[4:6], Date[6:8]
+        #print(day+"-"+month+"-"+year)
+        newDate = str(day + "-" + month + "-" + year)
+        scanValues["ScanDate"] = (newDate)
+                
         for k in niiFiles:
             # load in body masks
             if "body_mask" in k:
@@ -87,13 +94,39 @@ for i in ptDir:
                 readBodyMask = sitk.ReadImage(bodyMask)
                 bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
             
-            """""
+            if "muscle" in k:
+                muscleMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
+                readMuscleMask = sitk.ReadImage(muscleMask)
+                muscleMaskArray = sitk.GetArrayFromImage(readMuscleMask)
 
-            Read in muscle clicks 
+                maskName = str(k)
+                maskName = maskName[:-4]
+                print("Mask: " + maskName)
+
+
+                Observer = "AR"
+                scanValues["Observer"] = Observer
+
+                scanValues["Region"] = "Muscle"
+
+                readImage = sitk.ReadImage(image)
+                imageArray = sitk.GetArrayFromImage(readImage)
+                # remove stray pixel values
+                imageArray = imageArray * bodyMaskArray
+
+                maskedImageMuscle = ma.masked_array(imageArray, mask=(muscleMaskArray), keep_mask=True, hard_mask=True)
+                meanMuscle = np.abs(np.mean(maskedImageMuscle.flatten()))
+                stdMuscle = np.abs(np.std(maskedImageMuscle.flatten()))
+
+                scanValues["Mean"] = meanMuscle
+                scanValues["Std"] = stdMuscle
+
+                df_all = df_all.append(scanValues, ignore_index=True)
+                df_all["Scan"] = pd.to_numeric(df_all["Scan"])
+                df_all["ScanDate"] = pd.to_datetime(df_all["ScanDate"], dayfirst=True)
+
             
-            """""
-            
-            if "ostate" in k:                       
+            elif "ostate" in k:                       
                 scanValues["Region"] = "Prostate"
                 maskName = str(k)
                 maskName = maskName[:-4]
@@ -103,22 +136,11 @@ for i in ptDir:
                 print("Mask: " + maskName)
 
                 Observer = maskName.replace(i, "")
-                Observer = maskName.replace(j, "")
+                Observer = Observer.replace(j, "")
                 Observer = Observer.replace("Prostate", "")
                 Observer = Observer.replace("_", "")
 
-                print(Observer)
                 scanValues["Observer"] = Observer
-
-                Date = str(temp_df["DateofScan"])
-                Date = str(Date).split("    ")
-                Date = str(Date[1]).split("\n")
-                Date = str(Date[0])
-                year, month, day = Date[0:4], Date[4:6], Date[6:8]
-                #print(day+"-"+month+"-"+year)
-                newDate = str(day + "-" + month + "-" + year)
-                scanValues["ScanDate"] = (newDate)
-                
 
                 # read in whole image
                 readImage = sitk.ReadImage(image)
@@ -137,13 +159,6 @@ for i in ptDir:
                 
                 scanValues["Mean"] = meanPros
                 scanValues["Std"] = stdPros
-
-                """"
-                elif "muscle" in k:
-                    maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)
-                    meanMuscle = np.mean(maskedImageMuscle.flatten())
-                    stdMuscle = np.std(maskedImageMuscle.flatten())
-                """
                 
                 df_all = df_all.append(scanValues, ignore_index=True)
                 df_all["Scan"] = pd.to_numeric(df_all["Scan"])
