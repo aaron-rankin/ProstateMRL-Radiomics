@@ -98,6 +98,11 @@ for i in ptDir:
                 readMuscleMask = sitk.ReadImage(muscleMask)
                 muscleMaskArray = sitk.GetArrayFromImage(readMuscleMask)
 
+                maskName = str(k)
+                maskName = maskName[:-4]
+                print("Mask: " + maskName)
+
+
                 Observer = "AR"
                 scanValues["Observer"] = Observer
 
@@ -108,9 +113,9 @@ for i in ptDir:
                 # remove stray pixel values
                 imageArray = imageArray * bodyMaskArray
 
-                maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleMaskArray), keep_mask=True, hard_mask=True)
-                meanMuscle = np.mean(maskedImageMuscle.flatten())
-                stdMuscle = np.std(maskedImageMuscle.flatten())
+                maskedImageMuscle = ma.masked_array(imageArray, mask=(muscleMaskArray), keep_mask=True, hard_mask=True)
+                meanMuscle = np.abs(np.mean(maskedImageMuscle.flatten()))
+                stdMuscle = np.abs(np.std(maskedImageMuscle.flatten()))
 
                 scanValues["Mean"] = meanMuscle
                 scanValues["Std"] = stdMuscle
@@ -134,7 +139,6 @@ for i in ptDir:
                 Observer = Observer.replace("Prostate", "")
                 Observer = Observer.replace("_", "")
 
-                print(Observer)
                 scanValues["Observer"] = Observer
 
                 # read in whole image
@@ -154,13 +158,6 @@ for i in ptDir:
                 
                 scanValues["Mean"] = meanPros
                 scanValues["Std"] = stdPros
-
-                """"
-                elif "muscle" in k:
-                    maskedImageMuscle = ma.masked_array(imageArray, mask=np.logical_not(muscleArray), keep_mask=True, hard_mask=True)
-                    meanMuscle = np.mean(maskedImageMuscle.flatten())
-                    stdMuscle = np.std(maskedImageMuscle.flatten())
-                """
                 
                 df_all = df_all.append(scanValues, ignore_index=True)
                 df_all["Scan"] = pd.to_numeric(df_all["Scan"])
