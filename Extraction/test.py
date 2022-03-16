@@ -1,5 +1,6 @@
-from pyXDR import XDRImage
+from pyXDR import pyXDR
+#from pyXDR.pyXDR import XDRImage as XDRImage
 
-image = XDRImage.read("\\\\130.88.233.166\\data\\prostateMR_radiomics\\paint_muscle_l_AR\\20fractions_0000213_MR4.xdr")
+image = pyXDR.read("D://prostateMR_radiomics//MuscleClicks//test.xdr")
 
-
+print(image.data)
