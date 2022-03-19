@@ -16,7 +16,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime
 # load in csv -- Change according to dataset
-url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\Datafiles\\20fractions.csv"
+url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\SABR.csv"
 
 # output directories for plots
 out_20f = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\20fractions\\"
@@ -24,7 +24,7 @@ out_20f_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fra
 out_SABR = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
 out_SABR_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
-output = out_20f
+output = out_SABR
 
 df = pd.read_csv(url)
 
@@ -42,7 +42,7 @@ for i in patIDs:
 
     fig = plt.figure(figsize=(10,7))
     sns.set(style="darkgrid")
-    plt.title("Mean MR signal (HM1) - Patient: " + str(i), fontsize=20)
+    plt.title("Mean MR signal (Raw) - Patient: " + str(i), fontsize=20)
     plt.xlabel("Days from Fraction 1")
     plt.ylabel("Mean Signal")
     plt.ylim(0,max_signal+5)
