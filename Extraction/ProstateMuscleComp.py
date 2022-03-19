@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import pandas as pd
-from pyXDR import pyXDR
+
 
 
 
@@ -26,22 +26,17 @@ from pyXDR import pyXDR
 print("Python version: " + sys_version)
 
 # patient nifti directories
-url_20f = 'D:/prostateMR_radiomics/nifti/20fractions/'
-url_20f_new = 'D:/prostateMR_radiomics/nifti_new/new_20fractions/'
-url_SABR = 'D:/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/prostateMR_radiomics/nifti_new/new_SABR/'
+url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
+url_20f_new = 'D:/data/prostateMR_radiomics/nifti_new/new_20fractions/'
+url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
+url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
 
 # set working directories
-url = url_20f
-scan_info_url = 'D:\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_20fractions.csv'
+url = url_SABR
+scan_info_url = 'D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv'
 
 # change depending on dataset
-<<<<<<< HEAD
-output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\DataFiles\\20fractions.csv"
-=======
-output = "D:\\Aaron\\ProstateMRL\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
->>>>>>> 7e64ee4f68df684cfe5047be40df8ef1ec033564
-
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR.csv"
 
 ptDir = os.listdir(url)
 print("Patient Directory: " + url)
@@ -70,7 +65,7 @@ for i in ptDir:
         niiFiles = os.listdir(url+str(i)+"\\"+str(j))
         print ("Processing: "+i+"  Timepoint: "+j)	
         imageName = i +" "+ j
-        image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_HM1_image.nii"
+        image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_image.nii"
 
         scanNum = str(j)
         scanNum = int(scanNum[2:])
