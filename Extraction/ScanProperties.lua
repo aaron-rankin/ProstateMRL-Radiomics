@@ -37,7 +37,7 @@ function clear()
   wm.Delineation:clear()
 end
 
-dataT = [[D:\data\prostateMR_radiomics\patientData\20fractions\]]
+dataT = [[D:\data\prostateMR_radiomics\patientData\SABR\]]
 
 headerFlag = true
 -- read folders
@@ -46,7 +46,7 @@ folderPatients = scandir(dataT)
 
 headerFlag = true
 
-outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_20fractions.csv]], "w", "csv")
+outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv]], "w", "csv")
 outputfile:write("Patient,Scan,Age,DateofScan,Manufacturer,Model,Sequence,AcquisitionType,MagneticFieldStrength,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices,NumberofContours,Contours \n")
 
 properties_to_collect = {'PatientAge', 'AcquisitionDate', 'Manufacturer', 'ManufacturerModelName', 'StudyDescription', 'MRAcquisitionType', 'MagneticFieldStrength', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
