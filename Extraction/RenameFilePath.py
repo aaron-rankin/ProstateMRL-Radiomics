@@ -1,6 +1,6 @@
 import os
 
-url = "D:\\data\\prostateMR_radiomics\\nifti\\20fractions\\"
+url = "D:\\data\\prostateMR_radiomics\\nifti\\SABR\\"
 url_clicks  = "D:\\data\\prostateMR_radiomics\\MuscleClicks\\paint_Psoas\\"
 ptDir = os.listdir(url)
 clDir = os.listdir(url_clicks)

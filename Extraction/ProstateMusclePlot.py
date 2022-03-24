@@ -15,7 +15,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime
 # load in csv -- Change according to dataset
-url = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\20fractions_new.csv"
+url = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\20fractions.csv"
 
 # output directories for plots
 out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\20fractions\\"
@@ -23,7 +23,7 @@ out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\
 out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
 out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
-output = out_20f_new
+output = out_20f
 
 df = pd.read_csv(url)
 
@@ -67,6 +67,6 @@ for i in patIDs:
 
 # Put a legend to the right side
     plot1.legend(loc='center right', bbox_to_anchor=(1.25, 0.5), ncol=1)
-    fig.savefig(output + str(i) + ".png", dpi=300)
+    fig.savefig(output + str(i) + "_psoas.png", dpi=300)
     print("-------------------------------------")
 
