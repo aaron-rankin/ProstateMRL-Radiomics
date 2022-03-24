@@ -1,11 +1,11 @@
 import os
 
-url = "D:\\data\\prostateMR_radiomics\\nifti\\SABR\\"
-url_clicks  = "D:\\data\\prostateMR_radiomics\\MuscleClicks\\SABR\\"
+url = "D:\\data\\prostateMR_radiomics\\nifti\\20fractions\\"
+url_clicks  = "D:\\data\\prostateMR_radiomics\\MuscleClicks\\paint_Psoas\\"
 ptDir = os.listdir(url)
 clDir = os.listdir(url_clicks)
 
-'''
+
 for i in ptDir:
     scanWeeks = os.listdir(url + str(i))
     print(i)
@@ -13,8 +13,9 @@ for i in ptDir:
         files = os.listdir(url + str(i) + "\\" + str(j))
         print ("Processing: "+i+"  Timepoint: "+j)	
         for k in files:
-            if "NORM" in k:
-                os.rename(url + str(i) + "\\" + str(j) + "\\" + str(i) + "_" + str(j) +"_NORMimage.nii", url + str(i) + "\\" + str(j) + "\\" + str(i) + "_" + str(j) + "_HM1_image.nii")
+            if "muscle" in k:
+                print(k)
+                os.rename(url + str(i) + "\\" + str(j) + "\\" + str(i) + "_" + str(j) +"_muscle.nii", url + str(i) + "\\" + str(j) + "\\" + str(i) + "_" + str(j) + "_glute.nii")
                 print("-----------------")
 
 '''
@@ -26,4 +27,5 @@ for k in clDir:
     scan = scan[:-4]
     print(patID)
     print(scan)    
-    os.rename(url_clicks + str(k), url + patID + "\\" + scan + "\\" + patID + "_" + scan + "_muscle.nii")
+    os.rename(url_clicks + str(k), url + patID + "\\" + scan + "\\" + patID + "_" + scan + "_psoas.nii")
+'''

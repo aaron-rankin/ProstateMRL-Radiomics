@@ -8,7 +8,6 @@ Plots values
 
 import enum
 from random import randint
-from cv2 import rotate
 import numpy as np
 import pandas as pd
 from scipy import rand
@@ -16,15 +15,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime
 # load in csv -- Change according to dataset
-url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\SABR.csv"
+url = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\20fractions_new.csv"
 
 # output directories for plots
-out_20f = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\20fractions\\"
-out_20f_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
-out_SABR = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
-out_SABR_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
+out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\20fractions\\"
+out_20f_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
+out_SABR = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
+out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
-output = out_SABR
+output = out_20f_new
 
 df = pd.read_csv(url)
 

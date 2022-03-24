@@ -37,7 +37,7 @@ function clear()
   wm.Delineation:clear()
 end
 
-dataT = [[D:\data\prostateMR_radiomics\patientData\SABR\]]
+dataT = [[D:\data\prostateMR_radiomics\patientData\SABR_new\]]
 
 headerFlag = true
 -- read folders
@@ -46,10 +46,10 @@ folderPatients = scandir(dataT)
 
 headerFlag = true
 
-outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv]], "w", "csv")
-outputfile:write("Patient,Scan,Age,DateofScan,Manufacturer,Model,Sequence,AcquisitionType,MagneticFieldStrength,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices,NumberofContours,Contours \n")
+outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\SABR_new.csv]], "w", "csv")
+outputfile:write("Patient,Scan,Age,DateofScan,TimeofScan,Manufacturer,Model,Sequence,AcquisitionType,MagneticFieldStrength,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices,NumberofContours \n")
 
-properties_to_collect = {'PatientAge', 'AcquisitionDate', 'Manufacturer', 'ManufacturerModelName', 'StudyDescription', 'MRAcquisitionType', 'MagneticFieldStrength', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
+properties_to_collect = {'PatientAge', 'AcquisitionDate', 'AcquisitionTime', 'Manufacturer', 'ManufacturerModelName', 'StudyDescription', 'MRAcquisitionType', 'MagneticFieldStrength', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
 
 -- list patients
 for i = 1, #folderPatients do
@@ -102,7 +102,7 @@ for i = 1, #folderPatients do
     end
     
     prop_table[16] = contours.len
-    prop_table[17] = table.concat(contours, " ")
+    --prop_table[17] = table.concat(contours, " ")
     --for m = 1, wm.Delineation.len do
      -- prop_table[16+m] = wm.Delineation[m-1].name
     --end

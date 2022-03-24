@@ -1,7 +1,7 @@
 """""
 
 Aaron Rankin 08/03/22
-Reads in nifti images, prostate contours and muscle clicks (outside dose field) and calculates mean and std
+Reads in nifti images, prostate contours and glute clicks (outside dose field) and calculates mean and std
 Saves to csv
 
 """""
@@ -27,23 +27,23 @@ print("Python version: " + sys_version)
 
 # patient nifti directories
 url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
-url_20f_new = 'D:/data/prostateMR_radiomics/nifti_new/new_20fractions/'
+url_20f_new = 'D:/data/prostateMR_radiomics/nifti/20fractions_new/'
 url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
+url_SABR_new = 'D:/data/prostateMR_radiomics/nifti/SABR_new/'
 
 # set working directories
-url = url_SABR
-scan_info_url = 'D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv'
+url = url_20f
+scan_info_url = 'D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_20fractions.csv'
 
 # change depending on dataset
-output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR.csv"
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
 
 ptDir = os.listdir(url)
 print("Patient Directory: " + url)
 print(ptDir)
 print("Output Directory: " + output)
 
-df_all = pd.DataFrame(columns=("PatID", "ScanDate", "Scan", "Observer", "Region", "Mean", "Std"))
+df_all = pd.DataFrame(columns=("PatID", "ScanDate", "Scan", "ScanTime", "Observer", "Region", "Mean", "Std"))
 col_list = ["Patient", "Scan", "DateofScan"]
 scan_info = pd.read_csv(scan_info_url, skipinitialspace=True, index_col=False)
 
@@ -55,7 +55,7 @@ for i in ptDir:
     patient = [i.lstrip('0')]
    # print(patient)
     
-    scanValues = {"PatID":[], "ScanDate":[], "Scan":[], "Observer": [], "Region": [], "Mean":[], "Std":[]}
+    scanValues = {"PatID":[], "ScanDate":[], "Scan":[], "ScanTime":[], "Observer": [], "Region": [], "Mean":[], "Std":[]}
     scanValues["PatID"] = str(i)
 
     temp_df1 = scan_info[scan_info["Patient"].isin(patient)]
@@ -65,7 +65,18 @@ for i in ptDir:
         niiFiles = os.listdir(url+str(i)+"\\"+str(j))
         print ("Processing: "+i+"  Timepoint: "+j)	
         imageName = i +" "+ j
+
         image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_image.nii"
+        bodyMask = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_body_mask.nii"
+
+        readImage = sitk.ReadImage(image)
+        readBodyMask = readBodyMask = sitk.ReadImage(bodyMask)
+
+        bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
+        imageArray = sitk.GetArrayFromImage(readImage)
+
+        # remove stray pixel values 
+        imageArray = imageArray * bodyMaskArray
 
         scanNum = str(j)
         scanNum = int(scanNum[2:])
@@ -83,46 +94,72 @@ for i in ptDir:
         #print(day+"-"+month+"-"+year)
         newDate = str(day + "-" + month + "-" + year)
         scanValues["ScanDate"] = (newDate)
-                
+
+        Time = temp_df["TimeofScan"]
+        scanValues["ScanTime"] = Time
+
         for k in niiFiles:
-            # load in body masks
-            if "body_mask" in k:
-                bodyMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
-                readBodyMask = sitk.ReadImage(bodyMask)
-                bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
-            
-            if "muscle" in k:
-                muscleMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
-                readMuscleMask = sitk.ReadImage(muscleMask)
-                muscleMaskArray = sitk.GetArrayFromImage(readMuscleMask)
+
+            if "glute" in k:
+                gluteMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
+                readgluteMask = sitk.ReadImage(gluteMask)
+                gluteMaskArray = sitk.GetArrayFromImage(readgluteMask)
 
                 maskName = str(k)
                 maskName = maskName[:-4]
                 print("Mask: " + maskName)
 
-
                 Observer = "AR"
                 scanValues["Observer"] = Observer
 
-                scanValues["Region"] = "Muscle"
+                scanValues["Region"] = "Glute"
 
-                readImage = sitk.ReadImage(image)
-                imageArray = sitk.GetArrayFromImage(readImage)
+                #readImage = sitk.ReadImage(image)
+                #imageArray = sitk.GetArrayFromImage(readImage)
                 # remove stray pixel values
-                imageArray = imageArray * bodyMaskArray
+                #imageArray = imageArray * bodyMaskArray
 
-                maskedImageMuscle = ma.masked_array(imageArray, mask=(muscleMaskArray), keep_mask=True, hard_mask=True)
-                meanMuscle = np.abs(np.mean(maskedImageMuscle.flatten()))
-                stdMuscle = np.abs(np.std(maskedImageMuscle.flatten()))
+                maskedImageglute = ma.masked_array(imageArray, mask=(gluteMaskArray), keep_mask=True, hard_mask=True)
+                meanglute = np.abs(np.mean(maskedImageglute.flatten()))
+                stdglute = np.abs(np.std(maskedImageglute.flatten()))
 
-                scanValues["Mean"] = meanMuscle
-                scanValues["Std"] = stdMuscle
+                scanValues["Mean"] = meanglute
+                scanValues["Std"] = stdglute
 
                 df_all = df_all.append(scanValues, ignore_index=True)
                 df_all["Scan"] = pd.to_numeric(df_all["Scan"])
                 df_all["ScanDate"] = pd.to_datetime(df_all["ScanDate"], dayfirst=True)
 
-            
+            elif "psoas" in k:
+                psoasMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
+                readpsoasMask = sitk.ReadImage(psoasMask)
+                psoasMaskArray = sitk.GetArrayFromImage(readpsoasMask)
+
+                maskName = str(k)
+                maskName = maskName[:-4]
+                print("Mask: " + maskName)
+
+                Observer = "AR"
+                scanValues["Observer"] = Observer
+
+                scanValues["Region"] = "psoas"
+
+                #readImage = sitk.ReadImage(image)
+                #imageArray = sitk.GetArrayFromImage(readImage)
+                # remove stray pixel values
+                #imageArray = imageArray * bodyMaskArray
+
+                maskedImagepsoas = ma.masked_array(imageArray, mask=(psoasMaskArray), keep_mask=True, hard_mask=True)
+                meanpsoas = np.abs(np.mean(maskedImagepsoas.flatten()))
+                stdpsoas = np.abs(np.std(maskedImagepsoas.flatten()))
+
+                scanValues["Mean"] = meanpsoas
+                scanValues["Std"] = stdpsoas
+
+                df_all = df_all.append(scanValues, ignore_index=True)
+                df_all["Scan"] = pd.to_numeric(df_all["Scan"])
+                df_all["ScanDate"] = pd.to_datetime(df_all["ScanDate"], dayfirst=True)
+
             elif "ostate" in k:                       
                 scanValues["Region"] = "Prostate"
                 maskName = str(k)
@@ -138,12 +175,6 @@ for i in ptDir:
                 Observer = Observer.replace("_", "")
 
                 scanValues["Observer"] = Observer
-
-                # read in whole image
-                readImage = sitk.ReadImage(image)
-                imageArray = sitk.GetArrayFromImage(readImage)
-                # remove stray pixel values
-                imageArray = imageArray * bodyMaskArray
                
                 # read in prostate mask
                 readprosMask = sitk.ReadImage(mask)
