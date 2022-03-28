@@ -1,11 +1,11 @@
 import os
 
-url = "D:\\data\\prostateMR_radiomics\\nifti\\SABR\\"
-url_clicks  = "D:\\data\\prostateMR_radiomics\\MuscleClicks\\paint_Psoas\\"
+url = "D:\\data\\prostateMR_radiomics\\nifti\\SABR_new\\"
+url_clicks  = "D:\data\prostateMR_radiomics\MuscleClicks\paint_SABR_new_glute\\"
 ptDir = os.listdir(url)
 clDir = os.listdir(url_clicks)
 
-
+'''
 for i in ptDir:
     scanWeeks = os.listdir(url + str(i))
     print(i)
@@ -22,10 +22,9 @@ for i in ptDir:
 for k in clDir:
     print(k)
     name = k.split("_")
-    patID = name[1]
-    scan = name[2]
+    patID = name[2]
+    scan = name[3]
     scan = scan[:-4]
     print(patID)
     print(scan)    
-    os.rename(url_clicks + str(k), url + patID + "\\" + scan + "\\" + patID + "_" + scan + "_psoas.nii")
-'''
+    os.rename(url_clicks + str(k), url + patID + "\\" + scan + "\\" + patID + "_" + scan + "_glute.nii")
