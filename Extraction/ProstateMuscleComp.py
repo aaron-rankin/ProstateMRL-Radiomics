@@ -26,17 +26,17 @@ import pandas as pd
 print("Python version: " + sys_version)
 
 # patient nifti directories
-url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
-url_20f_new = 'D:/data/prostateMR_radiomics/nifti/20fractions_new/'
-url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/data/prostateMR_radiomics/nifti/SABR_new/'
+url_20f = 'D://prostateMR_radiomics/nifti/20fractions/'
+url_20f_new = 'D://prostateMR_radiomics/nifti/20fractions_new/'
+url_SABR = 'D://prostateMR_radiomics/nifti/SABR/'
+url_SABR_new = 'D://prostateMR_radiomics/nifti/SABR_new/'
 
 # set working directories
 url = url_20f
-scan_info_url = 'D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_20fractions.csv'
+scan_info_url = 'D:\\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_20fractions.csv'
 
 # change depending on dataset
-output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
+output = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\20fractions.csv"
 
 ptDir = os.listdir(url)
 print("Patient Directory: " + url)
