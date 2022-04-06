@@ -57,6 +57,9 @@ packdir = [[D:\data\MRL_Prostate\]]
 dicomdir = [[D:\data\prostateMR_radiomics\patientData\SABR\000]]..patID..[[\]] -- change according to patient
 outputdir = [[D:\data\prostateMR_radiomics\nifti\SABR\000]]..patID..[[\]]
 
+output_csv = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\MRL\]]..patID..[[.csv]], "w", "csv")
+output_csv:write("patID, MRContour, Scan, ContourDate, ContourTime, ScanDate, ScanTime \n")
+
 allpacks = {}
 allpacks = scandir(packdir)
 patpacks = {}
@@ -70,7 +73,7 @@ end
 
 dicomfolders = {}
 dicomfolders = scandir(dicomdir)
---dicomfolders = {"MR5", "MR8", "MR11", "MR14", "MR17"}
+
 
 -- Get scan numbers so can sort per fraction
 for q=1, #dicomfolders do
@@ -115,12 +118,26 @@ for i=1, #dicomfolders do
   end
 
   wm.Scan[e]:load([[DCM:]]..scan)
+
+  prop_table = {}
+
+  prop_table[1] = patID
+  prop_table[2] = dicomfolders[i]
+  prop_table[4] = wm.Scan[e].Properties.InstanceCreationDate
+  prop_table[5] = wm.Scan[e].Properties.InstanceCreationTime
+  
   -- check dates align
   for u=1, e-1 do
-    print("Scan: "..u.." Date: "..wm.Scan[u].Properties.InstanceCreationDate.." Time: "..wm.Scan[u].Properties.InstanceCreationTime)
+  --  print("Scan: "..u.." Date: "..wm.Scan[u].Properties.InstanceCreationDate.." Time: "..wm.Scan[u].Properties.InstanceCreationTime)
+  prop_table[3] = u
+  prop_table[6] = wm.Scan[u].Properties.InstanceCreationDate
+  prop_table[7] = wm.Scan[u].Properties.InstanceCreationTime
+  output_csv:write(table.concat(prop_table, ", "))
+  output_csv:write("\n")
+    
   end
-  print("--------------------------")
-  print("Scan: "..e.." Date: "..wm.Scan[e].Properties.InstanceCreationDate.." Time: "..wm.Scan[e].Properties.InstanceCreationTime)
+  
+  --print("Scan: "..e.." Date: "..wm.Scan[e].Properties.InstanceCreationDate.." Time: "..wm.Scan[e].Properties.InstanceCreationTime)
 
 
   wm.Delineation:load([[DCM:]]..delin, wm.Scan[e])
@@ -135,22 +152,24 @@ for i=1, #dicomfolders do
       break
     end
   end  
-  
+
   -- start matching
-  for s=1, e-1 do
-    print("Matching Scan: "..s)
+  for n=1, e-1 do
+    print("Matching Scan: "..n)
     -- match everything to dicom scan with contour
-    selectscanstomatch(e, s, 1, 0, 0, 5, 0.0001, true, false, true, true)
+    selectscanstomatch(e, n, 1, 0, 0, 5, 0.0001, true, false, true, true)
     wm.MatchClipbox:fit(RPcont, 0, 4)
     startmatch()
     -- write out 
-    wm.Scan[s]:write_nifty(outputdir..dicomfolders[i]..[[\]]..patID..[[_]]..dicomfolders[i]..[[_reg_img_]]..s..[[_.nii]])
+    wm.Scan[s]:write_nifty(outputdir..dicomfolders[i]..[[\]]..patID..[[_]]..dicomfolders[i]..[[_reg_img_]]..n..[[_.nii]])
   end
   
   -- want to be only sampling prostate tissue, so shrink it
   wm.Scan[e+1].Data:expand(-0.3)
   wm.Scan[e+1] = wm.Scan[e+1] / 255
-  wm.Scan[6]:write_nifty(outputdir..dicomfolders[i]..[[\]]..patID..[[_]]..dicomfolders[i]..[[_shrunk_pros.nii]])
-  
+  wm.Scan[e+1]:write_nifty(outputdir..dicomfolders[i]..[[\]]..patID..[[_]]..dicomfolders[i]..[[_shrunk_pros.nii]])
+  print("--------------------------")
     
 end
+output_csv:close()
+print("Finished")
