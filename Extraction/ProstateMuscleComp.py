@@ -27,16 +27,16 @@ print("Python version: " + sys_version)
 
 # patient nifti directories
 url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
-url_20f_new = 'D:/data/prostateMR_radiomics/nifti_new/new_20fractions/'
+url_20f_new = 'D:/data/prostateMR_radiomics/nifti/20fractions_new/'
 url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
+url_SABR_new = 'D:/data/prostateMR_radiomics/nifti/SABR_new/'
 
 # set working directories
-url = url_SABR
-scan_info_url = 'D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv'
+url = url_20f_new
+scan_info_url = 'D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_20fractions_new.csv'
 
 # change depending on dataset
-output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\DataFiles\\SABR.csv"
+output = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM2\\DataFiles\\20fractions_new.csv"
 
 ptDir = os.listdir(url)
 print("Patient Directory: " + url)
@@ -65,7 +65,7 @@ for i in ptDir:
         niiFiles = os.listdir(url+str(i)+"\\"+str(j))
         print ("Processing: "+i+"  Timepoint: "+j)	
         imageName = i +" "+ j
-        image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_image.nii"
+        image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_HM2_image.nii"
 
         scanNum = str(j)
         scanNum = int(scanNum[2:])
@@ -77,6 +77,7 @@ for i in ptDir:
 
         Date = str(temp_df["DateofScan"])
         Date = str(Date).split("    ")
+        print(Date)
         Date = str(Date[1]).split("\n")
         Date = str(Date[0])
         year, month, day = Date[0:4], Date[4:6], Date[6:8]
@@ -91,7 +92,7 @@ for i in ptDir:
                 readBodyMask = sitk.ReadImage(bodyMask)
                 bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
             
-            if "muscle" in k:
+            if "glute" in k:
                 muscleMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
                 readMuscleMask = sitk.ReadImage(muscleMask)
                 muscleMaskArray = sitk.GetArrayFromImage(readMuscleMask)
@@ -104,7 +105,7 @@ for i in ptDir:
                 Observer = "AR"
                 scanValues["Observer"] = Observer
 
-                scanValues["Region"] = "Muscle"
+                scanValues["Region"] = "Glute"
 
                 readImage = sitk.ReadImage(image)
                 imageArray = sitk.GetArrayFromImage(readImage)

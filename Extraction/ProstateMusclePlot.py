@@ -8,7 +8,6 @@ Plots values
 
 import enum
 from random import randint
-from cv2 import rotate
 import numpy as np
 import pandas as pd
 from scipy import rand
@@ -16,15 +15,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime
 # load in csv -- Change according to dataset
-url = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\SABR.csv"
+url = "D:\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\Datafiles\\SABR_new.csv"
 
 # output directories for plots
 out_20f = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\HM1\\20fractions\\"
 out_20f_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\20fractions_new\\"
 out_SABR = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR\\"
-out_SABR_new = "D:\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
+out_SABR_new = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Mean_values\\Raw\\SABR_new\\"
 
-output = out_SABR
+output = out_SABR_new
 
 df = pd.read_csv(url)
 
@@ -35,7 +34,7 @@ Obs = df.Observer.unique()
 rgb_vals = sns.color_palette("colorblind", len(Obs))
 colourmap = dict(zip(Obs, rgb_vals))
 
-max_signal = 125
+max_signal = 140
 
 for i in patIDs:
     print("Processing patient: " + str(i))
@@ -47,8 +46,8 @@ for i in patIDs:
     plt.ylabel("Mean Signal")
     plt.ylim(0,max_signal+5)
 
-    plt.xlim(-1, 31)
-    plt.xticks(np.arange(0,32,5))
+    plt.xlim(-1, 16)
+    plt.xticks(np.arange(0,16,2))
 
     temp_df = df[df["PatID"].isin([i])]
     temp_df["ScanDate"] = pd.to_datetime(temp_df["ScanDate"], dayfirst=True) 

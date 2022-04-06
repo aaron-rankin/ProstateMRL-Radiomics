@@ -21,9 +21,9 @@ print("Python version: " + sys_version)
 
 # patient nifti directories
 url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
-url_20f_new = 'D:/data/prostateMR_radiomics/nifti_new/new_20fractions/'
+url_20f_new = 'D:/data/prostateMR_radiomics/nifti/20fractions_new/'
 url_SABR = 'D:/data/prostateMR_radiomics/nifti/SABR/'
-url_SABR_new = 'D:/data/prostateMR_radiomics/nifti_new/new_SABR/'
+url_SABR_new = 'D:/data/prostateMR_radiomics/nifti/SABR_new/'
 
 # output directories
 out_20f = "D:\\data\\Aaron\\ProstateMRL\\Data\\Extraction\\Histograms\\Raw\\20fractions\\"
@@ -57,13 +57,35 @@ for i in ptDir:
         imageName = i +" "+ j
         image = url+str(i)+"\\"+str(j)+"\\"+str(i)+"_"+str(j)+"_image.nii"
 
+        bodyMask = url + str(i) + "\\" + str(j) + "\\" + str(i)+"_"+str(j)+"_body_mask.nii"
+
+        readBodyMask = sitk.ReadImage(bodyMask)
+        bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
+
+        readImage = sitk.ReadImage(image)
+        imageArray = sitk.GetArrayFromImage(readImage)
+
+        imageArray = imageArray * bodyMaskArray
+
         # Loop through patient files
         for k in niiFiles:
             # load in body masks
-            if "body_mask" in k:
-                bodyMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
-                readBodyMask = sitk.ReadImage(bodyMask)
-                bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
+            # if "body_mask" in k:
+            #     bodyMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
+            #     readBodyMask = sitk.ReadImage(bodyMask)
+            #     bodyMaskArray = sitk.GetArrayFromImage(readBodyMask)
+
+            if "glute" in k:
+                maskName = str(k)
+                maskName = maskName[:-4]
+                gluteMask = url + str(i) + "\\" + str(j) + "\\" + str(k)
+                readGlute = sitk.ReadImage(gluteMask)
+                gluteMaskArray = sitk.GetArrayFromImage(readGlute)
+
+                maskedGlute = ma.masked_array(imageArray, mask=np.logical_not(gluteMaskArray), keep_mask=True, hard_mask=True)
+                maskedGlute = maskedGlute.flatten()
+
+                plt.hist(maskedGlute, bins = 256, range=(1, imageArray.max()), alpha = 0.5, histtype = "step", color="lightseagreen", fill = False, density = True, label = maskName)
             
             if check in k:                       
                 maskName = str(k)
@@ -74,10 +96,9 @@ for i in ptDir:
                 print("Mask: " + maskName)
                 
                 # read in whole image
-                readImage = sitk.ReadImage(image)
-                imageArray = sitk.GetArrayFromImage(readImage)
+                
                 # remove stray pixel values
-                imageArray = imageArray * bodyMaskArray
+                
 
                 # read in mask
                 readMask = sitk.ReadImage(mask)
@@ -88,7 +109,7 @@ for i in ptDir:
                 maskedImage = ma.masked_array(imageArray, mask=np.logical_not(maskArray), keep_mask=True, hard_mask=True)
 
                 maskedImage = maskedImage.flatten()
-                imageArray = imageArray.flatten()
+                imageArrayflt = imageArray.flatten()
 
                 if "RP" in maskName:
                     pltColour = "tomato"
@@ -104,7 +125,7 @@ for i in ptDir:
                 plt.figure("Intensity Histogram")
                 plt.title("Patient: " + i + " " + j)
                 
-                plt.hist(maskedImage, bins = 256, range=(1, imageArray.max()), alpha = 0.5, histtype = "step", color=pltColour, fill = True, density = True, label = maskName)
+                plt.hist(maskedImage, bins = 256, range=(1, imageArray.max()), alpha = 0.5, histtype = "step", color=pltColour, fill = False, density = True, label = maskName)
                 plt.xlabel("MR Intensity")
                 plt.xlim(0,400)
                 plt.ylim(0, 0.03)
@@ -118,7 +139,7 @@ for i in ptDir:
             os.mkdir(outputfolder)
         else:
             print()
-        plt.hist(imageArray, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
+        plt.hist(imageArrayflt, bins = 256, range=(1, imageArray.max()), facecolor = "blue", alpha = 0.75, color = "black", fill = False, histtype = "step", density = True, label = "WholeImage")
         plt.legend()
         plt.savefig(outputfolder + str(i) + "_" + str(j)+ "_newtest.png", dpi = 300)
         plt.clf()
