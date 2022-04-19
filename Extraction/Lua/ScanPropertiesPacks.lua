@@ -47,9 +47,9 @@ folderPacks = scandir(dataT)
 headerFlag = true
 
 outputfile = io.open([[\\130.88.233.166\data\Aaron\ProstateMRL\Data\MRLPacks\ScanInfo\Allpacks.csv]], "w", "csv")
-outputfile:write("Patient,Visit,Fraction,Scan,DateofScan,TimeofScan,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices \n")
+outputfile:write("Patient,Visit,Fraction,Scan,DateofScan,TimeofScan,StudyDescription,SeriesDescription,AcquisitionDuration,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices \n")
 
-properties_to_collect = { 'AcquisitionDate', 'AcquisitionTime', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
+properties_to_collect = { 'AcquisitionDate', 'AcquisitionTime', 'StudyDescription', 'SeriesDescription', 'AcquisitionDuration', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
 
 -- list patients
 for i = 1, #folderPacks do
