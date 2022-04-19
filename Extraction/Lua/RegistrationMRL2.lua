@@ -51,11 +51,11 @@ function clear()
 end
 
 -- change accordingly (if 3 digits add 0 in front)
-patID = [[1088]]
+patID = [[257]]
 
 packdir = [[D:\data\MRL_Prostate\]]
-dicomdir = [[D:\data\prostateMR_radiomics\patientData\SABR\000]]..patID..[[\]] -- change according to patient
-outputdir = [[D:\data\prostateMR_radiomics\nifti\SABR\000]]..patID..[[\]]
+dicomdir = [[D:\data\prostateMR_radiomics\patientData\20fractions\0000]]..patID..[[\]] -- change according to patient
+outputdir = [[D:\data\prostateMR_radiomics\nifti\SABR\0000]]..patID..[[\]]
 
 output_csv = io.open([[D:\data\Aaron\ProstateMRL\Data\MRLPacks\ScanInfo\]]..patID..[[.csv]], "w", "csv")
 output_csv:write("patID,MRContour,Fraction,Scan,ContourDate,ScanDate,ContourTime,ScanTime\n")
@@ -95,7 +95,7 @@ for i=1, #dicomfolders do
   for j=1, #dicomscans do
     -- save path to scan and delineation and load after pack because WM funny
     if string.find(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[j], 'MR') then
-        scan = tostring(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[2])
+        scan = tostring(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[2])        
     end
     
     if string.find(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[j], 'RS') then
@@ -106,11 +106,17 @@ for i=1, #dicomfolders do
   
   -- ignore first pack since MR-SIM?
   -- load everything in
+  wm.Scan[1]:load([[DCM:]]..scan)
+  date = wm.Scan[1].Properties.InstanceCreationDate
   
-  print("Pack: "..patpacks[i])
-  loadpack(packdir..patpacks[i])
-  
-  fraction = i-1
+  for p=1, #patpacks do
+    print("Pack: "..patpacks[p])
+    loadpack(packdir..patpacks[p])
+    if wm.Scan[2].Properties.InstanceCreationDate == date then
+      print("Match "..patpack[p])
+    end
+  end
+   fraction = i-1
   
   -- check where empty scans are to load in dicom
   s = wm.Scan.len
@@ -181,6 +187,7 @@ for i=1, #dicomfolders do
   wm.Scan[e+1] = wm.Scan[e+1] / 255
   --wm.Scan[e+1]:write_nifty(outputdir..dicomfolders[i]..[[\000]]..patID..[[_]]..dicomfolders[i]..[[_shrunk_pros.nii]])
   print("--------------------------")
+    
     
 end
 output_csv:close()

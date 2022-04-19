@@ -5,7 +5,7 @@ url_clicks  = "D:\\data\\prostateMR_radiomics\\MuscleClicks\\SABR\\"
 ptDir = os.listdir(url)
 clDir = os.listdir(url_clicks)
 
-'''
+
 for i in ptDir:
     scanWeeks = os.listdir(url + str(i))
     print(i)
@@ -13,8 +13,13 @@ for i in ptDir:
         files = os.listdir(url + str(i) + "\\" + str(j))
         print ("Processing: "+i+"  Timepoint: "+j)	
         for k in files:
-            if "NORM" in k:
-                os.rename(url + str(i) + "\\" + str(j) + "\\" + str(i) + "_" + str(j) +"_NORMimage.nii", url + str(i) + "\\" + str(j) + "\\" + str(i) + "_" + str(j) + "_HM1_image.nii")
+            if "shrunk" in k:
+                print(url + str(i) + "\\" + str(j) + "\\" + str(k))
+                name = str(k)
+                print(name)
+                new_name = "000" + name
+                print(new_name)
+                os.rename(url + str(i) + "\\" + str(j) + "\\" + str(k), url + str(i) + "\\" + str(j) + "\\" + "000" + str(k))
                 print("-----------------")
 
 '''
@@ -27,3 +32,4 @@ for k in clDir:
     print(patID)
     print(scan)    
     os.rename(url_clicks + str(k), url + patID + "\\" + scan + "\\" + patID + "_" + scan + "_muscle.nii")
+'''
