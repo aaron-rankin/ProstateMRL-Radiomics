@@ -67,6 +67,6 @@ for i in patIDs:
 
 # Put a legend to the right side
     plot1.legend(loc='center right', bbox_to_anchor=(1.25, 0.5), ncol=1)
-    fig.savefig(output + str(i) + ".png", dpi=300)
+    #fig.savefig(output + str(i) + ".png", dpi=300)
     print("-------------------------------------")
 
