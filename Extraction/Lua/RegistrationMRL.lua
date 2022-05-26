@@ -51,7 +51,7 @@ function clear()
 end
 
 -- change accordingly (if 3 digits add 0 in front)
-patID = [[1088]]
+patID = [[1089]]
 
 packdir = [[D:\data\MRL_Prostate\]]
 dicomdir = [[D:\data\prostateMR_radiomics\patientData\SABR\000]]..patID..[[\]] -- change according to patient
@@ -67,7 +67,7 @@ patpacks = {}
 -- Get just packs for patient
 for p=1, #allpacks do
   if string.find(allpacks[p], patID) then
-    patpacks[p] = allpacks[p]
+    table.insert(patpacks, allpacks[p])
   end
 end
 
@@ -95,7 +95,7 @@ for i=1, #dicomfolders do
   for j=1, #dicomscans do
     -- save path to scan and delineation and load after pack because WM funny
     if string.find(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[j], 'MR') then
-        scan = tostring(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[2])
+        scan_path = tostring(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[2])
     end
     
     if string.find(dicomdir..[[\]]..dicomfolders[i]..[[\]]..dicomscans[j], 'RS') then
@@ -104,11 +104,29 @@ for i=1, #dicomfolders do
     
   end
   
+  wm.Scan[1]:load([[DCM:]]..scan_path)
+  scan_date = tostring(wm.Scan[1].Properties.InstanceCreationDate)
+  
+  date_match = false
+
   -- ignore first pack since MR-SIM?
   -- load everything in
+  for k=1, #patpacks do
+    --print("Pack: "..patpacks[k])
+    loadpack(packdir..patpacks[k])
+    pack_date = tostring(wm.Scan[2].Properties.InstanceCreationDate)
+
+    if scan_date == pack_date then
+      --print("Match")
+      pack_match = patpacks[k]
+      date_match = true
+      break
+    end
+  end
   
-  print("Pack: "..patpacks[i])
-  loadpack(packdir..patpacks[i])
+  if date_match == true then
+    print("Match - MR: "..i.." Pack: "..pack_match.." Date: "..scan_date)
+  end
   
   fraction = i-1
   
@@ -121,67 +139,9 @@ for i=1, #dicomfolders do
     end
   end
 
-  wm.Scan[e]:load([[DCM:]]..scan)
-  print("Dicom in: "..e)
-  prop_table = {}
-  
-  -- check dates align
-  --for u=1, 3 do
-  for w=1, e-1 do
-  --  print("Scan: "..u.." Date: "..wm.Scan[u].Properties.InstanceCreationDate.." Time: "..wm.Scan[u].Properties.InstanceCreationTime)
-    --v = 3-u
-    --w = e-1-v 
-    --print(fraction, e, v, w)
-    prop_table[1] = patID
-    prop_table[2] = dicomfolders[i]
-    prop_table[3] = fraction
-    prop_table[4] = w
-    prop_table[5] = wm.Scan[e].Properties.InstanceCreationDate
-    prop_table[6] = wm.Scan[w].Properties.InstanceCreationDate
-    prop_table[7] = wm.Scan[e].Properties.InstanceCreationTime
-    prop_table[8] = wm.Scan[w].Properties.InstanceCreationTime
-    output_csv:write(table.concat(prop_table, ", "))
-    output_csv:write("\n")
-      
-  end
-  
-  --print("Scan: "..e.." Date: "..wm.Scan[e].Properties.InstanceCreationDate.." Time: "..wm.Scan[e].Properties.InstanceCreationTime)
+  --wm.Scan[e]:load([[DCM:]]..scan)
+  --print("Dicom in: "..e)
 
-
-  wm.Delineation:load([[DCM:]]..delin, wm.Scan[e])
-
-  for m = 0, wm.Delineation.len do
-    --cont = wm.Delineation.name[m]
-    --print(cont)
-    if string.find(wm.Delineation[m].name, "RP") then
-      --struc = wm.Delineation[m].name
-      RPcont = wm.Delineation[wm.Delineation[m].name]
-      wm.Scan[e+1] = wm.Scan[e]:burn(RPcont, 255, true)
-      break
-    end
-  end  
-
-  -- start matching
-  --for n=1, 3 do
-  for p=1, e-1 do
-  --  o = 3-n
-  --  p = e-1-o
-    print("Matching Scan: "..p)
-    -- match everything to dicom scan with contour
-    selectscanstomatch(e, p, 1, 0, 0, 5, 0.0001, true, false, true, true)
-    wm.MatchClipbox:fit(RPcont, 0, 4)
-    startmatch()
-    -- write out 
-  --  print(outputdir..dicomfolders[i]..[[\000]]..patID..[[_]]..dicomfolders[i]..[[_reg_img_]]..p..[[.nii]])
-    wm.Scan[p]:write_nifty(outputdir..dicomfolders[i]..[[\000]]..patID..[[_]]..dicomfolders[i]..[[_reg_img_]]..p..[[.nii]])
-  end
-  
-  -- want to be only sampling prostate tissue, so shrink it
-  wm.Scan[e+1].Data:expand(-0.3)
-  wm.Scan[e+1] = wm.Scan[e+1] / 255
-  --wm.Scan[e+1]:write_nifty(outputdir..dicomfolders[i]..[[\000]]..patID..[[_]]..dicomfolders[i]..[[_shrunk_pros.nii]])
-  print("--------------------------")
-    
 end
 output_csv:close()
 print("Finished")

@@ -141,19 +141,7 @@ for i in fractions:
 
 results_df.dropna()
 
-print("Converting Time")
-results_df["TimeDiff"] = results_df["TimeDiff"].apply(lambda x: x[-8:-3])
-results_df["TimeDiff"].replace([""], "0", inplace=True)
 
-for index, row in results_df.iterrows():
-    hours = int(row["TimeDiff"][0:2])
-    if len(row["TimeDiff"]) > 1: 
-        mins = int(row["TimeDiff"][3:5])
-    else:
-        mins = 0
-    total_mins = hours*60 + mins
-    print(hours, mins)
-    print(total_mins)
 
 print("---------------Done----------------")
 results_df.to_csv(output + patID_l + ".csv")
