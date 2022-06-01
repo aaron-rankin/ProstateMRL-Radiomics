@@ -1,22 +1,14 @@
--- Read in DB
-
 -- loop through ID col / folder
 -- Read in fileneame col -> extract PatID and fraction
--- if PatID new
--- if fraction 1 
 --    save file path
---    scan 1 = plan adaptation, scan 2 = verification, scan 3 = post treatment
---    load in pack and contour
---    register scan 2 and 3 to scan 1??
---    write nifti of scans and masks
-
--- if other fraction
---   load in pack
---   register each scan to frac 1 scan 1
---   load in contour from frac 1, shrink by 3mm at each fraction? Same for SABR and 20#
---   write nifti of registered scans and mask
-
--- back to top
+--    load in dicom and structure set
+--    save date
+--    loop through packs until date matches
+--    load in dicoms and structures again
+--    match to dicom scan
+--    write niftis
+--    calc mean signal within each mask
+--    save as pack
 
 function scandir(directory)
     local i, t, popen = 0, {}, io.popen
