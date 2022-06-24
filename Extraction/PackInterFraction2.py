@@ -50,8 +50,7 @@ vals_scan = {}
 
 packedIDs = ["312108"]
 
-#packedIDs.remove('0000653')
-#packedIDs.remove('0000826')
+
 # loop through ptDir if in packedIDs
 for i in ptDir:
     if i in packedIDs:
