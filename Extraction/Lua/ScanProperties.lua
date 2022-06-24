@@ -46,10 +46,10 @@ folderPatients = scandir(dataT)
 
 headerFlag = true
 
-outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR.csv]], "w", "csv")
-outputfile:write("Patient,Scan,Age,DateofScan,TimeofScan,Manufacturer,Model,Sequence,AcquisitionType,MagneticFieldStrength,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices,NumberofContours,Contours \n")
+outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\patientDatainfo\scaninfo_SABR_RP.csv]], "w", "csv")
+outputfile:write("Patient,Scan,Age,DateofScan,TimeofScan,Manufacturer,Model,Sequence,AcquisitionType,MagneticFieldStrength,PixelSpacing,Rows,Columns,Slices,SliceThickness,SpacingBetweenSlices\n")--,NumberofContours,Contours \n")
 
-properties_to_collect = {'PatientAge', 'AcquisitionDate', 'AcquisitionTime', 'Manufacturer', 'ManufacturerModelName', 'StudyDescription', 'MRAcquisitionType', 'MagneticFieldStrength', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
+properties_to_collect = {'PatientAge', 'AcquisitionDate', 'AcquisitionTime','StudyDescription', 'SeriesDescription', 'Manufacturer', 'ManufacturerModelName', 'StudyDescription', 'MRAcquisitionType', 'MagneticFieldStrength', 'PixelSpacing', 'Rows', 'Columns', 'NumberOfSlicesMR', 'SliceThickness', 'SpacingBetweenSlices'}
 
 -- list patients
 for i = 1, #folderPatients do
@@ -81,11 +81,13 @@ for i = 1, #folderPatients do
       
     -- Calculate number of contours and save
     contours = {}
+    RP_cont = false
     print("Number of contours: "..wm.Delineation.len)
     for m=1, wm.Delineation.len do
-      if string.find(wm.delineation[m-1].name, 'rostate') then
+      if string.find(wm.delineation[m-1].name, 'RP') then
       contours[m] = (wm.Delineation[m-1].name)
       print(contours[m])
+      RP_cont = true
       end
     end
     
@@ -106,9 +108,10 @@ for i = 1, #folderPatients do
     --for m = 1, wm.Delineation.len do
      -- prop_table[16+m] = wm.Delineation[m-1].name
     --end
-
-    outputfile:write(table.concat(prop_table, ", "))
-    outputfile:write("\n")
+    if RP_cont == true then
+      outputfile:write(table.concat(prop_table, ", "))
+      outputfile:write("\n")
+    end
     
 end
 end  
