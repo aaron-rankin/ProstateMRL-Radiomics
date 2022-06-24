@@ -37,8 +37,8 @@ def MaskedImage(image_url, mask_url):
     
 
 
-patID = "1088"
-patID_l = "0001088" # add extra 0 if 3 digit ID
+patID = "0000653"
+patID_l = "0000653" # add extra 0 if 3 digit ID
 
 url_20f = 'D:/data/prostateMR_radiomics/nifti/20fractions/'
 url_20f_new = 'D:/data/prostateMR_radiomics/nifti/20fractions_new/'
@@ -62,7 +62,7 @@ scanValues = {"PatID":[], "MRCont":[], "Fraction":[], "ScanDate":[], "ScanTime":
 fractions = scan_info.Fraction.unique()
 MRs = scan_info.MRContour.unique()
 
-for i in fractions:
+for i in range(len(fractions)):
     MR = MRs[i].replace(' ', '')
     fraction = fractions[i]
 
@@ -80,11 +80,11 @@ for i in fractions:
     scantimes = temp_df.ScanTime.unique() # get all different scantimes
     s = -1 # index for scantimes
 
-    for j in os.scandir(url + '/' + MR):  # loop through files
+    for j in os.scandir(url + '/' + MR + '/Reg-Raw/'):  # loop through files
         file = j.name
-        glute_url = url + '/' + MR + '/' + patID_l + '_' + MR + '_glute.nii'
-        pros_url = url + '/' + MR + '/' + patID_l + '_' + MR + '_shrunk_pros.nii'
-        psoas_url = url + '/' + MR + '/' + patID_l + '_' + MR + '_psoas.nii'
+        glute_url = url + '/' + MR + '/' + 'Masks/' +  patID_l + '_' + MR + '_glute.nii'
+        pros_url = url + '/' + MR + '/' + 'Masks/' + patID_l + '_' + MR + '_shrunk_pros.nii'
+        psoas_url = url + '/' + MR + '/' + 'Masks/' + patID_l + '_' + MR + '_psoas.nii'
 
         mask_urls = [pros_url, glute_url, psoas_url]
 
@@ -102,7 +102,7 @@ for i in fractions:
 
             DateTime = pd.to_datetime((date + time))
 
-            image_url = url + '/' + MR + '/' + file
+            image_url = url + '/' + MR + '/' + '/Reg-Raw/' + file
 
             for k in range(len(mask_urls)):
                 mean = MaskedImage(image_url, mask_urls[k])

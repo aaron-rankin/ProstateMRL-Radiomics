@@ -1,14 +1,14 @@
 import os
 
-url = "D:\\data\\prostateMR_radiomics\\nifti\\SABR\\"
+url = "D:\\data\\prostateMR_radiomics\\nifti\\20fractions\\"
 url_clicks  = "D:\data\prostateMR_radiomics\MuscleClicks\paint_SABR_new_glute\\"
 ptDir = os.listdir(url)
 clDir = os.listdir(url_clicks)
 
-folders = ["BaseImages", "Masks", "Reg-Raw", "Norm-Pros","Norm-Glute", "Norm-Psoas", "HM-TP", "HM-Scan1"]
-del_folders = ["Norm-Images", "HM-Images"]
+folders = ["BaseImages", "Masks", "Reg-Raw", "Norm-Pros","Norm-Glute", "Norm-Psoas", "HM-TP", "HM-FS"]
+del_folders = ["Norm-Images", "HM-Images", "HM-Scan1"]
 
-
+'''
 for i in ptDir:
     scanWeeks = os.listdir(url + str(i))
     for j in scanWeeks:
@@ -30,7 +30,7 @@ for i in ptDir:
             else:
                 continue
 
-'''
+
         for k in files:
            
             if "Glute" in k:
@@ -71,10 +71,10 @@ for i in ptDir:
                 #os.rename(url + str(i) + "\\" + str(j) + "\\" + str(k), url + str(i) + "\\" + str(j) + "\\" + "000" + str(k))
             
 
+'''
 
-
-for k in clDir:
-    if "new" not in k:
+for k in ptDir:
+    if "glute" in k:
         print(k)
         name = k.split("_")
         group = name[0] #+ #"_" + name[1]
@@ -84,7 +84,6 @@ for k in clDir:
         # print(group)
         # print(patID)
         # print(scan)    
-        print(url + group + "\\" + patID + "\\" + scan + "\\" + patID + "_" + scan + "_psoas.nii")
-        os.rename(url_clicks + str(k), url + group + "\\" + patID + "\\" + scan + "\\" + patID + "_" + scan + "_psoas.nii")
+        print(url + group + "\\" + patID + "\\" + scan + "\\" + patID + "_" + scan + "_glute2.nii")
+        os.rename(url + "\\" + patID + "\\" + scan + "\\" + patID + "_" + scan + "_glute2.nii", url + "\\" + patID + "\\" + scan + "\\Masks\\" + patID + "_" + scan + "_glute2.nii")
 
-'''

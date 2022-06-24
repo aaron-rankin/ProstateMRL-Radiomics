@@ -43,17 +43,17 @@ function clear()
 end
 
 -- change accordingly (if 3 digits add 0 in front) (if _new no 0's)
-patID = [[106958]]
-packID = [[Pt1]]
-treatment =  [[20fractions]]-- [[SABR]]
+patID = [[0000826]]
+packID = [[826]]
+treatment = [[SABR]]-- [[20fractions]]-- 
 
-packdir = [[D:\data\MRL_Prostate\Pt1\]]
+packdir = [[D:\data\MRL_Prostate\]]
 newpackdir = [[D:\data\prostateMR_radiomics\Packs\]]
 dicomdir = [[D:\data\prostateMR_radiomics\patientData\]]..treatment..[[\]]..patID..[[\]] -- change according to patient
 outputdir = [[D:\data\prostateMR_radiomics\nifti\]]..treatment..[[\]]..patID..[[\]]
 
 scaninfo_csv = io.open([[D:\data\Aaron\ProstateMRL\Data\MRLPacks\ScanInfo\]]..patID..[[.csv]], "w", "csv")
-scaninfo_csv:write("patID,MRContour,Pack,Fraction,Scan,ContourDate,ScanDate,ContourTime,ScanTime,MeanProstate,MeanShrunkProstate,MeanGlute,MeanPsoas\n")
+scaninfo_csv:write("patID,MRContour,Pack,Fraction,Scan,ContourDate,ScanDate,ContourTime,ScanTime,MeanProstate,MeanShrunkProstate,MeanPsoas,MeanGlute\n")
 
 allpacks = {}
 allpacks = scandir(packdir)
@@ -138,9 +138,9 @@ for i=1, #dicomfolders do
 
       loadpack(packdir..pack_match)
       
-      hash = string.find(pack_match, "n") -- have to change for pt in folders
+      hash = string.find(pack_match, "#") -- have to change for pt in folders
       dot = string.find(pack_match, "PA")
-      fraction = string.sub(pack_match, hash+2, dot-2) -- dont need -1 for pt in folder
+      fraction = tonumber(string.sub(pack_match, hash+1, dot-2)) -1 -- dont need -1 for pt in folder
       
       -- check where empty scans are to load in dicom
       s = wm.Scan.len
@@ -168,12 +168,12 @@ for i=1, #dicomfolders do
       wm.Scan[e+2] = wm.Scan[e+1] / 255 
       wm.Scan[e+2].Description = "ShrunkProstateMask"
       wm.Scan[e+2].Data:expand(-0.35)
-      wm.Scan[e+2]:write_nifty(outputdir..dicomfolders[i]..[[\]]..patID..[[_]]..dicomfolders[i]..[[_shrunk_pros.nii]])
+      wm.Scan[e+2]:write_nifty(outputdir..dicomfolders[i]..[[\Masks\]]..patID..[[_]]..dicomfolders[i]..[[_shrunk_pros.nii]])
       
-      wm.Scan[e+3]:read_nifty(outputdir..dicomfolders[i]..[[\]]..patID..[[_]]..dicomfolders[i]..[[_psoas.nii]])
+      wm.Scan[e+3]:read_nifty(outputdir..dicomfolders[i]..[[\Masks\]]..patID..[[_]]..dicomfolders[i]..[[_psoas.nii]])
       wm.Scan[e+3].Description = "PsoasMask"
       
-      wm.Scan[e+4]:read_nifty(outputdir..dicomfolders[i]..[[\]]..patID..[[_]]..dicomfolders[i]..[[_glute.nii]])
+      wm.Scan[e+4]:read_nifty(outputdir..dicomfolders[i]..[[\Masks\]]..patID..[[_]]..dicomfolders[i]..[[_glute.nii]])
       wm.Scan[e+4].Description = "GluteMask"
       
       prop_table = {}
@@ -200,7 +200,7 @@ for i=1, #dicomfolders do
           startmatch()
           -- write out 
           --wm.Scan[w]:as(wm.Scan[e])
-          wm.Scan[w]:write_nifty(outputdir..dicomfolders[i]..[[\000]]..patID..[[_]]..dicomfolders[i]..[[_reg_img_]]..w..[[.nii]]) -- includeadjust=True
+          wm.Scan[w]:write_nifty(outputdir..dicomfolders[i]..[[\Reg-Raw\]]..patID..[[_]]..dicomfolders[i]..[[_reg_img_]]..w..[[.nii]]) -- includeadjust=True
           
           -- use masks to calc mean for each mask
           for v=1, 4 do
