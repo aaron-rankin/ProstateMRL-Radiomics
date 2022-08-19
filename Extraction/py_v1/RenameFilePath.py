@@ -1,14 +1,14 @@
 import os
 
-url = "D:\\data\\prostateMR_radiomics\\nifti\\20fractions\\"
+url = "D:\\data\\prostateMR_radiomics\\nifti\\SABR\\"
 url_clicks  = "D:\data\prostateMR_radiomics\MuscleClicks\paint_SABR_new_glute\\"
 ptDir = os.listdir(url)
 clDir = os.listdir(url_clicks)
 
-folders = ["BaseImages", "Masks", "Reg-Raw", "Norm-Pros","Norm-Glute", "Norm-Psoas", "HM-TP", "HM-FS"]
-del_folders = ["Norm-Images", "HM-Images", "HM-Scan1"]
+folders = ["BaseImages", "Masks", "Reg-Raw", "Norm-Pros","Norm-Glute", "Norm-Psoas", "Med-Pros", "Med-Psoas", "Med-Glute", "HM-TP", "HM-FS"]
+old_folders = ["Norm-Pros","Norm-Glute", "Norm-Psoas"]
+new_folders = ["Mean-Pros", "Mean-Glute", "Mean-Psoas"]
 
-'''
 for i in ptDir:
     scanWeeks = os.listdir(url + str(i))
     for j in scanWeeks:
@@ -17,19 +17,19 @@ for i in ptDir:
         print("Processing: "+i+"  Timepoint: "+j)
         print("-----------------")
         
-        path = url + str(i) + "\\" + str(j) + "\\"
-
-        for folder in folders:
-            if os.path.exists(path + folder):
-                continue
+        for k in range(len(old_folders)):
+            path = url + str(i) + "\\" + str(j) + "\\"#BaseImages\\" + str(i) + "_" + str(j) + "_NORMimage.nii"
+            path_old = url + str(i) + "\\" + str(j) + "\\" + str(old_folders[k])
+            path_new = url + str(i) + "\\" + str(j) + "\\" + str(new_folders[k])
+            print(path_old)
+        
+            if os.path.exists(path):
+                print(path)
+                os.rename(path, path_new)
             else:
-                os.mkdir(path + folder)
-        for del_folder in del_folders:
-            if os.path.exists(path + del_folder):
-                os.rmdir(path + del_folder)
-            else:
-                continue
-
+                print("-")
+        
+'''
 
         for k in files:
            
