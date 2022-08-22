@@ -13,14 +13,14 @@ import pandas as pd
 import os
 import UsefulFunctions as UF
 
-# csv_url = "D:\\data\\Aaron\\ProstateMRL\\Data\\MRLPacks\\InterFractionChanges\\"
-scans_df = pd.read_csv("D:\\data\\Aaron\\ProstateMRL\\Data\\PatientKey_sorted.csv")
+root = UF.DataRoot()
+url = root + "prostateMR_radiomics\\nifti\\"
+# csv_url = "root\\Aaron\\ProstateMRL\\Data\\MRLPacks\\InterFractionChanges\\"
+scans_df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\PatientKey_sorted.csv")
 treatments = ["20fractions"] #"SABR", 
 
-url_SABR = "D:\\data\\prostateMR_radiomics\\nifti\\SABR\\"
-url_20f = "D:\\data\\prostateMR_radiomics\\nifti\\20fractions\\"
-
-url = "D:\\data\\prostateMR_radiomics\\nifti\\"
+url_SABR = root + "\\prostateMR_radiomics\\nifti\\SABR\\"
+url_20f = root + "\\prostateMR_radiomics\\nifti\\20fractions\\"
 
 
 for t in treatments:
@@ -48,7 +48,7 @@ for t in treatments:
         mean_psoas, med_psoas = UF.MaskedMeanMed(base_image, base_path + "Masks\\" + str(i) + "_" + scans[0] + "_psoas.nii")
 
         for j in scans:
-            #MRcont = pat_df[pat_df["Fraction"] == j]["MRContour"].iloc[0]
+            MRcont = pat_df[pat_df["Fraction"] == j]["MRContour"].iloc[0]
             MRcont = j
             pat_path = url + str(t) + "\\" + str(i) + "\\" + MRcont + "\\"
 

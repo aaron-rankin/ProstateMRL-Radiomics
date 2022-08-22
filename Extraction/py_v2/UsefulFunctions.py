@@ -8,7 +8,35 @@ import sys
 import seaborn as sns
 import pandas as pd
 from datetime import datetime
+
+
+
 ####################################################
+
+def DataRoot():
+    '''
+    Returns the root directory of the data if on
+    server or local
+    '''
+    question = input("Server (1) or Local (2)? ")
+    if question == str(1):
+        root = "D:\\data\\"
+    elif question == str(2):
+        root = "\\\\130.88.233.166\\data\\"
+    
+    return root
+
+#####################################################
+
+def NormArray():
+    """
+    Returns array of normalisation factors
+    """
+    Norms = ["Raw", "HM-FS", "HM-TP", "Norm-Pros", "Med-Pros", "Norm-Glute", "Med-Glute", "Norm-Psoas", "Med-Psoas"]
+    return Norms
+
+####################################################
+
 def ImageArray(image_url):
     '''
     Gives masked image array
@@ -19,6 +47,7 @@ def ImageArray(image_url):
     image_array = sitk.GetArrayFromImage(image)
 
     return image_array
+
 ####################################################
 def MaskedImage(image_url, mask_url):
     '''
