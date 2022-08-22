@@ -99,7 +99,7 @@ def MaskedMeanMed(image_url, mask_url):
 
 ####################################################
 
-def MaskedMeanStd90P(image_url, mask_url):
+def MaskedMeanStd(image_url, mask_url):
     '''
     Returns mean and std of masked image
     Input - image path and mask path
