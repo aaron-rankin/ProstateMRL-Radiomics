@@ -171,20 +171,26 @@ def NormImage(image_path, factor, output_path):
 
 ####################################################
 
-def DateDifference(date1, date2):
-    '''
-    Returns difference between two dates from WM (Format Y/M/D) (year incorrect)
-    Finds difference and converts to days
+# def DateDifference(date1, date2):
+#     '''
+#     Returns difference between two dates from WM (Format Y/M/D) (year incorrect)
+#     Finds difference and converts to days
 
-    Input - 2 dates (datetiemeobjects)
-    Output - Number of days (ints)
-    '''
-    d1, d2 = date1, date2
+#     Input - 2 dates (datetiemeobjects)
+#     Output - Number of days (ints)
+#     '''
+#     d1, d2 = date1, date2
+#     dates = [d1, d2]
+#     for d in dates:
+#         if len(d) = != 8:
+#             d = d[:-2]
+        
+#         d = (datetime.strptime(str(d), "%Y%m%d")).date()
 
-    #d1 = datetime.strptime(d1, "%Y-%m-%d")
-    #d2 = datetime.strptime(d2, "%Y-%m-%d")
+#     #d1 = datetime.strptime(d1, "%Y-%m-%d")
+#     #d2 = datetime.strptime(d2, "%Y-%m-%d")
 
-    return abs((d2 - d1).days)
+#     return abs((d2 - d1).days)
 
 ####################################################
 
@@ -197,6 +203,7 @@ def GetNorm(image_name):
 
     Norm = n.split("_")[2]
     Norm = Norm.replace(".nii", "")
+    Norm = Norm.replace("v2", "")
     if Norm == "image":
         Norm = "Raw"
 
@@ -234,4 +241,63 @@ def FixPatID(patID):
     else:
         newID = str(patID)
 
+    if newID == "1464":
+        newID = "0001"
+
     return newID 
+
+####################################################
+
+def FixDate(date_string):
+    '''
+    '''
+    if len(date_string) != 8:
+        date_string = date_string[:-2]
+    date = datetime.strptime(date_string, "%Y%m%d")
+    print(date)
+    return date
+
+####################################################
+
+def GetNiftiPaths(patient_path, treatment):
+    """
+    """
+    mask_path = os.path.join(patient_path, "Masks\\")
+
+    if treatment == "20fractions":
+        mask_labels = ["_shrunk_pros.nii", "_glute2.nii", "_psoas.nii"] # set glute2 for 20fractions
+    elif treatment == "SABR":
+        mask_labels = ["_shrunk_pros.nii", "_glute.nii", "_psoas.nii"]
+
+    image_roots = ["BaseImages\\", "HM-TP", "HM-FS", "Norm-Pros\\", "Norm-Glute\\", "Norm-Psoas\\", "Med-Pros\\", "Med-Glute\\", "Med-Psoas\\"]
+    image_roots = ["BaseImages\\", "HM-TP\\","Norm-Psoas\\", "Med-Psoas\\"]
+
+    image_labels = ["Raw", "HM-TP", "HM-FS", "Norm-Pros", "Norm-Glute", "Norm-Psoas", "Med-Pros", "Med-Glute", "Med-Psoas"]
+    image_labels = ["Raw", "HM-TP", "Norm-Psoas", "Med-Psoas"]
+    
+    image_paths = []
+    
+    for b in image_roots:
+        image_paths.append(os.path.join(patient_path, b))
+    
+    return mask_path, mask_labels, image_paths, image_labels
+
+####################################################
+
+def GetImageFile(image_path, patient, scan, image_label):
+    """
+    """
+    label = image_label
+    #if image_label.__contains__("Raw"):
+    #    image_label == "image"
+    if label.__contains__("Norm") or label.__contains__("Med"):
+        label = label + "_v2"
+    
+    
+    file_name = patient + "_" + scan + "_" + label + ".nii"
+    file_path = os.path.join(image_path, file_name)
+
+    return file_path, file_name
+
+####################################################
+

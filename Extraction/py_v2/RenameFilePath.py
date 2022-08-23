@@ -1,13 +1,14 @@
 import os
-
-url = "D:\\data\\prostateMR_radiomics\\nifti\\SABR\\"
-url_clicks  = "D:\data\prostateMR_radiomics\MuscleClicks\paint_SABR_new_glute\\"
+import UsefulFunctions as UF
+root = UF.DataRoot()
+url = root + "prostateMR_radiomics\\nifti\\20fractions\\"
+url_clicks  = root + "prostateMR_radiomics\MuscleClicks\paint_SABR_new_glute\\"
 ptDir = os.listdir(url)
 clDir = os.listdir(url_clicks)
 
 folders = ["BaseImages", "Masks", "Reg-Raw", "Norm-Pros","Norm-Glute", "Norm-Psoas", "Med-Pros", "Med-Psoas", "Med-Glute", "HM-TP", "HM-FS"]
-old_folders = ["Norm-Pros","Norm-Glute", "Norm-Psoas"]
-new_folders = ["Mean-Pros", "Mean-Glute", "Mean-Psoas"]
+#new_folders = ["BaseImages"]
+#old_folders = ["RawImages"]
 
 for i in ptDir:
     scanWeeks = os.listdir(url + str(i))
@@ -17,17 +18,19 @@ for i in ptDir:
         print("Processing: "+i+"  Timepoint: "+j)
         print("-----------------")
         
-        for k in range(len(old_folders)):
-            path = url + str(i) + "\\" + str(j) + "\\"#BaseImages\\" + str(i) + "_" + str(j) + "_NORMimage.nii"
-            path_old = url + str(i) + "\\" + str(j) + "\\" + str(old_folders[k])
-            path_new = url + str(i) + "\\" + str(j) + "\\" + str(new_folders[k])
-            print(path_old)
-        
-            if os.path.exists(path):
-                print(path)
-                os.rename(path, path_new)
-            else:
-                print("-")
+        # for k in range(len(old_folders)):
+        path = url + str(i) + "\\" + str(j) + "\\BaseImages\\" + str(i) + "_" + str(j) + "_image.nii"
+        #     path_old = url + str(i) + "\\" + str(j) + "\\" + str(old_folders[k])
+        #     path_new = url + str(i) + "\\" + str(j) + "\\" + str(new_folders[k])
+        #     #print(path_old)
+        path_new = url + str(i) + "\\" + str(j) + "\\BaseImages\\" + str(i) + "_" + str(j) + "_Raw.nii"
+        if os.path.exists(path):
+            print(path)
+            os.rename(path, path_new)
+            
+        else:
+            print("here")
+            #print(path_new)
         
 '''
 
