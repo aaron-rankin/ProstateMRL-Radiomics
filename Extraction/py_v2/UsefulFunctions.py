@@ -301,3 +301,16 @@ def GetImageFile(image_path, patient, scan, image_label):
 
 ####################################################
 
+def MaskValue(mask_name):
+    '''
+    Input: Mask name
+    Output: Mask value
+    '''
+    n = mask_name
+
+    if "pros" in n:
+        value = int(255)
+    elif "glute" or "psoas" in n: 
+        value = int(13)
+    
+    return value
