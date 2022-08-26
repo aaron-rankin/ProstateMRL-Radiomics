@@ -248,15 +248,15 @@ def FixPatID(patID):
 
 ####################################################
 
-def FixDate(date_string):
+def FixDate(date):
     '''
     '''
+    date_string = str(date)
     if len(date_string) != 8:
         date_string = date_string[:-2]
-    date = datetime.strptime(date_string, "%Y%m%d")
-    print(date)
-    return date
+    date = datetime.strptime(date_string, "%Y%m%d").date()
 
+    return date
 ####################################################
 
 def GetNiftiPaths(patient_path, treatment):
@@ -270,10 +270,10 @@ def GetNiftiPaths(patient_path, treatment):
         mask_labels = ["_shrunk_pros.nii", "_glute.nii", "_psoas.nii"]
 
     image_roots = ["BaseImages\\", "HM-TP", "HM-FS", "Norm-Pros\\", "Norm-Glute\\", "Norm-Psoas\\", "Med-Pros\\", "Med-Glute\\", "Med-Psoas\\"]
-    image_roots = ["BaseImages\\", "HM-TP\\","Norm-Psoas\\", "Med-Psoas\\"]
+    #image_roots = ["BaseImages\\", "HM-TP\\","Norm-Psoas\\", "Med-Psoas\\"]
 
     image_labels = ["Raw", "HM-TP", "HM-FS", "Norm-Pros", "Norm-Glute", "Norm-Psoas", "Med-Pros", "Med-Glute", "Med-Psoas"]
-    image_labels = ["Raw", "HM-TP", "Norm-Psoas", "Med-Psoas"]
+    #image_labels = ["Raw", "HM-TP", "Norm-Psoas", "Med-Psoas"]
     
     image_paths = []
     
