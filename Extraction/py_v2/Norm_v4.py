@@ -42,8 +42,8 @@ for t in treatments:
         
         base_df = pat_df.loc[pat_df["DaysDiff"]==0]
         #print(base_df.head())
-        
-        base_pros, base_glute, base_psoas = base_df["Median"].iloc[0], base_df["Median"].iloc[1], base_df["Median"].iloc[2]
+        base_pros_mean, base_glute_mean, base_psoas_mean = base_df["Mean"].iloc[0], base_df["Mean"].iloc[1], base_df["Mean"].iloc[2]
+        base_pros_med, base_glute_med, base_psoas_med = base_df["Median"].iloc[0], base_df["Median"].iloc[1], base_df["Median"].iloc[2]
         print(base_pros, base_glute, base_psoas)
         pat_df = pat_df[pat_df["DaysDiff"] != 0]
         #print(pat_df.head())
@@ -62,19 +62,23 @@ for t in treatments:
             masks_path = url + t + "\\" + i + "\\" + s + "\\Masks\\"
             for r in Regions:
                 region_df = day_df[pat_df["Region"] == r]
+                mean_value = region_df["Mean"].iloc[0]
                 med_value = region_df["Median"].iloc[0]
                 
                 if r == "Prostate":
-                    norm_factor = base_pros / med_value
+                    mean_factor = base_pros_mean / mean_value
+                    med_factor = base_pros / med_value
                     base_value = base_pros
                     mask_label = "_shrunk_pros.nii"
                     med_label = "Med-Pros"
                 elif r == "Glute":
+                    mean_factor = base_glute_mean / mean_value
                     norm_factor = base_glute / med_value
                     base_value = base_glute
                     mask_label = "_glute.nii"
                     med_label = "Med-Glute"
                 elif r == "Psoas":
+                    mean_factor = base_psoas_mean / mean_value
                     norm_factor = base_psoas / med_value
                     base_value = base_psoas
                     mask_label = "_psoas.nii"
@@ -85,4 +89,4 @@ for t in treatments:
                 mask_path = masks_path + i + "_" + s + mask_label
                 med_path = url + t + "\\" + i + "\\" + s + "\\" + med_label + "\\" + i + "_" + s + "_" + med_label + ".nii"
 
-                UF.NormImage(image_path, norm_factor, med_path)
+                #UF.NormImage(image_path, norm_factor, med_path)
