@@ -241,9 +241,6 @@ def FixPatID(patID):
     else:
         newID = str(patID)
 
-    if newID == "1464":
-        newID = "0001"
-
     return newID 
 
 ####################################################

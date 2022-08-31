@@ -13,7 +13,7 @@ root = UF.DataRoot()
 
 key_df = pd.read_csv(os.path.join(root, "Aaron\\ProstateMRL\\Data\\PatientKey_sorted.csv"))
 nifti_dir = os.path.join(root, "prostateMR_radiomics\\nifti\\")
-output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\InterFractionChanges_v3\\All_signal_changes_pyRad.csv")
+output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\InterFractionChanges_v3\\Base_signal_changes_pyRad.csv")
 
 parameters = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\SanityCheck.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(parameters)
@@ -55,9 +55,7 @@ for t in treatments:
             #print("----------------------------------------------------")
             print("Scan: {}".format(MRcont))
 
-
             mask_path, mask_labels, image_paths, image_labels = UF.GetNiftiPaths(pat_path, t)
-        
 
             for k in range(len(image_paths)):
         
@@ -68,8 +66,6 @@ for t in treatments:
 
                 norm = UF.GetNorm(image_name)
 
-            #    print("----------------------------------------------------")
-            #    print("Normalisation: {}".format(norm))
 
                 for m in mask_labels:
                     values = {}
