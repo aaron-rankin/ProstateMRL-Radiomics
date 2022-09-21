@@ -13,15 +13,15 @@ root = UF.DataRoot()
 
 key_df = pd.read_csv(os.path.join(root, "Aaron\\ProstateMRL\\Data\\PatientKey_sorted.csv"))
 nifti_dir = os.path.join(root, "prostateMR_radiomics\\nifti\\")
-output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\InterFractionChanges_v3\\All_signal_changes_pyRad.csv")
+output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\Features_v2\\")
 
-parameters = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\SanityCheck.yaml"
+parameters = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\Run1.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(parameters)
 
 all_df = pd.DataFrame()
 col_names = ["PatID","Treatment","Scan","DaysDiff","Normalisation","Region","Mean","Median", "Std", "10Perc", "90Perc"]
 key_df.drop(["Unnamed: 0"], axis=1, inplace=True)
-treatments = ["20fractions", "SABR"]#,"20fractions"]
+treatments = ["SABR","20fractions"]
 
 for t in treatments: 
     t_df = key_df.loc[key_df["Treatment"] == t]
@@ -42,6 +42,7 @@ for t in treatments:
         first_date = dates[0]
         first_date = UF.FixDate(first_date)      
         
+        p_df = pd.DataFrame()
 
         for j in scans:
             MRcont = j 
@@ -52,12 +53,11 @@ for t in treatments:
             scan_date = UF.FixDate(scan_date)
             days_diff = (scan_date - first_date).days
 
-            #print("----------------------------------------------------")
             print("Scan: {}".format(MRcont))
 
 
             mask_path, mask_labels, image_paths, image_labels = UF.GetNiftiPaths(pat_path, t)
-        
+
 
             for k in range(len(image_paths)):
         
@@ -68,8 +68,6 @@ for t in treatments:
 
                 norm = UF.GetNorm(image_name)
 
-            #    print("----------------------------------------------------")
-            #    print("Normalisation: {}".format(norm))
 
                 for m in mask_labels:
                     values = {}
@@ -79,20 +77,24 @@ for t in treatments:
                     mask_file_path = os.path.join(mask_path, mask_file)
                     mask_value = UF.MaskValue(m)
                     
-                    temp_results = pd.DataFrame()
+                    temp_df = pd.DataFrame()
                     temp_results = pd.Series(extractor.execute(image_path, mask_file_path, label=mask_value))
-                    temp_trans = temp_results.iloc[22:]
+                    temp_df = temp_df.append(temp_results, ignore_index=True)
                    
-                    
-                    values["PatID"], values["Treatment"], values["Scan"], values["DaysDiff"] = patID, t, MRcont, int(days_diff)
-                    values["Normalisation"], values["Region"] = norm, region
-                    values["Mean"], values["Median"] = temp_trans.iloc[0], temp_trans.iloc[1]
-                    values["Std"], values["10Perc"], values["90Perc"] = np.sqrt(temp_trans.iloc[4]), temp_trans.iloc[2], temp_trans.iloc[3]
-                    
-                    all_df = all_df.append(values, ignore_index=True)
-                    all_df = all_df[col_names]
-                    
+                    temp_df.insert(0, "PatID", patID)
+                    temp_df.insert(1, "Treatment", t)
+                    temp_df.insert(2, "Scan", MRcont)
+                    temp_df.insert(3, "DaysDiff", int(days_diff))
+                    temp_df.insert(4, "Normalisation", norm)
+                    temp_df.insert(5, "Region", region)
+
+                    p_df = p_df.append(temp_df, ignore_index=True)
+                                       
+
+        all_df = all_df.append(p_df, ignore_index=True)
+        p_df.to_csv(output_dir + t + "_" + patID + "_pyRad_Features.csv")
+
                
 
-all_df.to_csv(output_dir)
+all_df.to_csv(output_dir + "All_pyRad_Features.csv")
             

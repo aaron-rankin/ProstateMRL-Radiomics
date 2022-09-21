@@ -16,40 +16,42 @@ import UsefulFunctions as UF
 root = UF.DataRoot()
 url = root + "prostateMR_radiomics\\nifti\\"
 # csv_url = "root\\Aaron\\ProstateMRL\\Data\\MRLPacks\\InterFractionChanges\\"
-scans_df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\MRLPacks\\InterFractionChanges_v3\\Base_signal_changes_pyRad.csv")
-treatments = ["SABR"]  
-
-url_SABR = root + "\\prostateMR_radiomics\\nifti\\SABR\\"
-url_20f = root + "\\prostateMR_radiomics\\nifti\\20fractions\\"
-
+key_df = pd.read_csv(os.path.join(root, "Aaron\\ProstateMRL\\Data\\PatientKey_sorted.csv"))
+raw_dir = root + "\\Aaron\\ProstateMRL\\Data\\MRLPacks\\pyRadSignal\\Raw\\"
+treatments = ["SABR", "20fractions"]  #,
 
 for t in treatments:
-    t_df = scans_df.loc[scans_df["Treatment"] == t]
-    patIDs = t_df.PatID.unique()
-    Regions = t_df.Region.unique()
+    t_df = key_df.loc[key_df["Treatment"] == t]
+    patIDs = t_df.Patient.unique()
+    #patIDs = ["1464"]
     print(t)
     print(patIDs)
     #print(t_df.head())
-    raw_df = t_df.loc[t_df["Normalisation"] == "Raw"]
     #print(raw_df.head())
 
     for i in patIDs:
         # read in pat csv
-        pat_df = raw_df[raw_df["PatID"].isin([i])]
+        patID = UF.FixPatID(i)
+        pat_df = pd.read_csv(raw_dir + t + "_" + patID + "_pyRadSignal_Raw.csv" )
+        pat_df = pat_df.loc[pat_df["Normalisation"] == "Raw"]
+        Regions = pat_df.Region.unique()
+        #pat_df = raw_df[raw_df["PatID"].isin([i])]
         print("-"*20)
         #print(i)
         
         
         base_df = pat_df.loc[pat_df["DaysDiff"]==0]
         #print(base_df.head())
+        
+        #print(base_df.head())
         base_pros_mean, base_glute_mean, base_psoas_mean = base_df["Mean"].iloc[0], base_df["Mean"].iloc[1], base_df["Mean"].iloc[2]
         base_pros_med, base_glute_med, base_psoas_med = base_df["Median"].iloc[0], base_df["Median"].iloc[1], base_df["Median"].iloc[2]
         #print(base_pros_mean, base_glute_mean, base_psoas_mean)
         #print(base_pros_med, base_glute_med, base_psoas_med)
-        pat_df = pat_df[pat_df["DaysDiff"] != 0]
+        #pat_df = pat_df[pat_df["DaysDiff"] != 0]
         #print(pat_df.head())
         scans = pat_df["Scan"].unique()
-        
+        #print(pat_df.head())
         for s in scans:
             #print(i)
             PatID = UF.FixPatID(i)
@@ -89,5 +91,6 @@ for t in treatments:
                 #print(r, mean_value, mean_factor,  med_value, med_factor)
                 #mask_path = masks_path +PatID+ "_" + s + mask_label
                 med_path = url + t + "\\" +PatID+ "\\" + s + "\\" + med_label + "\\" +PatID+ "_" + s + "_" + med_label + ".nii"
+                #print(med_path)
 
                 UF.NormImage(image_path, med_factor, med_path)

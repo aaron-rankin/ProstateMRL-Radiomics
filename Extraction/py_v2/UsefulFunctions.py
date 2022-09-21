@@ -266,7 +266,7 @@ def GetNiftiPaths(patient_path, treatment):
     elif treatment == "SABR":
         mask_labels = ["_shrunk_pros.nii", "_glute.nii", "_psoas.nii"]
 
-    image_roots = ["BaseImages\\", "HM-TP", "HM-FS", "Norm-Pros\\", "Norm-Glute\\", "Norm-Psoas\\", "Med-Pros\\", "Med-Glute\\", "Med-Psoas\\"]
+    image_roots = ["BaseImages\\", "HM-TP\\", "HM-FS\\", "Norm-Pros\\", "Norm-Glute\\", "Norm-Psoas\\", "Med-Pros\\", "Med-Glute\\", "Med-Psoas\\"]
     #image_roots = ["BaseImages\\", "HM-TP\\","Norm-Psoas\\", "Med-Psoas\\"]
 
     image_labels = ["Raw", "HM-TP", "HM-FS", "Norm-Pros", "Norm-Glute", "Norm-Psoas", "Med-Pros", "Med-Glute", "Med-Psoas"]
@@ -287,7 +287,7 @@ def GetImageFile(image_path, patient, scan, image_label):
     label = image_label
     #if image_label.__contains__("Raw"):
     #    image_label == "image"
-    if label.__contains__("Norm") or label.__contains__("Med"):
+    if label.__contains__("Norm"):# or label.__contains__("Med"):
         label = label + "_v2"
     
     
