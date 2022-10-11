@@ -1,12 +1,10 @@
+
 --[[
 Data collation script
 Script reads in the first image from each available fraction and the RTStruc for each patient and saves pack
 cross checks against the patient list of expected patients
 
 A McWilliam
-
-Adapted for using RP Prostate Mask
-AR
 ]]
 
 
@@ -28,89 +26,107 @@ end
 
 require('csv')
 
+
 patients = [[D:\data\prostateMR_radiomics\patientData\]]
 --strucFolder = [[D:\data\prostateMR_radiomics\DIPLproject\RTstruc\]]
 output = [[D:\data\prostateMR_radiomics\PatPacks\UnReg\]]
 
-patDetails = {}
-patDetails = readCSV([[D:\data\prostateMR_radiomics\DIPLproject\patients.csv]])
+outputfile = io.open([[D:\data\Aaron\ProstateMRL\Data\Extraction\PatientKey.csv]], "w", "csv")
+outputfile:write("PatID,Treatment,FileDir,Scan,Date\n")
 
 patTreatFolders = {}
 patTreatFolders = scandir(patients)
 
 for k = 1, #patTreatFolders do
-  
   patFolders = {}
   patFolders = scandir(patients..patTreatFolders[k])
-  
+
   for i = 1, #patFolders do
     --check ID is present in list
     patFlag = false
-    for j = 1, #patDetails do
-      if string.find(tostring(patFolders[i]), tostring(patDetails[j].patID)) then
-        patFlag = true
-        break
-      end
-    end
     
+
     if not fileexists(output..patFolders[i]..[[.pack]]) then
-      if patFlag == true then
-        patImages = {}
-        patImages = scandir(patients..patTreatFolders[k]..[[\]]..patFolders[i])
+
+      patImages = {}
+      patImages = scandir(patients..patTreatFolders[k]..[[\]]..patFolders[i])
+      
+      count = 1
+      print("Processing patient: "..patFolders[i])
+      
+      prop_table = {}
+      
+      
+      
+      for j = 1, #patImages do
+        tmp = {}
+        tmp = scandir(patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j])
         
-        count = 1
-        print("Processing patient: "..patFolders[i])
-        for j = 1, #patImages do
-          tmp = {}
-          tmp = scandir(patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j])
-          
-          f = scan:new()
-          f:load([[DCM:]]..patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[1])
-          
-          if j == 1 then
-            for l=1, #tmp do
-              if string.find(patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[l],'RS') then
-                wm.Delineation:load([[DCM:]]..patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[l], wm.scan[1])
-                break
-              end
+        if j == 1 then
+          for l=1, #tmp do
+            if string.find(patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[l],'RS') then
+              wm.Scan[1]:load([[DCM:]]..patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[1])
+              wm.Delineation:load([[DCM:]]..patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[l], wm.scan[1])
+              struc = patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[l]
+              break
             end
           end
-          
-          RP_cont = false
-    
           for m=1, wm.Delineation.len do
             if string.find(wm.delineation[m-1].name, 'RP') then
-              scan = m-1
               RP_cont = true
             end
           end
-          
-          if RP_cont == true then
-          
-            if count>1 then
-              if not (f.Properties.StudyDate == wm.Scan[count-1].Properties.StudyDate) then
-                wm.Scan[count] = f
-                print(j, patImages[j], wm.Scan[count].Properties.StudyDate)
-                wm.Scan[count].Description = wm.Scan[count].Properties.StudyDate
-                count = count + 1
-              end
-            else
+          clear()
+        end
+        
+        if RP_cont == true then
+          f = scan:new()
+          f:load([[DCM:]]..patients..patTreatFolders[k]..[[\]]..patFolders[i]..[[\]]..patImages[j]..[[\]]..tmp[1])
+          --wm.Scan[count].Description = patImages[j]
+          if count>1 then
+            if not (f.Properties.StudyDate == wm.Scan[count-1].Properties.StudyDate) then
               wm.Scan[count] = f
               print(j, patImages[j], wm.Scan[count].Properties.StudyDate)
-              wm.Scan[count].Description = wm.Scan[count].Properties.StudyDate
+              wm.Scan[count].Description = wm.Scan[count].Properties.StudyDate..[[.]]..patImages[j]
+              date = wm.Scan[count].Properties.StudyDate
               count = count + 1
+              
+              prop_table[1] = patFolders[i]
+              prop_table[2] = string.gsub(patTreatFolders[k], "_new", "")
+              prop_table[3] = patTreatFolders[k]
+              prop_table[4] = patImages[j]
+              prop_table[5] = date
+              
+              outputfile:write(table.concat(prop_table, ","))
+              outputfile:write("\n")
             end
+          else
+            wm.Scan[count] = f
+            print(j, patImages[j], wm.Scan[count].Properties.StudyDate)
+            wm.Scan[count].Description = wm.Scan[count].Properties.StudyDate..[[.]]..patImages[j]
+            date = wm.Scan[count].Properties.StudyDate
+            count = count + 1
+            
+            prop_table[1] = patFolders[i]
+            prop_table[2] = string.gsub(patTreatFolders[k], "_new", "")
+            prop_table[3] = patTreatFolders[k]
+            prop_table[4] = patImages[j]
+            prop_table[5] = date
+            
+            outputfile:write(table.concat(prop_table, ","))
+            outputfile:write("\n")
           end
+          
         end 
-        wm.Delineation:load([[DCM:]]..strucFolder..patFolders[i]..[[.dcm]], wm.Scan[1])
-        -- savepack(output..patFolders[i]..[[.pack]])
         
-        clear()
+        
       end
+      wm.Delineation:load([[DCM:]]..struc, wm.Scan[1])
+      --savepack(output..patTreatFolders[k]..[[_]]..patFolders[i]..[[.pack]])
+      clear()
+
     end
-    
-    
   end
-  
-  
 end
+outputfile:close()
+print("Scripted finished")

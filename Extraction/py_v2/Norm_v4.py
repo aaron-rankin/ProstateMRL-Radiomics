@@ -87,9 +87,6 @@ for t in treatments:
                     mask_label = "_psoas.nii"
                     med_label = "Med-Psoas"
                 
-
-                #print(r, mean_value, mean_factor,  med_value, med_factor)
-                #mask_path = masks_path +PatID+ "_" + s + mask_label
                 med_path = url + t + "\\" +PatID+ "\\" + s + "\\" + med_label + "\\" +PatID+ "_" + s + "_" + med_label + ".nii"
                 #print(med_path)
 
