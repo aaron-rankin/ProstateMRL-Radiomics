@@ -15,16 +15,17 @@ root = "D:\\data\\"
 
 key_df = pd.read_csv(os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\All_PatientKey.csv"))
 nifti_dir = os.path.join(root, "prostateMR_radiomics\\nifti\\")
-output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\Features_v3\\")
+output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\MaskShrinkage\\")
 
 parameters = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\All.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(parameters)
 
-t_dir = key_df.FileDir.unique()
+t_dir = ["SABR_new"]
 
 for t in t_dir: 
     t_df = key_df.loc[key_df["FileDir"] == t]
     patIDs = t_df.PatID.unique()
+    patIDs = patIDs[0:5]
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Treatment: {}".format(t))
     print("Patients: {}".format(patIDs))
@@ -55,22 +56,24 @@ for t in t_dir:
             print("Scan: {}".format(MRcont))
 
 
-            mask_path, mask_labels, image_paths, image_labels = UF.GetNiftiPaths(pat_path, t)
-            image_paths = image_paths[1:4]
-            image_labels = image_labels[1:4]
+            mask_path, mask_labels, image_paths, image_labels = UF.GetNiftiPathsProsSens(pat_path, t)
 
-            for k in range(len(image_paths)):
-        
-                folder = image_paths[k]
-                label = image_labels[k]
+
+            for k in range(len(mask_labels)):
                 
+                folder = image_paths[0]
+                label = image_labels[0]
+
                 image_path, image_name = UF.GetImageFile(folder, patID, MRcont, label)
 
                 norm = UF.GetNorm(image_name)
 
                 values = {}
                 
-                mask_file = patID + "_" + MRcont + "_shrunk_pros.nii"
+                mask_file = mask_labels[k]
+                mask_label = mask_file.strip((patID + "_" + MRcont + "_shrunk_pros"))
+                mask_label = mask_label.strip(".nii")
+                
                 mask_file_path = os.path.join(mask_path, mask_file)
                 mask_value = IF.MaskValue("shrunk_pros")
                 temp_df = pd.DataFrame()
@@ -82,11 +85,12 @@ for t in t_dir:
                 temp_df.insert(2, "Scan", MRcont)
                 temp_df.insert(3, "DaysDiff", int(days_diff))
                 temp_df.insert(4, "Normalisation", norm)
+                temp_df.insert(5, "MaskShrinkage(mm)", mask_label)
                 
                 p_df = p_df.append(temp_df, ignore_index=True)
                                        
 
-        p_df.to_csv(output_dir + t + "_" + patID  + "_HM.csv")
+        p_df.to_csv(output_dir + t + "_" + patID  + "_MaskShrink.csv")
 
                
 

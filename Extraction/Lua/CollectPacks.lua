@@ -104,7 +104,7 @@ for k = 1, #patTreatFolders do
             wm.Scan[count] = f
             print(j, patImages[j], wm.Scan[count].Properties.StudyDate)
             wm.Scan[count].Description = wm.Scan[count].Properties.StudyDate..[[.]]..patImages[j]
-            date = wm.Scan[count].Properties.StudyDate
+           --[[ date = wm.Scan[count].Properties.StudyDate
             count = count + 1
             
             prop_table[1] = patFolders[i]
@@ -113,8 +113,8 @@ for k = 1, #patTreatFolders do
             prop_table[4] = patImages[j]
             prop_table[5] = date
             
-            outputfile:write(table.concat(prop_table, ","))
-            outputfile:write("\n")
+            --outputfile:write(table.concat(prop_table, ","))
+            --outputfile:write("\n")]]--
           end
           
         end 

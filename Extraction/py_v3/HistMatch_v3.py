@@ -6,7 +6,7 @@ import os
 import UsefulFunctions as UF
 import pandas as pd
 
-HM = "HM-TP"
+HM = "HM-FSTP"
 
 key_df = pd.read_csv("D:\data\Aaron\ProstateMRL\Data\MRLPacks\\All_PatientKey.csv")
 
@@ -42,7 +42,12 @@ for t in t_dir:
             image_path = url + str(t) + "\\" + patID + "\\" + MRscan + "\\RawImages\\" + patID + "_" + MRscan + "_Raw.nii"
 
             first_scan = scans[0]
-            refPatTP = 'D:/data/prostateMR_radiomics/nifti/SABR/0001307/MR6/RawImages/0001307_MR6_Raw.nii' # if HM2 - ref scan is first scan per patient
+            if "20fractions" in t:
+                refPatTP = "D:/data/prostateMR_radiomics/nifti/20fractions_new/294/MR1/RawImages/294_MR1_Raw.nii"
+            elif "SABR" in t:
+                refPatTP = "D:/data/prostateMR_radiomics/nifti/SABR_new/829/MR1/RawImages/829_MR1_Raw.nii"
+            
+   
             refPatFS = url + str(t) + "\\" + patID + "\\" + first_scan + "\\RawImages\\" + patID + "_" + first_scan + "_Raw.nii"
 
             if HM == "HM-TP":

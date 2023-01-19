@@ -13,21 +13,31 @@ from radiomics import featureextractor
 #root = UF.DataRoot()
 root = "D:\\data\\"
 
-key_df = pd.read_csv(os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\All_PatientKey.csv"))
+key_df = pd.read_csv("D:\data\Aaron\ProstateMRL\Data\MRLPacks\\All_PatientKey.csv")
 nifti_dir = os.path.join(root, "prostateMR_radiomics\\nifti\\")
-output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\Features_v3\\")
+output_dir = os.path.join(root, "Aaron\\ProstateMRL\\Data\\MRLPacks\\SigPlot\\")
 
-parameters = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\All.yaml"
+parameters = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\MedianSignal.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(parameters)
 
-t_dir = key_df.FileDir.unique()
+all_df = pd.DataFrame()
+col_names = ["PatID","Treatment","Scan","DaysDiff","Normalisation","Region","Median"]
+#key_df.drop(["Unnamed: 0"], axis=1, inplace=True)
+treatments = ["SABR","20fractions"]
 
-for t in t_dir: 
+treatments = key_df.FileDir.unique()
+treatments= treatments[-1:]
+print(treatments)
+
+for t in treatments: 
     t_df = key_df.loc[key_df["FileDir"] == t]
     patIDs = t_df.PatID.unique()
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Treatment: {}".format(t))
     print("Patients: {}".format(patIDs))
+
+    patIDs = patIDs[5:]
+
 
     for i in patIDs:
         pat_df = t_df[t_df["PatID"].isin([i])]
@@ -35,7 +45,8 @@ for t in t_dir:
         scans = pat_df.Scan.unique()
         print("####################################################")
         print("Patient: {}".format(patID))
-       
+
+        
         dates = pat_df.Date.unique()
 
         first_date = dates[0]
@@ -56,8 +67,7 @@ for t in t_dir:
 
 
             mask_path, mask_labels, image_paths, image_labels = UF.GetNiftiPaths(pat_path, t)
-            image_paths = image_paths[1:4]
-            image_labels = image_labels[1:4]
+
 
             for k in range(len(image_paths)):
         
@@ -68,26 +78,33 @@ for t in t_dir:
 
                 norm = UF.GetNorm(image_name)
 
-                values = {}
-                
-                mask_file = patID + "_" + MRcont + "_shrunk_pros.nii"
-                mask_file_path = os.path.join(mask_path, mask_file)
-                mask_value = IF.MaskValue("shrunk_pros")
-                temp_df = pd.DataFrame()
-                temp_results = pd.Series(extractor.execute(image_path, mask_file_path, label=mask_value))
-                temp_df = temp_df.append(temp_results, ignore_index=True)
-                
-                temp_df.insert(0, "PatID", patID)
-                temp_df.insert(1, "Treatment", t)
-                temp_df.insert(2, "Scan", MRcont)
-                temp_df.insert(3, "DaysDiff", int(days_diff))
-                temp_df.insert(4, "Normalisation", norm)
-                
-                p_df = p_df.append(temp_df, ignore_index=True)
+
+                for m in mask_labels:
+                    values = {}
+                    region = UF.GetRegion(m)
+                    
+                    mask_file = patID + "_" + MRcont + m 
+                    mask_file_path = os.path.join(mask_path, mask_file)
+                    mask_value = IF.MaskValue(m)
+                    
+                    temp_df = pd.DataFrame()
+                    temp_results = pd.Series(extractor.execute(image_path, mask_file_path, label=mask_value))
+                    temp_df = temp_df.append(temp_results, ignore_index=True)
+                   
+                    temp_df.insert(0, "PatID", patID)
+                    temp_df.insert(1, "Treatment", t)
+                    temp_df.insert(2, "Scan", MRcont)
+                    temp_df.insert(3, "DaysDiff", int(days_diff))
+                    temp_df.insert(4, "Normalisation", norm)
+                    temp_df.insert(5, "Region", region)
+
+                    p_df = p_df.append(temp_df, ignore_index=True)
                                        
 
-        p_df.to_csv(output_dir + t + "_" + patID  + "_HM.csv")
+        all_df = all_df.append(p_df, ignore_index=True)
+        p_df.to_csv(output_dir + t + "_" + patID + "_Signal.csv")
 
                
 
+all_df.to_csv(output_dir + t + "_Signal.csv")
             

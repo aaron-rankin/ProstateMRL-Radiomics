@@ -36,7 +36,7 @@ function file_exists(name)
 end
 
 
-treatment = [[20fractions_new]]
+treatment = [[SABR_new]]
 
 dataT = [[D:\data\prostateMR_radiomics\patientData\]]..treatment..[[\]]
 
@@ -93,10 +93,13 @@ for i = 1, #folderPatients do
       end
       if file_exists(nii_file) == false then
         RPcont = wm.Delineation[wm.Delineation[scan].name]
-        wm.Scan[2] = wm.Scan[1]:burn(RPcont, 255, true)
-        wm.Scan[2].Data:expand(-0.5)
-        scan = string.gsub(folderVisits[j], "0","")
-        wm.Scan[2]:write_nifty(outdir..folderPatients[i]..[[\]]..scan..[[\Masks\]]..folderPatients[i]..[[_]]..scan..[[_shrunk_pros_5mm.nii]])
+        shrink = {0.1, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5}
+        for r=1, #shrink do
+          wm.Scan[2] = wm.Scan[1]:burn(RPcont, 255, true)
+          wm.Scan[2].Data:expand(-1 * shrink[r])
+          scan = string.gsub(folderVisits[j], "0","")
+          wm.Scan[2]:write_nifty(outdir..folderPatients[i]..[[\]]..scan..[[\Masks\]]..folderPatients[i]..[[_]]..scan..[[_shrunk_pros_]]..shrink[r]..[[.nii]])
+        end
       end
     end
   end
