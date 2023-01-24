@@ -13,7 +13,7 @@ sys.path.append(parent + "\\Functions\\")
 import UsefulFunctions as UF
 import ImageFunctions as IF
 
-root = UF.DataRoot(2)
+root = UF.DataRoot(1)
 # Patient Key
 patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\LimbusKey.csv")
 niftiDir = root + "\\prostateMR_radiomics\\nifti\\"
@@ -24,12 +24,13 @@ patKey = patKey[patKey["Treatment"] == "SABR"]
 
 # loop through all patients
 patIDs = UF.SABRPats()
-print(patIDs)
 results_df = pd.DataFrame()
+
+extractor_params = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\All.yaml"
+extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
 for pat in patIDs:
     p_df = patKey[patKey["PatID"].isin([pat])]
-    print(p_df)
     p_vals = pd.DataFrame(columns=["PatID", "Scan", "Mask"])
     # get file directory for patient
     patDir = p_df["Directory"].values[0]
@@ -41,6 +42,9 @@ for pat in patIDs:
     pat = UF.FixPatID(pat, patDir)
 
     for scan in scans:
+        print("-"*15)
+        print("{} - {}".format(pat, scan))
+
         # get the scan directory
         scanDir = patDir + scan + "\\"
 
@@ -63,8 +67,8 @@ for pat in patIDs:
 
             feat_df = pd.DataFrame()
             # extract features
-            extractor = featureextractor.RadiomicsFeatureExtractor()
-            print(imgFile, m)
+            print(imgFile)
+            print(m)
             temp_results = pd.Series(extractor.execute(imgFile, m, label=255))
             feat_df = feat_df.append(temp_results, ignore_index=True)
             # merge new row with feature dataframe with new row first
