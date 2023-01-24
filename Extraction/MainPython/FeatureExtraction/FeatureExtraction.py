@@ -16,8 +16,8 @@ import ImageFunctions as IF
 root = UF.DataRoot(1)
 # Patient Key
 patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\LimbusKey.csv")
-niftiDir = root + "\\prostateMR_radiomics\\nifti\\"
-outDir = root + "\\Aaron\\ProstateMRL\\Data\\Pipeline_v2\\FeatureValues\\"
+niftiDir = root + "prostateMR_radiomics\\nifti\\"
+outDir = root + "Aaron\\ProstateMRL\\Data\\Pipeline_v2\\FeatureValues\\"
 
 # filter only SABR patients
 patKey = patKey[patKey["Treatment"] == "SABR"]
@@ -34,15 +34,16 @@ for pat in patIDs:
     p_vals = pd.DataFrame(columns=["PatID", "Scan", "Mask"])
     # get file directory for patient
     patDir = p_df["Directory"].values[0]
-    patDir = niftiDir + patDir + "\\"
 
     # get scans
     scans = p_df["Scan"].values
 
-    pat = UF.FixPatID(pat, patDir)
+    pat = UF.FixPatID(pat, patDir)       
+    patDir = niftiDir + patDir + "\\" + pat + "\\"
+
+    print("-"*15)
 
     for scan in scans:
-        print("-"*15)
         print("{} - {}".format(pat, scan))
 
         # get the scan directory
@@ -67,8 +68,6 @@ for pat in patIDs:
 
             feat_df = pd.DataFrame()
             # extract features
-            print(imgFile)
-            print(m)
             temp_results = pd.Series(extractor.execute(imgFile, m, label=255))
             feat_df = feat_df.append(temp_results, ignore_index=True)
             # merge new row with feature dataframe with new row first
