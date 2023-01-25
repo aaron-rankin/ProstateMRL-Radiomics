@@ -17,14 +17,15 @@ root = UF.DataRoot(1)
 # Patient Key
 patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\LimbusKey.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
-outDir = root + "Aaron\\ProstateMRL\\Data\\Pipeline_v2\\FeatureValues\\"
+outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\LimbusFts\\"
 
 # filter only SABR patients
 patKey = patKey[patKey["Treatment"] == "SABR"]
 
 # loop through all patients
-patIDs = UF.SABRPats()
+patIDs = UF.SABRPats()[0:10]  
 results_df = pd.DataFrame()
+
 
 extractor_params = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\All.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
@@ -74,7 +75,7 @@ for pat in patIDs:
             feat_df = pd.concat([pd.DataFrame(new_row, index=[0]), feat_df], axis=1)
             # append to the patient dataframe
             p_vals = p_vals.append(feat_df, ignore_index=True)
-
+   
     # append to the results dataframe
     results_df = results_df.append(p_vals, ignore_index=True)
 

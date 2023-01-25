@@ -20,6 +20,10 @@ def ImageArray(image_url):
     image = sitk.ReadImage(image_url)
     image_array = sitk.GetArrayFromImage(image)
 
+    if image_array.shape != (300,480,480):
+        image_array = image.resize(300,480,480)
+        
+
     return image_array
 
 ####################################################
