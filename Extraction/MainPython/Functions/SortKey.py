@@ -39,10 +39,12 @@ for t in ts:
         # add MR back to column
         p_key["Scan"] = p_key["Scan"].astype(str)
         p_key["Scan"] = "MR" + p_key["Scan"]
+
         
         # Get first date
         first_date = UF.FixDate(p_key.iloc[0]["Date"])
         p_key["Days"] = p_key["Date"].apply(lambda x: (UF.FixDate(x) - first_date).days)
+        p_key["Fraction"] = p_key.reset_index().index + 1
 
         new_key = new_key.append(p_key)
     

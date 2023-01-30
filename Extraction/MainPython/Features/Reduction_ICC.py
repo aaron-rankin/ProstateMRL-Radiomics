@@ -5,7 +5,7 @@ import seaborn as sns
 import os
 import pingouin as pg
 from scipy import stats
-
+from tqdm import tqdm
 import sys
 
 current = os.path.dirname(os.path.realpath(__file__))
@@ -32,12 +32,14 @@ df_all = pd.merge(df_all, df_key[["PatID", "Scan", "Days"]], on = ["PatID", "Sca
 # loop through all patients
 df_final = pd.DataFrame()
 
-for pat in patIDs:
-    df_pat = df_all[df_all["PatID"].isin([pat])]
+df_all = df_all.drop(columns = [col for col in df_all.columns if "diagnostics" in col])
+df_all = df_all.drop(columns = [col for col in df_all.columns if "Unnamed" in col])
+
+
+# for pat in patIDs:
+#     df_pat = df_all[df_all["PatID"].isin([pat])]
 
     # drop all columns with Diagnostic in name
-    df_pat = df_pat.drop(columns = [col for col in df_pat.columns if "diagnostics" in col])
-    df_pat = df_pat.drop(columns = [col for col in df_pat.columns if "Unnamed" in col])
 
     # df_m = df_pat[df_pat["Mask"] == "RP"]
     # df_l = df_pat[df_pat["Mask"] == "Limbus"]
@@ -45,29 +47,36 @@ for pat in patIDs:
     # df_m = df_m.drop(columns = ["Mask"])
     # df_l = df_l.drop(columns = ["Mask"])
 
-    df_res = pd.DataFrame()
+df_res = pd.DataFrame()
 
-    fts = df_pat.columns[3:-1]
-    
-    # loop through days
-    days = df_pat["Days"].unique()
-    for day in days:
-        df_day = df_pat[df_pat["Days"] == day]
-        print(df_day)
-        df_day = df_day.drop(columns = ["PatID", "Scan", "Days"])
-        print(df_day)
+fts = df_all.columns[3:-1]
 
-        # pivot df_day so that id is mask and variable is feature
-        df_ft = df_day.melt(id_vars = ["Mask"], var_name = "variable", value_name = "value")
+# loop through days
+days = df_all["Days"].unique()
+for day in days[0:3]:
+    df_day = df_all[df_all["Days"] == day]
+    #print(df_day)
+    df_day = df_day.drop(columns = ["Scan", "Days"])
+    #print(df_day)
 
-        print(df_ft)
+    # pivot df_day so that id is mask and variable is feature
+    df_fts = df_day.melt(id_vars = ["Mask", "PatID"], var_name = "variable", value_name = "value")
 
-        fts = df_ft["variable"].unique()
-        for ft in fts:
-            df_ft = df_ft[df_ft["variable"] == ft]
-            icc = pg.intraclass_corr(data = df_ft, targets = "variable", raters = "mask", ratings = "value")
-            print(icc)
-            df_res = df_res.append(icc)
+    #print(df_ft)
+
+    fts = df_fts["variable"].unique()
+    for ft in tqdm(fts):
+        df_ft = df_fts[df_fts["variable"] == ft]
+        #print(df_ft)
+        icc = pg.intraclass_corr(data = df_ft, targets = "PatID", raters = "Mask", ratings = "value")
+        #print(icc)
+        df_res_t = pd.DataFrame()
+        df_res_t = df_res_t.append(icc)
+
+        # insert day and feature
+        df_res_t["Day"] = day
+        df_res_t["Feature"] = ft
+        df_res = df_res.append(df_res_t)
 
 
 
@@ -85,4 +94,4 @@ for pat in patIDs:
         #     print(pat, ft)
         # get ICC
 
-    
+print(df_res)
