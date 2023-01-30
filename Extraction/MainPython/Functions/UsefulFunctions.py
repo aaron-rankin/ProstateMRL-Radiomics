@@ -292,3 +292,23 @@ def ClusterSimilarity(fts_1, fts_2):
     return(num_sim_fts, ratio_a, ratio_b, ratio)
 
 ####################################################
+
+def ICC_Class(icc_val):
+    '''
+    Classifies the icc value into poor, moderate, good, excellent
+    '''
+
+    if icc_val < 0.5:
+        icc_class = "Poor"
+    elif icc_val >= 0.5 and icc_val < 0.75:
+        icc_class = "Moderate"
+    elif icc_val >= 0.75 and icc_val < 0.9:
+        icc_class = "Good"
+    elif icc_val >= 0.9 and icc_val < 1:
+        icc_class = "Excellent"
+    else:
+        icc_class = np.nan
+
+    return icc_class
+
+####################################################
