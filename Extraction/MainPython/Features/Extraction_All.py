@@ -31,7 +31,7 @@ results_df = pd.DataFrame()
 extractor_params = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\All.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
-for pat in tqdm(patIDs):
+for pat in tqdm(patIDs[0:1]):
     p_df = patKey[patKey["PatID"].isin([pat])]
     p_vals = pd.DataFrame(columns=["PatID", "Scan", "Mask"])
     # get file directory for patient
@@ -56,8 +56,7 @@ for pat in tqdm(patIDs):
 
         # mask files
         RP_mask = scanDir + "Masks\\"  + pat + "_" + scan + "_shrunk_pros.nii"
-        #Limbus_mask = scanDir + "Masks\\" +  pat + "_" + scan + "_Limbus_shrunk.nii"
-        #masks = [RP_mask, Limbus_mask]
+
         # create a new row for the dataframe
         new_row = {"PatID": pat, "Scan": scan}
 
@@ -73,7 +72,34 @@ for pat in tqdm(patIDs):
     # append to the results dataframe
     results_df = results_df.append(p_vals, ignore_index=True)
 
+
+# save the results and merge to patient key
+
+PatKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\AllPatientKey_s.csv")
+PatKey = PatKey[PatKey["Treatment"] == "SABR"]
+
+results_df = results_df.drop(columns = [col for col in results_df.columns if "diagnostics" in col])
+results_df = results_df.drop(columns = [col for col in results_df.columns if "Unnamed" in col])
+
+fts = results_df.columns[2:]
+
+fractions = PatKey["Fraction"].unique()
+patIDs = PatKey["PatID"].unique()
+
+# merge with patient key to get date and days and fraction
+results_df_m = pd.merge(results_df, PatKey[["PatID", "Scan", "Days", "Fraction"]],on = ["PatID", "Scan"], how = "left")
+
+frac = results_df_m.pop("Fraction")
+results_df_m.insert(2, "Fraction", frac)
+
+days = results_df_m.pop("Days")
+results_df_m.insert(3, "Days", days)
+
+results_df_m["Days"] = results_df_m["Days"].astype(int)
+results_df_m["Fraction"] = results_df_m["Fraction"].astype(int)
+
+results_df_m = results_df_m.sort_values(by = ["PatID", "Fraction", "Days"])
 # save the results
-results_df.to_csv(outDir + "SABR_fts_all.csv")
+results_df_m.to_csv(outDir + "SABR_fts_all2.csv")
 
 
