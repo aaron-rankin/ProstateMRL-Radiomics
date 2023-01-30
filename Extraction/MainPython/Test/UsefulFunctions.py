@@ -18,10 +18,10 @@ def DataRoot(root):
     Returns the root directory of the data if on
     server or local
     '''
-    if root == str(1):
+    if root == 1:
         # server
         root = "D:\\data\\"
-    elif root == str(2):
+    elif root == 2:
         # local
         root = "E:\\"
     
