@@ -80,10 +80,12 @@ fts_remove = df_poor["Feature"].unique()
 
 # remove poor features from df_all
 df_all = df_all.drop(columns = fts_remove)
+fts_remove = pd.DataFrame(fts_remove, columns = ["Feature"])
+fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Limbus\ICC_fts_remove.csv", index = False)
 
 # pivot df_all so that id is mask and variable is feature
-df_all_r = df_all.melt(id_vars = ["Mask", "PatID", "Days", "Fraction", "Scan"], var_name = "Feature", value_name = "FeatureValue")
-df_all_r["Fraction"] = df_all_r["Fraction"].astype(int)
+#df_all_r = df_all.melt(id_vars = ["Mask", "PatID", "Days", "Fraction", "Scan"], var_name = "Feature", value_name = "FeatureValue")
+#df_all_r["Fraction"] = df_all_r["Fraction"].astype(int)
 
 # save df_all_r
-df_all_r.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Limbus\Limbus_fts_pICC.csv", index = False)
+#df_all_r.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Limbus\Limbus_fts_pICC.csv", index = False)
