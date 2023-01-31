@@ -16,7 +16,7 @@ import ImageFunctions as IF
 
 root = UF.DataRoot(2)
 # Patient Key
-patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\AllPatientKey_s.csv")
+patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
 outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\Features\\"
 
@@ -75,7 +75,7 @@ for pat in tqdm(patIDs):
 
 # save the results and merge to patient key
 
-PatKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\AllPatientKey_s.csv")
+PatKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv")
 PatKey = PatKey[PatKey["Treatment"] == "SABR"]
 
 results_df = results_df.drop(columns = [col for col in results_df.columns if "diagnostics" in col])

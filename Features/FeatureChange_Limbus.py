@@ -19,11 +19,11 @@ root = UF.DataRoot(2)
 
 # read in fts from csv
 df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\Limbus_fts_all.csv")
-df_key = pd.read_csv(root + "Aaron\ProstateMRL\Code\Extraction\PatKeys\LimbusKey_s.csv")
+df_key = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\LimbusKey_s.csv")
 df_key = df_key[df_key["Treatment"] == "SABR"]
 
 PatIDs = df_key["PatID"].unique()[0:10]
-df_key = pd.read_csv(root + "Aaron\ProstateMRL\Code\Extraction\PatKeys\AllPatientKey_s.csv")
+df_key = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\AllPatientKey_s.csv")
 df_key = df_key[df_key["Treatment"] == "SABR"]
 df_key = df_key[df_key["PatID"].isin(PatIDs)]
 

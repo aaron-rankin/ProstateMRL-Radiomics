@@ -15,7 +15,7 @@ import ImageFunctions as IF
 
 root = UF.DataRoot(1)
 # Patient Key
-patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\LimbusKey.csv")
+patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
 outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\LimbusFts\\"
 
