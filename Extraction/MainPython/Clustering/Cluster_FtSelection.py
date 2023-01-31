@@ -17,7 +17,7 @@ root = UF.DataRoot(2)
 patIDs = UF.SABRPats()
 
 labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Clustering\\Labels\\"
-out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Clustering\\SelectedFeatures\\"
+out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Clustering\\SelectedFeatures\\csvs\\"
 # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
 t_val = 2
 cluster_method = "weighted"

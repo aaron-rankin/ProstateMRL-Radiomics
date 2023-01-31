@@ -18,7 +18,7 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 
 # read in fts from csv
-df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Limbus\All_fts_change.csv")
+df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\All_fts_pVol.csv")
 
 patIDs = df_all["PatID"].unique()
 fts = df_all["Feature"].unique()

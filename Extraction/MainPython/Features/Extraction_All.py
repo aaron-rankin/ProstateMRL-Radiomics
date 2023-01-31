@@ -18,20 +18,20 @@ root = UF.DataRoot(2)
 # Patient Key
 patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\AllPatientKey_s.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
-outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\Limbus\\"
+outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\Features\\"
 
 # filter only SABR patients
 patKey = patKey[patKey["Treatment"] == "SABR"]
 
 # loop through all patients
-patIDs = UF.SABRPats()[0:10]  
+patIDs = UF.SABRPats()  
 results_df = pd.DataFrame()
 
 
 extractor_params = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\All.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
-for pat in tqdm(patIDs[0:1]):
+for pat in tqdm(patIDs):
     p_df = patKey[patKey["PatID"].isin([pat])]
     p_vals = pd.DataFrame(columns=["PatID", "Scan", "Mask"])
     # get file directory for patient
@@ -100,6 +100,6 @@ results_df_m["Fraction"] = results_df_m["Fraction"].astype(int)
 
 results_df_m = results_df_m.sort_values(by = ["PatID", "Fraction", "Days"])
 # save the results
-results_df_m.to_csv(outDir + "SABR_fts_all2.csv")
+results_df_m.to_csv(outDir + "All_fts.csv")
 
 
