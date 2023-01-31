@@ -49,7 +49,7 @@ for fr in fractions:
 # calculate mean rho for each feature
 df_mean = df_res.groupby("Feature").mean().reset_index()
 # remove features
-fts_remove = df_mean[df_mean["rho"] > 0.6]["Feature"].values
+fts_remove = df_mean[abs(df_mean["rho"]) > 0.6]["Feature"].values
 df_all = df_all[~df_all["Feature"].isin(fts_remove)]
 fts_remove = pd.DataFrame({"Feature": fts_remove})
 fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Limbus\Vol_fts_remove.csv", index=False)

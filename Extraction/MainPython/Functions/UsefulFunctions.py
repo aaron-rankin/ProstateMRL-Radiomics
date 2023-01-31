@@ -216,7 +216,7 @@ def ClusterFtSelection(Cluster_ft_df):
         ft_selected = max(mean_ccfs, key=mean_ccfs.get) # get max mean cc value and return the feature
 
     else: 
-        ft_selected = NULL
+        ft_selected = np.nan
 
     return ft_selected
 
@@ -227,7 +227,7 @@ def ClusterFtSelection2(Cluster_ft_df):
     Input - df filtered for norm, patient, cluster
     Output - performs cross-correlation within clustered fts and returns ft most strongly correlated with the rest, if more than 2 fts present
     '''
-    fts = Cluster_ft_df.FeatureName.unique()
+    fts = Cluster_ft_df.Feature.unique()
     num_fts = len(fts)
    
     if num_fts > 2:
@@ -237,7 +237,7 @@ def ClusterFtSelection2(Cluster_ft_df):
         num_sel = np.rint(len(fts) * 0.2)
         
         for f in fts:
-            ft_df = Cluster_ft_df[Cluster_ft_df["FeatureName"] == f]
+            ft_df = Cluster_ft_df[Cluster_ft_df["Feature"] == f]
             ft_vals = ft_df.FeatureChange.values
             vals[f] = ft_vals
         
@@ -258,7 +258,7 @@ def ClusterFtSelection2(Cluster_ft_df):
         ft_selected = [seq[0] for seq in sorted_temp]
 
     else: 
-        ft_selected = NULL
+        ft_selected = 0
 
     return ft_selected
 
