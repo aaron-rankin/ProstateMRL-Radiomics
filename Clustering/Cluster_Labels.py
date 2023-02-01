@@ -16,15 +16,15 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 patIDs = UF.SABRPats()
 
-DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\DM\\csvs\\"
-out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Clustering\\"
+DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\DM\\csvs\\"
+out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\"
 
 # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
 t_val = 2
 cluster_method = "weighted"
 #cluster_method = "ward"
 
-for pat in patIDs:
+for pat in tqdm(patIDs):
     # read in DM
     df_DM = pd.read_csv(DM_dir + pat + ".csv")
     df_DM.set_index("Unnamed: 0", inplace=True)

@@ -40,11 +40,11 @@ for pat in tqdm(patIDs):
     
     # save matrix
     df_dist = pd.DataFrame(mat, columns = fts, index = fts)
-    df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\DM\csvs\\" + str(pat) + ".csv")
+    df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Longitudinal\\DM\\csvs\\" + str(pat) + ".csv")
 
     # plot matrix
     plt.figure(figsize=(20,20))
     sns.set_theme(style="white")
     plt.title("DM - {}".format(pat), fontsize=40)
     sns.heatmap(df_dist, cmap='viridis', cbar_kws={'label': 'Euclidean Distance'})
-    plt.savefig(root + '\\Aaron\\ProstateMRL\\Data\\Paper1\\DM\\Figs\\' + str(pat) + '.png')
+    plt.savefig(root + '\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\DM\\Figs\\' + str(pat) + '.png')
