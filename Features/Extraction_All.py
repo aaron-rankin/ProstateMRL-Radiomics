@@ -94,7 +94,6 @@ df_out = pd.DataFrame()
 for pat in PatIDs:
     df_pat = results_df[results_df["PatID"].isin([pat])]
     df_pat = df_pat.sort_values(by = ["Days", "Fraction"])
-    print(df_pat.head())
     # loop through all features
     for ft in fts:
         vals_ft = df_pat[df_pat["Feature"] == ft]["FeatureValue"].values
