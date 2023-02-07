@@ -11,11 +11,11 @@ sys.path.append(parent + "\\Functions\\")
 import UsefulFunctions as UF
 import ImageFunctions as IF
 
-root = UF.DataRoot(2)
+root = UF.DataRoot(1)
 
 # Patient Key
 
-url = root + "Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\AllPatientKey.csv"
+url = root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey.csv"
 patKey = pd.read_csv(url)
 
 # filter through treatment
@@ -48,6 +48,6 @@ for t in ts:
 
         new_key = new_key.append(p_key)
     
-new_key.to_csv(root + "Aaron\\ProstateMRL\\Code\\Extraction\\PatKeys\\AllPatientKey_s.csv", index=False)
+new_key.to_csv(root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv", index=False)
 
 

@@ -14,11 +14,11 @@ sys.path.append(parent + "\\Functions\\")
 import UsefulFunctions as UF
 import ImageFunctions as IF
 
-root = UF.DataRoot(2)
+root = UF.DataRoot(1)
 # Patient Key
-patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv")
+patKey = pd.read_csv(root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
-outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\Features\\"
+outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHM\\"
 
 # filter only SABR patients
 patKey = patKey[patKey["Treatment"] == "SABR"]
@@ -33,32 +33,35 @@ extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
 for pat in tqdm(patIDs):
     p_df = patKey[patKey["PatID"].isin([pat])]
-    p_vals = pd.DataFrame(columns=["PatID", "Scan", "Mask"])
+
+    p_vals = pd.DataFrame(columns=["PatID", "Scan", "Fraction", "Days", "Mask"])
     # get file directory for patient
     patDir = p_df["FileDir"].values[0]
 
     # get scans
     scans = p_df["Scan"].values
+    fractions = patKey["Fraction"].values
+    days = patKey["Days"].values
 
     pat = UF.FixPatID(pat, patDir)       
     patDir = niftiDir + patDir + "\\" + pat + "\\"
 
-    print("-"*15)
-
-    for scan in scans:
-        print("{} - {}".format(pat, scan))
+    for j in range(len(scans)):
+        scan = scans[j]
+        frac = fractions[j]
+        day = days[j]
 
         # get the scan directory
         scanDir = patDir + scan + "\\"
 
         # image file
-        imgFile = scanDir + "RawImages\\" + pat + "_" + scan + "_Raw.nii"
+        imgFile = scanDir + "HM-FS\\" + pat + "_" + scan + "_HM-FS.nii"
 
         # mask files
         RP_mask = scanDir + "Masks\\"  + pat + "_" + scan + "_shrunk_pros.nii"
 
         # create a new row for the dataframe
-        new_row = {"PatID": pat, "Scan": scan}
+        new_row = {"PatID": pat, "Scan": scan, "Fraction": frac, "Days": day, "Mask": "RP"}
 
         feat_df = pd.DataFrame()
         # extract features
@@ -75,31 +78,33 @@ for pat in tqdm(patIDs):
 
 # save the results and merge to patient key
 
-PatKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv")
-PatKey = PatKey[PatKey["Treatment"] == "SABR"]
-
 results_df = results_df.drop(columns = [col for col in results_df.columns if "diagnostics" in col])
 results_df = results_df.drop(columns = [col for col in results_df.columns if "Unnamed" in col])
 
-fts = results_df.columns[2:]
+results_df = results_df.sort_values(by = ["PatID", "Fraction", "Days"])
 
-fractions = PatKey["Fraction"].unique()
-patIDs = PatKey["PatID"].unique()
-
-# merge with patient key to get date and days and fraction
-results_df_m = pd.merge(results_df, PatKey[["PatID", "Scan", "Days", "Fraction"]],on = ["PatID", "Scan"], how = "left")
-
-frac = results_df_m.pop("Fraction")
-results_df_m.insert(2, "Fraction", frac)
-
-days = results_df_m.pop("Days")
-results_df_m.insert(3, "Days", days)
-
-results_df_m["Days"] = results_df_m["Days"].astype(int)
-results_df_m["Fraction"] = results_df_m["Fraction"].astype(int)
-
-results_df_m = results_df_m.sort_values(by = ["PatID", "Fraction", "Days"])
 # save the results
-results_df_m.to_csv(outDir + "All_fts.csv")
+results_df.to_csv(outDir + "All_fts.csv")
 
+results_df = results_df.melt(id_vars = ["PatID", "Scan", "Days", "Fraction", "Mask"], var_name = "Feature", value_name = "FeatureValue")
+fts = results_df["Feature"].unique()
+PatIDs = results_df["PatID"].unique()
+df_out = pd.DataFrame()
+# loop through all patients
+for pat in PatIDs:
+    df_pat = results_df[results_df["PatID"].isin([pat])]
+    df_pat = df_pat.sort_values(by = ["Days", "Fraction"])
+    print(df_pat.head())
+    # loop through all features
+    for ft in fts:
+        vals_ft = df_pat[df_pat["Feature"] == ft]["FeatureValue"].values
+        if vals_ft[0] == 0:
+            ft_change = np.zeros(len(vals_ft))
+        else:
+            ft_change = (vals_ft - vals_ft[0]) / vals_ft[0]
+                    
+        df_pat.loc[df_pat["Feature"] == ft, "FeatureChange"] = ft_change
 
+    df_out = df_out.append(df_pat)
+
+df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\All_fts_change.csv", index=False)
