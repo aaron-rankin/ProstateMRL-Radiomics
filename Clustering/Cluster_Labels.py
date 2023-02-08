@@ -16,7 +16,7 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 patIDs = UF.SABRPats()
 
-DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\DM\\csvs\\"
+DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\DM\\csvs\\HM_"
 out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\"
 
 # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
@@ -46,4 +46,5 @@ for pat in tqdm(patIDs):
     pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")
 
     # output is feature values w/ cluster labels
-    pat_ft_vals.to_csv(out_dir + "Labels\\" + pat + ".csv")
+    pat_ft_vals.to_csv(out_dir + "Labels\\HM_" + pat + ".csv")
+    

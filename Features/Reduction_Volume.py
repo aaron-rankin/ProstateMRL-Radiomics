@@ -17,7 +17,7 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 
 # read in fts from csv
-df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\All_fts_pICC.csv")
+df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\\All_fts_pICC.csv")
 fractions = df_all["Fraction"].unique()
 fts = df_all["Feature"].unique()
 
@@ -48,9 +48,9 @@ fts_remove = df_mean[abs(df_mean["rho"]) > 0.6]["Feature"].values
 df_all = df_all[~df_all["Feature"].isin(fts_remove)]
 fts_remove = pd.DataFrame({"Feature": fts_remove})
 print(fts_remove)
-fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\\fts_remove_Volume.csv", index=False)
+fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\\fts_remove_Volume.csv", index=False)
 
 # save to csv
-df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\All_fts_pVol.csv", index=False)
+df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\\All_fts_pVol.csv", index=False)
 
     

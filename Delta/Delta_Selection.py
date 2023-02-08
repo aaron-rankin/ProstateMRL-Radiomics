@@ -17,7 +17,7 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 
 # read in fts from csv
-df_corr = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Delta\CorrMatrix.csv")
+df_corr = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\HM_CorrMatrix.csv")
 
 fts = df_corr["Unnamed: 0"].values
 
@@ -68,10 +68,7 @@ fts_remove = list(dict.fromkeys(fts_remove))
 # compare lists
 fts_keep2 = [x for x in fts_keep if x not in fts_remove]
 
-# print results
-print("Features to keep: {}".format(len(fts_keep2)))
-print(fts_keep2)
-
 # save results
 df_fts = pd.DataFrame(fts_keep2, columns=["Features"])
-df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\delta_selected_fts.csv", index=False)
+print(df_fts)
+df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\HM_delta_selected_fts.csv", index=False)

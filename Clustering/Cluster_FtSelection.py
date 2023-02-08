@@ -16,7 +16,7 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 patIDs = UF.SABRPats()
 
-labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\Labels\\"
+labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\Labels\\HM_"
 out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\"
 # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
 t_val = 2
@@ -55,14 +55,14 @@ for pat in patIDs:
     df_result = df_result.append(df_result_pat, ignore_index=True)
 
 df_result = df_result.Feature.value_counts().rename_axis("Feature").reset_index(name="Counts")
-#df_result["FeatureGroup"] = df_counts["Feature"].str.split("_")
-#df_result["FeatureGroup"] = df_counts["FeatureGroup"].str[1]
+print("Selected Features: \n", df_result)
 
 df_result = df_result[df_result["Counts"] > 4]
 
 # drop counts
 df_result.drop(columns=["Counts"], inplace=True)
-df_result.to_csv(out_dir + "SelectedFeatures.csv")
+df_result.to_csv(out_dir + "HM_SelectedFeatures.csv")
+
 
 
 

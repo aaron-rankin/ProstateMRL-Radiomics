@@ -16,7 +16,7 @@ import ImageFunctions as IF
 
 root = UF.DataRoot(2)
 
-df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\All_fts_change.csv")
+df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\All_fts_change.csv")
 PatIDs = df_all["PatID"].unique()
 fts = df_all["Feature"].unique()
 
@@ -30,10 +30,10 @@ for pat in PatIDs:
     
     df_out = df_out.append(df_pat)
 
-df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\delta_fts_all.csv", index = False)
+df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\Delta_fts_all.csv", index = False)
 
 
-df_lim = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\Limbus_fts_change.csv")
+df_lim = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\Limbus_fts_change.csv")
 PatIDs = df_lim["PatID"].unique()
 fts = df_lim["Feature"].unique()
 
@@ -48,4 +48,4 @@ for pat in PatIDs:
     
     df_out = df_out.append(df_pat)
 
-df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\delta_fts_limbus.csv", index = False)
+df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\Delta_fts_limbus.csv", index = False)
