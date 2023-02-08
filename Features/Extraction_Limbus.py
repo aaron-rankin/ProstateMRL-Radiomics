@@ -4,6 +4,7 @@ import pandas as pd
 import os
 from datetime import datetime
 import radiomics
+from tqdm import tqdm
 from radiomics import featureextractor
 import sys
 
@@ -17,35 +18,38 @@ root = UF.DataRoot(1)
 # Patient Key
 patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
-outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\LimbusFts\\"
+outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHM\\"
 
 # filter only SABR patients
 patKey = patKey[patKey["Treatment"] == "SABR"]
 
 # loop through all patients
-patIDs = UF.SABRPats()[0:10]  
+PatIDs = patKey["PatID"].unique()[0:10]
 results_df = pd.DataFrame()
-
 
 extractor_params = root + "Aaron\\ProstateMRL\\Data\\MRLPacks\\ExtractionParams\\All.yaml"
 extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
-for pat in patIDs:
+for pat in tqdm(PatIDs):
     p_df = patKey[patKey["PatID"].isin([pat])]
-    p_vals = pd.DataFrame(columns=["PatID", "Scan", "Mask"])
+    p_vals = pd.DataFrame(columns=["PatID", "Scan", "Fraction", "Days", "Mask"])
     # get file directory for patient
     patDir = p_df["Directory"].values[0]
 
     # get scans
     scans = p_df["Scan"].values
+    fractions = p_df["Fraction"].values
+    days = p_df["Days"].values
 
     pat = UF.FixPatID(pat, patDir)       
     patDir = niftiDir + patDir + "\\" + pat + "\\"
 
     print("-"*15)
 
-    for scan in scans:
-        print("{} - {}".format(pat, scan))
+    for j in range(len(scans)):
+        scan = scans[j]
+        frac = fractions[j]
+        day = days[j]
 
         # get the scan directory
         scanDir = patDir + scan + "\\"
@@ -65,7 +69,7 @@ for pat in patIDs:
             else:
                 maskName = "Limbus"
             # create a new row for the dataframe
-            new_row = {"PatID": pat, "Scan": scan, "Mask": maskName}
+            new_row = {"PatID": pat, "Scan": scan, "Fraction": frac, "Days": day, "Mask": maskName}
 
             feat_df = pd.DataFrame()
             # extract features
@@ -81,5 +85,40 @@ for pat in patIDs:
 
 # save the results
 results_df.to_csv(outDir + "Limbus_fts.csv")
+
+results_df = results_df.drop(columns = [col for col in results_df.columns if "diagnostics" in col])
+results_df = results_df.drop(columns = [col for col in results_df.columns if "Unnamed" in col])
+
+results_df = results_df.sort_values(by = ["PatID", "Fraction", "Days"])
+
+# save the results
+results_df.to_csv(outDir + "All_fts.csv")
+
+results_df = results_df.melt(id_vars = ["PatID", "Scan", "Days", "Fraction", "Mask"], var_name = "Feature", value_name = "FeatureValue")
+fts = results_df["Feature"].unique()
+PatIDs = results_df["PatID"].unique()
+df_out = pd.DataFrame()
+# loop through all patients
+for pat in PatIDs:
+    df_pat = results_df[results_df["PatID"].isin([pat])]
+    df_pat = df_pat.sort_values(by = ["Days", "Fraction"])
+
+    for m in masks:
+        df_pat_m = df_pat[df_pat["Mask"].isin([m])]
+
+        # loop through all features
+        for ft in fts:
+            vals_ft = df_pat_m[df_pat_m["Feature"] == ft]["FeatureValue"].values
+            if vals_ft[0] == 0:
+                ft_change = np.zeros(len(vals_ft))
+            else:
+                ft_change = (vals_ft - vals_ft[0]) / vals_ft[0]
+                        
+            df_pat_m.loc[df_pat_m["Feature"] == ft, "FeatureChange"] = ft_change
+
+        df_out = df_out.append(df_pat_m)
+
+df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\Limbus_fts_change.csv", index=False)
+
 
 

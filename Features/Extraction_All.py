@@ -40,8 +40,8 @@ for pat in tqdm(patIDs):
 
     # get scans
     scans = p_df["Scan"].values
-    fractions = patKey["Fraction"].values
-    days = patKey["Days"].values
+    fractions = p_df["Fraction"].values
+    days = p_df["Days"].values
 
     pat = UF.FixPatID(pat, patDir)       
     patDir = niftiDir + patDir + "\\" + pat + "\\"

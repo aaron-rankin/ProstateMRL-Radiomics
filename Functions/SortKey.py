@@ -11,21 +11,23 @@ sys.path.append(parent + "\\Functions\\")
 import UsefulFunctions as UF
 import ImageFunctions as IF
 
-root = UF.DataRoot(1)
+root = UF.DataRoot(2)
 
 # Patient Key
 
-url = root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey.csv"
-patKey = pd.read_csv(url)
+All_url = root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey.csv"
+AllKey = pd.read_csv(All_url)
+L_url = root + "Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey.csv"
+LimbusKey = pd.read_csv(L_url)
 
 # filter through treatment
-ts = patKey.Treatment.unique()
-print(patKey)
+ts = AllKey.Treatment.unique()
+print(AllKey)
 new_key = pd.DataFrame()
 
 # loop through ts
 for t in ts:
-    t_key = patKey[patKey["Treatment"] == t]
+    t_key = AllKey[AllKey["Treatment"] == t]
     t_patIDs = t_key["PatID"].unique().astype(str)
 
     # loop through all patients
@@ -48,6 +50,10 @@ for t in ts:
 
         new_key = new_key.append(p_key)
     
-new_key.to_csv(root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv", index=False)
+new_key.to_csv(root + "Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey_s.csv", index=False)
+
+# find overlap between keys
+new_key = new_key[new_key["PatID"].isin(LimbusKey["PatID"])]
+new_key.to_csv(root + "Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey_s.csv", index=False)
 
 
