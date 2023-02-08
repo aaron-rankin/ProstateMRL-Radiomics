@@ -16,7 +16,7 @@ import ImageFunctions as IF
 
 root = UF.DataRoot(1)
 # Patient Key
-patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey.csv")
+patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey_s.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
 outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHM\\"
 
@@ -34,7 +34,7 @@ for pat in tqdm(PatIDs):
     p_df = patKey[patKey["PatID"].isin([pat])]
     p_vals = pd.DataFrame(columns=["PatID", "Scan", "Fraction", "Days", "Mask"])
     # get file directory for patient
-    patDir = p_df["Directory"].values[0]
+    patDir = p_df["FileDir"].values[0]
 
     # get scans
     scans = p_df["Scan"].values
@@ -43,8 +43,6 @@ for pat in tqdm(PatIDs):
 
     pat = UF.FixPatID(pat, patDir)       
     patDir = niftiDir + patDir + "\\" + pat + "\\"
-
-    print("-"*15)
 
     for j in range(len(scans)):
         scan = scans[j]
@@ -102,9 +100,8 @@ df_out = pd.DataFrame()
 for pat in PatIDs:
     df_pat = results_df[results_df["PatID"].isin([pat])]
     df_pat = df_pat.sort_values(by = ["Days", "Fraction"])
-
-    for m in masks:
-        df_pat_m = df_pat[df_pat["Mask"].isin([m])]
+    for m in df_pat["Mask"].unique():
+        df_pat_m = df_pat[df_pat["Mask"] == m]
 
         # loop through all features
         for ft in fts:
