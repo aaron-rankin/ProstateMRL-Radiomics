@@ -40,7 +40,7 @@ for pat in tqdm(patIDs):
     df_labels.set_index("FeatureName", inplace=True)
     
     # read in df with ft vals and merge
-    ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\Features\\All_fts_pVol.csv")
+    ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHM\\All_fts_pVol.csv")
     ft_vals["PatID"] = ft_vals["PatID"].astype(str)
     pat_ft_vals = ft_vals[ft_vals["PatID"] == pat]
     pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")

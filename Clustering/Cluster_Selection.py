@@ -57,7 +57,13 @@ for pat in patIDs:
 df_result = df_result.Feature.value_counts().rename_axis("Feature").reset_index(name="Counts")
 print("Selected Features: \n", df_result)
 
-df_result = df_result[df_result["Counts"] > 4]
+# get number of counts at 10th row
+counts = df_result.iloc[10]["Counts"]
+
+print("Counts: ", counts)
+# get features with counts >= counts
+df_result = df_result[df_result["Counts"] >= counts]
+print("Selected Features: \n", df_result)
 
 # drop counts
 df_result.drop(columns=["Counts"], inplace=True)

@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import sys
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 current = os.path.dirname(os.path.realpath(__file__))
@@ -10,68 +11,78 @@ import UsefulFunctions as UF
 import PlottingFunctions as PF
 root = UF.DataRoot(2)
 
+dir = (root + "Aaron\ProstateMRL\Data\Paper1\Longitudinal\Clustering\\Labels\\")
 
-def SignalPlotPP(df, pat, fts, title, savepath, col_wrap_num, wrap_by):
-   '''
-   Given a df, patient and selected ft array, plots the signal for the given features
-   Per Patient
-   '''
+csvs = os.listdir(dir)
+fts = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Longitudinal\Clustering\\HM_SelectedFeatures.csv")
+fts_s = fts["Feature"].values
+
+# strip the original_ from the feature names
+fts_s = [x.replace("original_", "") for x in fts_s]
+
+
+colours = {"N": "grey", "Y": "red"}
+
+print(fts_s)
+
+# remove any csvs that do not have HM in the name
+csvs = [x for x in csvs if "HM" in x]
+
+
+for x in csvs[0:1]:
+   df = pd.read_csv(dir + x)
+   df = df[['Feature', 'Cluster', 'Fraction', 'FeatureChange']]
+   df['Feature'] = df['Feature'].str.replace('original_', '')
+   df["Selected"] = "N"
+   for f in fts_s:
+      df.loc[df["Feature"] == f, "Selected"] = "Y"
    
-   df_pat = df[df['PatID'] == pat]
-   df_pat = df_pat[df_pat['Feature'].isin(fts)]
-   print(df_pat.head())
-   df_pat["Fraction"] = df_pat["Fraction"].astype(int)
-   fractions = df_pat["Fraction"].unique()
+   #print features that are selected   
+   print(df.loc[df["Selected"] == "Y", "Feature"].unique())
+   df.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Longitudinal\Clustering\\" + x, index=False)
+   clusters = df["Cluster"].unique()
+   for c in clusters[0:3]:
+      df_c = df[df["Cluster"] == c]
+      df_c = df_c.sort_values("Fraction")
+      plt.figure(figsize=(10, 5))
 
-   fig = plt.figure(figsize=(20, 10))
-   g = sns.FacetGrid(df_pat, col="Feature", col_wrap=col_wrap_num, aspect=1.5)
-   g.fig.subplots_adjust(top=0.9)
-   g.fig.suptitle("{} - {}".format(title, str(pat)))
-   g.map(sns.scatterplot, x=df_pat["Fraction"], y=df_pat["FeatureChange"], hue=df_pat["Feature"])
-   g.map(sns.lineplot, x=df_pat["Fraction"], y=df_pat["FeatureChange"],hue=df_pat["Feature"])
-   g.set_axis_labels("Fraction", "Feature Change")
-   g.set_titles("{col_name}")
+      print(df_c.head())
+      fts = df_c["Feature"].unique()
+      
+      plt.figure(figsize=(10, 5))
+      sns.set_theme(style="darkgrid")
+      #sns.set_context("paper", font_scale=1.5)
+      sns.set_style("ticks")
+      for ft in fts:
+         df_ft = df_c.loc[df_c["Feature"] == ft]
+      #sns.lineplot(df_c["Fraction"], df_c["FeatureChange"], hue=df_c["Selected"], palette=colours)
+         if ft in fts_s:                  
+            sns.set_theme(style="darkgrid")
 
-   plt.savefig(savepath + "{}_{}.png".format(title, str(pat)))
-   plt.clf()
+            sns.lineplot(data = df_ft, x = "Fraction", y ="FeatureChange", hue="Selected", palette=colours,legend=False)
+      
+         else:
+            sns.set_theme(style="darkgrid")
 
-def SignalPlotPP(df, pat, fts, title, savepath, col_wrap_num, wrap_by):
-   '''
-   Given a df, patient and selected ft array, plots the signal for the given features
-   Per Patient
-   '''
-   
-   df_pat = df[df['PatID'] == pat]
-   df_pat = df_pat[df_pat['Feature'].isin(fts)]
-   print(df_pat.head())
-   df_pat["Fraction"] = df_pat["Fraction"].astype(int)
-   fractions = df_pat["Fraction"].unique()
+            sns.lineplot(data = df_ft, x = "Fraction", y ="FeatureChange", hue="Selected", palette=colours, alpha=0.5, legend=False)
 
-   plt.figure(figsize=(20, 10))
-   g = sns.FacetGrid(df_pat, col="Feature", col_wrap=col_wrap_num, aspect=1.5)
-   g.fig.subplots_adjust(top=0.9)
-   g.fig.suptitle("{} - {}".format(title, str(pat)))
-   g.map(sns.scatterplot, x=df_pat["Fraction"], y=df_pat["FeatureChange"], hue=df_pat["Feature"])
-   g.map(sns.lineplot, x=df_pat["Fraction"], y=df_pat["FeatureChange"],hue=df_pat["Feature"])
-   g.set_axis_labels("Fraction", "Feature Change")
-   g.set_titles("{col_name}")
-
-   plt.savefig(savepath + "{}_{}.png".format(title, str(pat)))
-   plt.clf()
+            #sns.lineplot(df_ft["Fraction"], df_ft["FeatureChange"], c="b")
+            #sns.lineplot(df_ft["Fraction"], df_ft["FeatureChange"], marker="o", c="b")
+      plt.title("Cluster " + str(c))
+      plt.xticks(np.arange(1,5.1,1))
+      plt.xlabel("Fraction")
+      plt.ylabel("Feature Change")
+      plt.legend(title = "Feature Selected")
+      new_labels = ['No', 'Yes']
+      #for t, l in zip(plt.legend().texts, new_labels): t.set_text(l) 
 
 
-
-df_ft = pd.read_csv(root + "\Aaron\ProstateMRL\Data\Paper1\Longitudinal\Clustering\SelectedFeatures.csv")
-df_vals = pd.read_csv(root + "\Aaron\ProstateMRL\Data\Paper1\Features\All_fts_change.csv")
-
-fts = df_ft['Feature'].unique()
-PatIDs = df_vals['PatID'].unique()
-
-savepath = root + "\Aaron\ProstateMRL\Data\Paper1\Plots\Signal\\"
-
-
-print(fts)
+      #plt.show()
+   # plot the median signal intensity for each patient using seaborn facetgrid
+   #g = sns.FacetGrid(df, col="Cluster", col_wrap=5, height=2, aspect=1.5)
+   # g.map(plt.plot, "Fraction", "FeatureChange", marker="o", c="Selected" )
+   # g.set_axis_labels("Fraction", "Median Signal Intensity")
+   # g.set_titles("{col_name}")
+   # plt.show() 
 
 
-for pat in PatIDs:
-    SignalPlotPP(df_vals, pat, fts, "Cluster Features", savepath, 5, "Feature")
