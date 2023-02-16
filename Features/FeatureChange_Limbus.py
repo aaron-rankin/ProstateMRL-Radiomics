@@ -67,4 +67,4 @@ for pat in PatIDs:
 
         df_out = df_out.append(df_mask)
 
-df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Features\Limbus_fts_change.csv", index=False)
+df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHMFSTP\Limbus_fts_change.csv", index=False)
