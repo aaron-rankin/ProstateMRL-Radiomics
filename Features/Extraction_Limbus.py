@@ -18,7 +18,7 @@ root = UF.DataRoot(1)
 # Patient Key
 patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey_s.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
-outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHM\\"
+outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHMFSTP\\"
 
 # filter only SABR patients
 patKey = patKey[patKey["Treatment"] == "SABR"]
@@ -53,7 +53,7 @@ for pat in tqdm(PatIDs):
         scanDir = patDir + scan + "\\"
 
         # image file
-        imgFile = scanDir + "RawImages\\" + pat + "_" + scan + "_Raw.nii"
+        imgFile = scanDir + "HM-FSTP\\" + pat + "_" + scan + "_HM-FSTP.nii"
 
         # mask files
         RP_mask = scanDir + "Masks\\"  + pat + "_" + scan + "_shrunk_pros.nii"

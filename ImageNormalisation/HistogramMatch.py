@@ -2,9 +2,6 @@ import SimpleITK as sitk
 import numpy as np
 import pandas as pd
 import os
-from datetime import datetime
-import radiomics
-from radiomics import featureextractor
 import sys
 from tqdm import tqdm
 
@@ -18,11 +15,16 @@ root = UF.DataRoot(1)
 # Patient Key
 patKey = pd.read_csv(root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
-outDir = root + "Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHM\\"
+
+HM_type = "HM-FSTP"
 
 # filter only SABR patients
 patKey = patKey[patKey["Treatment"] == "SABR"]
 PatIDs = patKey["PatID"].unique()
+
+if HM_type == "HM-FSTP":
+    refTP = "D:\data\prostateMR_radiomics\\nifti\SABR_new\\1431\\MR1\\RawImages\\1431_MR1_Raw.nii"
+    TPimg = sitk.ReadImage(refTP)
 
 for pat in tqdm(PatIDs):
     p_df = patKey[patKey["PatID"].isin([pat])]
@@ -50,6 +52,9 @@ for pat in tqdm(PatIDs):
 
         HMimg = matcher.Execute(rawimg, refimg)
 
-        sitk.WriteImage(HMimg, scanDir + "HM-FS\\{}_{}_HM-FS.nii".format(pat, scan))
+        if HM_type == "HM-FSTP":
+            HMimg = matcher.Execute(HMimg, TPimg)
+
+        sitk.WriteImage(HMimg, scanDir + "{}\\{}_{}_{}.nii".format(HM_type, pat, scan, HM_type))
 
         
