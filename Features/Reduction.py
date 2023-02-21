@@ -13,6 +13,9 @@ def ICC(DataRoot, Norm):
     root = DataRoot
     # load in patient data
     df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Limbus_fts_l.csv")
+    # remove rows with original_firstorder_Minimum/Maximum
+    df_all = df_all[df_all["Feature"] != "original_firstorder_Minimum"]
+    df_all = df_all[df_all["Feature"] != "original_firstorder_Maximum"]
 
     fractions = df_all["Fraction"].unique()
     for fr in fractions:
@@ -48,10 +51,13 @@ def ICC(DataRoot, Norm):
     # return rows with poor ICC
     df_poor = df_res[df_res["ICC_Class"] == "Poor"]
     fts_remove = df_poor["Feature"].unique()
-    print("ICC redudant features: \n"+ str(fts_remove))
+    print("ICC redudant features: " + str(len(fts_remove)) + "/" + str(len(fts)) + "\n"+ str(fts_remove))
 
     # remove poor features from df_all
     df_all = df_all[~df_all["Feature"].isin(fts_remove)]
+    # add original_firstorder_Minimum/Maximum to fts_remove
+    fts_remove = np.append(fts_remove, "original_firstorder_Minimum")
+    fts_remove = np.append(fts_remove, "original_firstorder_Maximum")
     fts_remove = pd.DataFrame(fts_remove, columns = ["Feature"])
     fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\FeaturesRemoved_ICC.csv", index = False)
 
@@ -95,9 +101,9 @@ def Volume(DataRoot, Norm):
     # calculate mean rho for each feature
     df_mean = df_res.groupby("Feature").mean().reset_index()
     # remove features
-    fts_remove = df_mean[abs(df_mean["rho"]) > 0.6]["Feature"].values
+    fts_remove = df_mean[abs(df_mean["rho"]) > 0.5]["Feature"].values
     df_all = df_all[~df_all["Feature"].isin(fts_remove)]
-    print("Volume redundant features: \n"+str(fts_remove))
+    print("Volume redundant features: " + str(len(fts_remove)) + "/" + str(len(fts)) + "\n"+ str(fts_remove))
     fts_remove = pd.DataFrame({"Feature": fts_remove})
     fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\FeaturesRemoved_Volume.csv", index=False)
 

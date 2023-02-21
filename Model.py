@@ -11,7 +11,7 @@ from Functions import UsefulFunctions as UF
 from Functions import CreateDirs as CD
 from Features import Extraction as Ex
 from Features import Reduction as Rd
-
+from Clustering import Clustering as CM
 
 print(UF.SABRPats())
 
@@ -22,11 +22,13 @@ print("-" * 10)
 CD.CreateDirs(root, "Test")
 print("-" * 10)
 
-print(Ex.All(root, Norm)[1])
+#print(Ex.All(root, Norm)[1])
 print("-" * 10)
-print(Ex.Limbus(root, Norm)[1])
+#print(Ex.Limbus(root, Norm)[1])
 print("-" * 10)
 
 Rd.ICC(root, Norm)
 
 Rd.Volume(root, Norm)
+
+CM.Model(root, Norm, 1.5)
