@@ -27,6 +27,9 @@ def ICC(DataRoot, Norm, Model):
             df_res = pd.DataFrame()
             for ft in tqdm(fts):
                 df_ft = df_fr[df_fr["Feature"] == ft]
+                print(df_ft)
+
+                print("Here")
                 icc = pg.intraclass_corr(data = df_ft, targets = "PatID", raters = "Mask", ratings = "FeatureValue")
                 df_res_t = pd.DataFrame()
                 df_res_t = df_res_t.append(icc)

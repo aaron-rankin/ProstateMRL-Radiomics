@@ -131,7 +131,7 @@ def Limbus(DataRoot, Norm):
     extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All.yaml"
     extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
-    for pat in tqdm(PatIDs[0:1]):
+    for pat in tqdm(PatIDs):
         p_df = patKey[patKey["PatID"].isin([pat])]
         p_vals = pd.DataFrame(columns=["PatID", "Scan", "Fraction", "Days", "Mask"])
         # get file directory for patient

@@ -24,7 +24,7 @@ if Extract == "Yes":
     print("------------------------------------")
     print("------------------------------------")
     print("Extracting Features...")
-    FE.All(DataRoot, Norm)
+    #FE.All(DataRoot, Norm)
     print("Extracted - All")
     print("------------------------------------")
     FE.Limbus(DataRoot, Norm)
