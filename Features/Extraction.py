@@ -79,7 +79,7 @@ def All(DataRoot, Norm):
     results_df_w = results_df.sort_values(by = ["PatID", "Fraction", "Days"])
 
     # save the results
-    results_df.to_csv(outDir + "All_fts_w.csv")
+    #results_df.to_csv(outDir + "Longitudinal_fts_w.csv")
     
 
     results_df_l = results_df.melt(id_vars = ["PatID", "Scan", "Days", "Fraction", "Mask"], var_name = "Feature", value_name = "FeatureValue")
@@ -102,11 +102,11 @@ def All(DataRoot, Norm):
 
         df_out = df_out.append(df_pat)
 
-    df_out.to_csv(outDir + "\\All_fts_l.csv", index=False)
+    df_out.to_csv(outDir + "\\Longitudinal_All_fts.csv", index=False)
 
     return results_df_w, df_out
 
-def ExtractFeatures(DataRoot, Norm):
+def Limbus(DataRoot, Norm):
     # Patient Key
     root = DataRoot
     patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey_s.csv")
@@ -182,7 +182,7 @@ def ExtractFeatures(DataRoot, Norm):
     results_df_w = results_df.sort_values(by = ["PatID", "Fraction", "Days"])
 
     # save the results
-    results_df_w.to_csv(outDir + "Limbus_fts_w.csv")
+    #results_df_w.to_csv(outDir + "Longtidunial_Limbus_fts_w.csv")
 
     results_df_l = results_df.melt(id_vars = ["PatID", "Scan", "Days", "Fraction", "Mask"], var_name = "Feature", value_name = "FeatureValue")
     fts = results_df_l["Feature"].unique()
@@ -207,7 +207,41 @@ def ExtractFeatures(DataRoot, Norm):
 
             df_out = df_out.append(df_pat_m)
 
-    df_out.to_csv(outDir + "Limbus_fts_l.csv" , index=False)
+    df_out.to_csv(outDir + "Longitudinal_Limbus_fts.csv" , index=False)
 
     return results_df_w, df_out
 
+def DeltaValues(root, Norm):
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Longitudinal_All_fts.csv")
+    PatIDs = df_all["PatID"].unique()
+    fts = df_all["Feature"].unique()
+
+    df_out = pd.DataFrame()
+
+    # loop through all patients
+    for pat in PatIDs:
+        df_pat = df_all[df_all["PatID"] == pat]
+        f1,f2 = df_pat["Fraction"].values[0], df_pat["Fraction"].values[-1]
+        df_pat = df_pat[df_pat["Fraction"].isin([f1,f2])]
+        
+        df_out = df_out.append(df_pat)
+
+    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_All_fts.csv", index = False)
+
+
+    df_lim = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_Limbus_fts.csv")
+    PatIDs = df_lim["PatID"].unique()
+    fts = df_lim["Feature"].unique()
+
+    df_out = pd.DataFrame()
+
+    # loop through all patients
+    for pat in PatIDs:
+        df_pat = df_lim[df_lim["PatID"] == pat]
+    
+        f1,f2 = df_pat["Fraction"].values[0], df_pat["Fraction"].values[-1]
+        df_pat = df_pat[df_pat["Fraction"].isin([f1,f2])]
+        
+        df_out = df_out.append(df_pat)
+
+    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_Limbus_fts.csv", index = False)

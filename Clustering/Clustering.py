@@ -80,6 +80,59 @@ def ClusterFeatures(DataRoot, Norm, t_val):
         # output is feature values w/ cluster labels
         pat_ft_vals.to_csv(out_dir + pat + ".csv")
 
+def ClusterCount(root, Norm):
+    dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\")
+
+    df_result = pd.DataFrame()
+
+    for f in dir:
+    
+        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\" + f)
+        df = df[["Feature", "Cluster"]]
+        df = df.drop_duplicates()
+        # sort by cluster
+        df = df.sort_values(by=["Cluster"])
+        # turn value counts into a dataframe
+        df = df["Cluster"].value_counts().rename_axis("Cluster").reset_index(name="Counts")
+        # set PatID as index
+        df["PatID"] = f[3:-4]
+        # set PatID as index
+        df.set_index("PatID", inplace=True)
+            
+        # append to result
+        df_result = df_result.append(df, ignore_index=False)
+
+    df_numclust= df_result.groupby("PatID")["Cluster"].max()
+    df_numclust = df_numclust.rename_axis("PatID").reset_index(name="NumClusters")
+
+
+    # group by patient and get mean number of clusters
+    df_numfts = df_result.groupby("PatID")["Counts"].mean()
+    df_numfts = df_numfts.rename_axis("PatID").reset_index(name="MeanFeaturesperCluster")
+    df_medianfts = df_result.groupby("PatID")["Counts"].median()
+    df_medianfts = df_medianfts.rename_axis("PatID").reset_index(name="MedianFeaturesperCluster")
+
+    meanftscluster = df_result["Counts"].mean()
+    medianftscluster = df_result["Counts"].median()
+    # get mean number of features per cluster
+    #print(df_numfts)
+
+    # merge dataframes
+    df_numclust = pd.merge(df_numclust, df_numfts, on="PatID")
+    df_numclust = pd.merge(df_numclust, df_medianfts, on="PatID")
+    #print(df_numclust, "\n")
+
+    print("Mean number of cluster per patient: ", df_numclust["NumClusters"].mean())
+    # print("Median number of cluster per patient: ", df_numclust["NumClusters"].median())
+
+    # print("Mean fts over all clusters: ", meanftscluster)
+    # print("Median fts over all clusters: ", medianftscluster)
+
+    print("Mean mean fts per cluster per patient: ", df_numfts["MeanFeaturesperCluster"].mean())
+    # print("Median mean fts per cluster per patient: ", df_medianfts["MedianFeaturesperCluster"].median())
+
+
+
 def ClusterSelection(DataRoot, Norm):
     root = DataRoot
     patIDs = UF.SABRPats()
@@ -89,7 +142,7 @@ def ClusterSelection(DataRoot, Norm):
     # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
     t_val = 2
     df_result = pd.DataFrame()
-    for pat in patIDs:
+    for pat in tqdm(patIDs):
         # read in feature vals and associated cluster labels
         df_pat = pd.read_csv(labels_dir + pat + ".csv")
 
@@ -128,18 +181,15 @@ def ClusterSelection(DataRoot, Norm):
     # get number of counts at 10th row
     counts = df_result.iloc[10]["Counts"]
 
-    print("Counts: ", counts)
+    #print("Counts: ", counts)
     # get features with counts >= counts
-    print("Selected Features: \n", df_result)
+    print("\nSelected Features: ")
+    fts = df_result[df_result["Counts"] >= counts]["Feature"].values
+    for f in fts:
+        print(f)
     df_result = df_result[df_result["Counts"] >= counts]
 
     # drop counts
     df_result.drop(columns=["Counts"], inplace=True)
     df_result.to_csv(out_dir + "SelectedFeatures_Longitudinal.csv")
 
-
-def Model(DataRoot, Norm, t_val):
-    
-    #DistanceMatrix(DataRoot, Norm)
-    ClusterFeatures(DataRoot, Norm, t_val)
-    ClusterSelection(DataRoot, Norm)
