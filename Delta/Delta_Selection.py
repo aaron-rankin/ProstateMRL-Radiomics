@@ -71,4 +71,4 @@ fts_keep2 = [x for x in fts_keep if x not in fts_remove]
 # save results
 df_fts = pd.DataFrame(fts_keep2, columns=["Feature"])
 print(df_fts)
-df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\HM_delta_selected_fts.csv", index=False)
+df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\HM-FSTP\\Features\\Delta_SelectedFeatures.csv", index=False)

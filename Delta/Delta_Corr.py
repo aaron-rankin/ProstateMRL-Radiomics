@@ -17,7 +17,7 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 
 # read in fts from csv
-df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\\Delta_fts_pVol.csv")
+df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Features\\Delta_fts_pVol.csv")
 fractions = df_all["Fraction"].unique()
 fts = df_all["Feature"].unique()
 
@@ -38,18 +38,18 @@ for i, ft1 in enumerate(fts):
 df_res = pd.DataFrame(matrix, index=fts, columns=fts)
 #print(df_res)
 
-df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\HM_CorrMatrix.csv")
+df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Delta\\HM_CorrMatrix.csv")
 
 # plot heatmap
 plt.figure(figsize=(20,20))
 sns.heatmap(df_res, cmap="RdBu_r", vmin=-1, vmax=1, square=True)
-plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\HM_CorrMatrix.png")
+plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Features\\HM_CorrMatrix.png")
 plt.clf()
 
 # show only values less than or equal to 0.5
 df_res = abs(df_res)
 df_res[df_res >= 0.5] = 0
-df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\HM_CorrMatrix_masked.csv")
+df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\HM-FSTP\\Delta\\HM_CorrMatrix_masked.csv")
 plt.figure(figsize=(20,20))
 sns.heatmap(df_res, cmap="RdBu_r", vmin=0, vmax=0.5, square=True)
-plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\Delta\\HM_CorrMatrix_masked.png")
+plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\HM-FSTP\\Delta\\HM_CorrMatrix_masked.png")

@@ -17,7 +17,7 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 
 # read in fts from csv
-df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\\Delta_fts_pICC.csv")
+df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Features\\Delta_fts_pICC.csv")
 fractions = df_all["Fraction"].unique()
 fts = df_all["Feature"].unique()
 
@@ -32,10 +32,21 @@ for ft in fts:
     df_temp = pd.DataFrame({"Fraction": [1], "Feature": [ft], "rho": [rho]})
     df_res = df_res.append(df_temp)
 
-df_fr2 = df_all[df_all["Fraction"].isin([4,5])]
+# df_fr2 is dataframe with only last fraction for each patient
+# loop through each patient and get last fraction
+df_fr2 = pd.DataFrame()
+for pat in df_all["PatID"].unique():
+    df_temp = df_all[df_all["PatID"] == pat]
+    f2 = df_temp["Fraction"].values[-1]
+    df_temp = df_temp[df_temp["Fraction"] == f2]
+    df_fr2 = df_fr2.append(df_temp)
+
+#df_fr2 = df_all[df_all["Fraction"].isin([4,5])]
 vals_vol2 = df_fr2[df_fr2["Feature"] == "original_shape_MeshVolume"]["FeatureValue"].values
 
 for ft in fts:
+
+
     vals_ft2 = df_fr2[df_fr2["Feature"] == ft]["FeatureValue"].values
     rho = stats.spearmanr(vals_vol2, vals_ft2)[0]
     df_temp = pd.DataFrame({"Fraction": [2], "Feature": [ft], "rho": [rho]})
@@ -48,7 +59,7 @@ df_all = df_all[~df_all["Feature"].isin(fts_remove)]
 fts_remove = pd.DataFrame({"Feature": fts_remove})
 
 print(fts_remove)
-fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\\Delta_fts_remove_Volume.csv", index=False)
+fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Features\\DeltaFeaturesRemoved_Volume.csv", index=False)
 
 # save to csv
-df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\FeaturesHM\Delta_fts_pVol.csv", index=False)
+df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Features\\Delta_fts_pVol.csv", index=False)

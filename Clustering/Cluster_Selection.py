@@ -16,8 +16,8 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 patIDs = UF.SABRPats()
 
-labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\Labels\\HM_"
-out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\"
+labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\HM-FSTP\\Longitudinal\\ClusterLabels\\"
+out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\HM-FSTP\\Features\\"
 # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
 t_val = 2
 df_result = pd.DataFrame()
@@ -67,7 +67,7 @@ print("Selected Features: \n", df_result)
 
 # drop counts
 df_result.drop(columns=["Counts"], inplace=True)
-df_result.to_csv(out_dir + "HM_SelectedFeatures.csv")
+df_result.to_csv(out_dir + "SelectedFeatures_Longitudinal.csv")
 
 
 

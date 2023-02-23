@@ -16,11 +16,11 @@ import ImageFunctions as IF
 root = UF.DataRoot(2)
 patIDs = UF.SABRPats()
 
-DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\DM\\csvs\\HM_"
-out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\"
+DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\HM-FSTP\\Longitudinal\\DM\\csvs\\"
+out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\HM-FSTP\\Longitudinal\\ClusterLabels\\"
 
 # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
-t_val = 2
+t_val = 1.75
 cluster_method = "weighted"
 #cluster_method = "ward"
 
@@ -40,11 +40,11 @@ for pat in tqdm(patIDs):
     df_labels.set_index("FeatureName", inplace=True)
     
     # read in df with ft vals and merge
-    ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\FeaturesHM\\All_fts_pVol.csv")
+    ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\HM-FSTP\\Features\\All_fts_pVol.csv")
     ft_vals["PatID"] = ft_vals["PatID"].astype(str)
     pat_ft_vals = ft_vals[ft_vals["PatID"] == pat]
     pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")
 
     # output is feature values w/ cluster labels
-    pat_ft_vals.to_csv(out_dir + "Labels\\HM_" + pat + ".csv")
+    pat_ft_vals.to_csv(out_dir + "\\" + pat + ".csv")
     

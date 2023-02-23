@@ -1,29 +1,29 @@
 import os
 import pandas as pd
 
-dir = os.listdir("E:\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\Labels\\")
+dir = os.listdir("E:\\Aaron\\ProstateMRL\\Data\\Paper1\\HM-FSTP\\Longitudinal\\ClusterLabels\\")
 
 df_result = pd.DataFrame()
 
 for f in dir:
-    if "HM" in f:
-        df = pd.read_csv("E:\\Aaron\\ProstateMRL\\Data\\Paper1\\Longitudinal\\Clustering\\Labels\\" + f)
-        #print(f[3:-4])
-        df = df[["Feature", "Cluster"]]
-        # remove duplicates
-        df = df.drop_duplicates()
-        # sort by cluster
-        df = df.sort_values(by=["Cluster"])
-        cluster_num = df["Cluster"].unique()
-        # turn value counts into a dataframe
-        df = df["Cluster"].value_counts().rename_axis("Cluster").reset_index(name="Counts")
-        # set PatID as index
-        df["PatID"] = f[3:-4]
-        # set PatID as index
-        df.set_index("PatID", inplace=True)
-            
-        # append to result
-        df_result = df_result.append(df, ignore_index=False)
+
+    df = pd.read_csv("E:\\Aaron\\ProstateMRL\\Data\\Paper1\\HM-FSTP\\Longitudinal\\ClusterLabels\\" + f)
+    #print(f[3:-4])
+    df = df[["Feature", "Cluster"]]
+    # remove duplicates
+    df = df.drop_duplicates()
+    # sort by cluster
+    df = df.sort_values(by=["Cluster"])
+    cluster_num = df["Cluster"].unique()
+    # turn value counts into a dataframe
+    df = df["Cluster"].value_counts().rename_axis("Cluster").reset_index(name="Counts")
+    # set PatID as index
+    df["PatID"] = f[3:-4]
+    # set PatID as index
+    df.set_index("PatID", inplace=True)
+        
+    # append to result
+    df_result = df_result.append(df, ignore_index=False)
 
         # get total number of clusters
         #print(df)
