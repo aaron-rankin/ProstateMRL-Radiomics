@@ -8,6 +8,14 @@ from radiomics import featureextractor
 import sys
 from tqdm import tqdm
 
+import sys
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent + "\\Functions\\")
+import UsefulFunctions as UF
+import ImageFunctions as IF
+
 def All(DataRoot, Norm):
 
     root = DataRoot
@@ -26,7 +34,7 @@ def All(DataRoot, Norm):
     extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All.yaml"
     extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
-    for pat in tqdm(patIDs[0 : 1]):
+    for pat in tqdm(patIDs):
         p_df = patKey[patKey["PatID"].isin([pat])]
 
         p_vals = pd.DataFrame(columns=["PatID", "Scan", "Fraction", "Days", "Mask"])

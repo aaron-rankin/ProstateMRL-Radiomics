@@ -5,9 +5,9 @@ import Functions as Fn
 from Functions import UsefulFunctions as UF
 from Clustering import Clustering as Cl
 
-DataRoot = UF.DataRoot(2)
+DataRoot = UF.DataRoot(1)
 Norm = "HM-FSTP"
-Extract = "No"
+Extract = "Yes"
 
 # Make Directories if they don't exist
 print("------------------------------------")
