@@ -5,9 +5,9 @@ import Functions as Fn
 from Functions import UsefulFunctions as UF
 from Clustering import Clustering as Cl
 
-DataRoot = UF.DataRoot(1)
-Norm = "HM-FSTP"
-Extract = "Yes"
+DataRoot = UF.DataRoot(2)
+Norm = "HM-FS"
+Extract = "No"
 
 # Make Directories if they don't exist
 print("------------------------------------")
@@ -24,7 +24,7 @@ if Extract == "Yes":
     print("------------------------------------")
     print("------------------------------------")
     print("Extracting Features...")
-    #FE.All(DataRoot, Norm)
+    FE.All(DataRoot, Norm)
     print("Extracted - All")
     print("------------------------------------")
     FE.Limbus(DataRoot, Norm)
@@ -67,7 +67,7 @@ print("Feature Selection: ")
 print("------------------------------------")
 Cl.ClusterSelection(DataRoot, Norm)
 print("------------------------------------")
-
+print("------------------------------------\n ")
 
 
 

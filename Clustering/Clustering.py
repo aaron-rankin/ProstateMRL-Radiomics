@@ -16,7 +16,7 @@ from scipy.spatial import distance
 
 def DistanceMatrix(DataRoot, Norm):
     root = DataRoot
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\All_fts_pVol.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_fts_pVol.csv")
 
     patIDs = df_all["PatID"].unique()
     fts = df_all["Feature"].unique()
@@ -72,7 +72,7 @@ def ClusterFeatures(DataRoot, Norm, t_val):
         df_labels.set_index("FeatureName", inplace=True)
         
         # read in df with ft vals and merge
-        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\All_fts_pVol.csv")
+        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_fts_pVol.csv")
         ft_vals["PatID"] = ft_vals["PatID"].astype(str)
         pat_ft_vals = ft_vals[ft_vals["PatID"] == pat]
         pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")
@@ -183,8 +183,8 @@ def ClusterSelection(DataRoot, Norm):
 
     #print("Counts: ", counts)
     # get features with counts >= counts
-    print("\nSelected Features: ")
     fts = df_result[df_result["Counts"] >= counts]["Feature"].values
+    print("\nSelected Features: ({})".format(len(fts)))
     for f in fts:
         print(f)
     df_result = df_result[df_result["Counts"] >= counts]

@@ -1,9 +1,7 @@
 from Features import Extraction as FE
 from Features import Reduction as FR
-import Functions as Fn
 from Functions import UsefulFunctions as UF
-from Clustering import Clustering as Cl
-
+from Delta import Delta as DL
 DataRoot = UF.DataRoot(2)
 Norm = "HM-FSTP"
 Extract = "No"
@@ -41,3 +39,18 @@ FR.Volume(DataRoot, Norm, "Delta")
 print("------------------------------------")
 print("------------------------------------\n ")
 
+# Feature Selection
+print("------------------------------------")
+print("------------------------------------")
+print("Feature Selection...")
+print("------------------------------------")
+print("Creating Correlation Matrix:")
+print("------------------------------------")
+DL.CorrMatrix(DataRoot, Norm)
+print("------------------------------------")
+print("------------------------------------")
+print("Feature Selection:")
+print("------------------------------------")
+DL.FeatureSelection(DataRoot, Norm)
+print("------------------------------------")
+print("------------------------------------\n ")

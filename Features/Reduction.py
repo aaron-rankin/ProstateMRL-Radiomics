@@ -27,9 +27,7 @@ def ICC(DataRoot, Norm, Model):
             df_res = pd.DataFrame()
             for ft in tqdm(fts):
                 df_ft = df_fr[df_fr["Feature"] == ft]
-                print(df_ft)
 
-                print("Here")
                 icc = pg.intraclass_corr(data = df_ft, targets = "PatID", raters = "Mask", ratings = "FeatureValue")
                 df_res_t = pd.DataFrame()
                 df_res_t = df_res_t.append(icc)
@@ -57,7 +55,6 @@ def ICC(DataRoot, Norm, Model):
     # only want ICC3 
     df_res = df_res[df_res["Type"] == "ICC2"]
     df_res = df_res.drop(columns = ["Type", "Description"])
-    #print(df_res)
 
     # convert icc to float
     df_res["ICC"] = df_res["ICC"].astype(float)
@@ -123,13 +120,18 @@ def Volume(DataRoot, Norm, Model):
 
     elif Model == "Delta":
         df_all = df_all[df_all["Fraction"] != 1]
-        df_vol = df_all[df_all["Feature"] == "original_shape_MeshVolume"]
-        vals_vol = df_vol["FeatureChange"].values
+        
+        df_vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_All_fts.csv")
+        df_vol = df_vol[df_vol["Feature"] == "original_shape_MeshVolume"]
+        df_vol = df_vol[df_vol["Fraction"] != 1]
+        vals_vol = df_vol["FeatureValue"].values
+        
+
 
         # loop through features
         for ft in tqdm(fts):
             df_ft = df_all[df_all["Feature"] == ft]
-            vals_ft = df_ft["FeatureChange"].values
+            vals_ft = df_ft["FeatureValue"].values
 
             # get spearman correlation
             rho = stats.spearmanr(vals_vol, vals_ft)[0]

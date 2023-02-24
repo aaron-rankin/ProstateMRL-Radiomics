@@ -51,9 +51,9 @@ def CorrMatrix(root, Norm):
     plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_masked.png")
 
 
-def SelectFeatures(root, Norm):
+def FeatureSelection(root, Norm):
     # read in fts from csv
-    df_corr = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" Norm + "\\Delta\\CorrMatrix.csv")
+    df_corr = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix.csv")
 
     fts = df_corr["Unnamed: 0"].values
 
@@ -66,7 +66,7 @@ def SelectFeatures(root, Norm):
     for i in tqdm(range(len(fts))):
         for j in range(len(fts)):
             
-            if array_corr[i,j] <= 0.5:
+            if array_corr[i,j] <= 0.6:
                 results[i,j] = array_corr[i,j]
                 selected_fts.append([fts[i], fts[j]])
             else:
@@ -106,7 +106,7 @@ def SelectFeatures(root, Norm):
 
     # save results
     df_fts = pd.DataFrame(fts_keep2, columns=["Feature"])
-    print("Selected Features:")
+    print("Selected Features: ({})".format(str(len(fts_keep2))))
     fts = df_fts["Feature"].values
     for ft in fts:
         print(ft)
