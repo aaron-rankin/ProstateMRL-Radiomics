@@ -9,11 +9,11 @@ def DeltaModel(DataRoot, Norm):
     # Make Directories if they don't exist
     print("------------------------------------")
     print("------------------------------------")
-    print("Checking Directories...")
+    # print("Checking Directories...")
     print("Root: {} Norm: {}".format(DataRoot, Norm))
     UF.CD(DataRoot, Norm)
-    print("------------------------------------")
-    print("------------------------------------\n ")
+    # print("------------------------------------")
+    # print("------------------------------------\n ")
 
     # Get Delta Features
     print("------------------------------------")

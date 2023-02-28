@@ -291,3 +291,62 @@ def ClusterSimilarity(fts_1, fts_2):
     return(num_sim_fts, ratio_a, ratio_b, ratio)
 
 ####################################################
+
+def ModelSummary(root, Norm):
+    dir = root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\"
+
+    print("Model Summary - " + Norm)
+    print("")
+    print("-------------------------")
+    print("ICC Reduction")
+    print("Features Before: 105")
+
+    L_ICC = pd.read(dir + "Longitudinal_FeaturesRemoved_ICC.csv")
+    L_ICC_fts = len(L_ICC["FeatureName"].unique())
+    print("Longitudinal Features Removed: " + str(L_ICC_fts))
+    print("")
+    D_ICC = pd.read(dir + "Delta_FeaturesRemoved_ICC.csv")
+    D_ICC_fts = len(D_ICC["FeatureName"].unique())
+    print("Delta Features Removed: " + str(D_ICC_fts))
+
+
+    print("-------------------------")
+    print("Volume Reduction")
+    print("")
+    print("Longitudinal Features Before: " + str(105 - L_ICC_fts))
+    L_Vol = pd.read(dir + "Longitudinal_FeaturesRemoved_Volume.csv")
+    L_Vol_fts = len(L_Vol["FeatureName"].unique())
+    print("Longitudinal Features Removed: " + str(L_Vol_fts))
+
+    print("")
+    print("Delta Features Before: " + str(105 - D_ICC_fts))
+    D_Vol = pd.read(dir + "Delta_FeaturesRemoved_Volume.csv")
+    D_Vol_fts = len(D_Vol["FeatureName"].unique())
+    print("Delta Features Removed: " + str(D_Vol_fts))
+
+    print("-------------------------")
+    print("Feature Selection")
+    print("")
+    print("Longitudinal Features Before: " + str(105 - L_ICC_fts - L_Vol_fts))
+    L_Select = pd.read(dir + "Longitudinal_FeaturesSelected.csv")
+    L_Select_fts = L_Select["FeatureName"].unique()
+    print("Longitudinal Features Selected: " + str(len(L_Select_fts)))
+
+    print("")
+    print("Delta Features Before: " + str(105 - D_ICC_fts - D_Vol_fts))
+    D_Select = pd.read(dir + "Delta_FeaturesSelected.csv")
+    D_Select_fts = D_Select["FeatureName"].unique()
+    print("Delta Features Selected: " + str(len(D_Select_fts)))
+
+    # check if any features are selected in both longitudinal and delta
+    print("")
+    print("Features Selected in Both Longitudinal and Delta: " + str(len(set(L_Select_fts) & set(D_Select_fts))))
+
+    print("-------------------------")
+
+####################################################
+
+
+
+
+

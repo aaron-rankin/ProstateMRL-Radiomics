@@ -3,14 +3,16 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tqdm import tqdm
+Norm = "HM-FS"
 
-csvs = os.listdir("E:\\Aaron\ProstateMRL\Data\Paper1\HM-FSTP\\Longitudinal\ClusterLabels\\")
+csvs = os.listdir("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels\\")
 #csvs = [csv for csv in csvs if "HM" in csv]
 
-fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Features\\SelectedFeatures_Longitudinal.csv")
+fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\SelectedFeatures_Longitudinal.csv")
 fts_s = fts_s["Feature"].values
-for csv in csvs:
-    df = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\HM-FSTP\\Longitudinal\ClusterLabels\\" + csv)
+for csv in tqdm(csvs):
+    df = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels\\" + csv)
     pat = str(csv)[:-4]
     df["Selected"] = df["Feature"].apply(lambda x: x in fts_s)
     # print where selected is True
@@ -27,9 +29,9 @@ for csv in csvs:
         if len(selected_fts) == 0:
             sf_str = "No features selected"
         
-        number_fts = "Total number of feature(s) in Cluster {}: {}\nNumber of selected features: {}\n".format(c, df_c["Feature"].nunique(), len(selected_fts) )
-        text_str = selected_fts
-        text_str = '\n'.join(text_str)
+        number_fts = "Total number of features in Cluster {}: {}\nNumber of selected features: {}\n".format(c, df_c["Feature"].nunique(), len(selected_fts) )
+        # text_str = selected_fts
+        # text_str = '\n'.join(text_str)
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.7)
         fts = df_c["Feature"].values
         plt.figure(figsize=(10, 10))
@@ -50,11 +52,11 @@ for csv in csvs:
         plt.xlim(1, 5)
         #plt.ylim(-1, 1)
         # add text box
-        #plt.text(0.05, 0.95, (number_fts + text_str), transform=plt.gca().transAxes, fontsize=14, verticalalignment='top', bbox=props)
+        plt.text(0.05, 0.95, (number_fts), transform=plt.gca().transAxes, fontsize=20, verticalalignment='top', bbox=props)
         
         #plt.legend(title = "Feature Selected", bbox_to_anchor=(1, 0.6), labels = ["Yes", "No"])
-        plt.title("Cluster " + str(c), fontsize = 30)
-        plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\HM-FSTP\Longitudinal\ClusterPlots\\Run2_" + str(pat) + "_Cluster" + str(c) + ".png", bbox_inches = "tight")
+        plt.title("Patient - " + str(pat) + " Cluster - " + str(c), fontsize = 30)
+        plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterPlots\\" + str(pat) + "_Cluster" + str(c) + ".png", bbox_inches = "tight")
         #plt.show()
         plt.close()
 

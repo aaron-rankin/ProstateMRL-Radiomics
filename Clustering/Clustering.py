@@ -55,7 +55,7 @@ def ClusterFeatures(DataRoot, Norm, t_val):
 
     t_val = t_val
     patIDs = UF.SABRPats()
-    cluster_method = "weighted"
+    cluster_method = "ward"
 
     for pat in tqdm(patIDs):
         df_DM = pd.read_csv(DM_dir + pat + ".csv")
@@ -101,10 +101,14 @@ def ClusterCount(root, Norm):
             
         # append to result
         df_result = df_result.append(df, ignore_index=False)
+    #get number of clusters with more than 3 features
+    df_stable = df_result[df_result["Counts"] > 3]
+    df_stable = df_stable.groupby("PatID")["Cluster"].count()
+    # get mean number of stable clusters
+    meanstable = df_stable.mean()
 
     df_numclust= df_result.groupby("PatID")["Cluster"].max()
     df_numclust = df_numclust.rename_axis("PatID").reset_index(name="NumClusters")
-
 
     # group by patient and get mean number of clusters
     df_numfts = df_result.groupby("PatID")["Counts"].mean()
@@ -120,15 +124,16 @@ def ClusterCount(root, Norm):
     # merge dataframes
     df_numclust = pd.merge(df_numclust, df_numfts, on="PatID")
     df_numclust = pd.merge(df_numclust, df_medianfts, on="PatID")
-    #print(df_numclust, "\n")
 
-    print("Mean number of cluster per patient: ", df_numclust["NumClusters"].mean())
+    #print(df_numclust, "\n")
+    print("Mean number of stable clusters per patient: ", meanstable)
+    print("Mean number of clusters per patient: ", df_numclust["NumClusters"].mean())
     # print("Median number of cluster per patient: ", df_numclust["NumClusters"].median())
 
     # print("Mean fts over all clusters: ", meanftscluster)
     # print("Median fts over all clusters: ", medianftscluster)
 
-    print("Mean mean fts per cluster per patient: ", df_numfts["MeanFeaturesperCluster"].mean())
+    print("Mean features per cluster per patient: ", df_numfts["MeanFeaturesperCluster"].mean())
     # print("Median mean fts per cluster per patient: ", df_medianfts["MedianFeaturesperCluster"].median())
 
 
@@ -177,7 +182,7 @@ def ClusterSelection(DataRoot, Norm):
 
     df_result = df_result.Feature.value_counts().rename_axis("Feature").reset_index(name="Counts")
     #print("Selected Features: \n", df_result)
-
+    print(df_result)
     # get number of counts at 10th row
     counts = df_result.iloc[10]["Counts"]
 
@@ -191,5 +196,5 @@ def ClusterSelection(DataRoot, Norm):
 
     # drop counts
     df_result.drop(columns=["Counts"], inplace=True)
-    df_result.to_csv(out_dir + "SelectedFeatures_Longitudinal.csv")
+    df_result.to_csv(out_dir + "Longitudinal_SelectedFeatures.csv")
 

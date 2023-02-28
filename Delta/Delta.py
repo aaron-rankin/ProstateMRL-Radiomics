@@ -110,4 +110,4 @@ def FeatureSelection(root, Norm):
     fts = df_fts["Feature"].values
     for ft in fts:
         print(ft)
-    df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_selected_fts.csv", index=False)
+    df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_SelectedFeatures.csv", index=False)

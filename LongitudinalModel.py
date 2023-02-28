@@ -9,14 +9,14 @@ from Clustering import Clustering as Cl
 # Norm = "HM-FS"
 # Extract = "Yes"
 
-def LongitudinalModel(DataRoot, Norm, Extract):# Make Directories if they don't exist
+def LongitudinalModel(DataRoot, Norm, Extract, t_val):# Make Directories if they don't exist
     print("------------------------------------")
     print("------------------------------------")
-    print("Checking Directories...")
+    # print("Checking Directories...")
     print("Root: {} Norm: {}".format(DataRoot, Norm))
     UF.CD(DataRoot, Norm)
-    print("------------------------------------")
-    print("------------------------------------\n ")
+    # print("------------------------------------")
+    # print("------------------------------------\n ")
 
 
     # Extract Features
@@ -60,7 +60,7 @@ def LongitudinalModel(DataRoot, Norm, Extract):# Make Directories if they don't 
     print("------------------------------------")
     print("Clustering Distance Matrices: ")
     print("------------------------------------")
-    Cl.ClusterFeatures(DataRoot, Norm, 1.75)
+    Cl.ClusterFeatures(DataRoot, Norm, t_val)
     print("------------------------------------")
     Cl.ClusterCount(DataRoot, Norm)
     print("Feature Selection: ")
