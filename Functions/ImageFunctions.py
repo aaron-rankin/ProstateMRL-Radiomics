@@ -104,14 +104,15 @@ def MaskedMeanStd(image_url, mask_url):
 
 ####################################################
 
-def RescaleImage(image_path, factor, output_path):
+def RescaleImage(pat_path, factor, PatID, Scan, mask):
     '''
     Scales image according to a factor for normalisation
     and writes it out
     Input - image, factor, outpath
     Output - writes image
     '''
-
+    image_path = pat_path + "\\Raw\\" + PatID + "_" + Scan + "_Raw.nii"
+    output_path = pat_path + "\\Med-" + mask + "\\" + PatID + "_" + Scan + "_Med-" + mask + ".nii"
     image = sitk.ReadImage(image_path)
     image_array = sitk.GetArrayFromImage(image)
 
@@ -150,11 +151,11 @@ def CalcMedianSignal(t_dir, PatID, Scan, Mask):
     nifti_dir = "D:\\data\\prostateMR_radiomics\\nifti\\"
 
     ImagePath = os.path.join(nifti_dir, t_dir, PatID, Scan, "Raw\\", PatID + "_" + Scan + "_Raw.nii")
-    MaskPath = os.path.join(nifti_dir, t_dir, PatID, Scan, "Mask\\", PatID + "_" + Scan + "_" + Mask + ".nii")
-    MaskValue = MaskValue(Mask)
+    MaskPath = os.path.join(nifti_dir, t_dir, PatID, Scan, "Masks\\", PatID + "_" + Scan + "_" + Mask + ".nii")
+    Value = MaskValue(Mask)
 
     temp_df = pd.DataFrame()
-    temp_res = pd.Series(extractor.execute(ImagePath, MaskPath, MaskValue))
+    temp_res = pd.Series(extractor.execute(ImagePath, MaskPath, Value))
     temp_df = temp_df.append(temp_res, ignore_index=True)
 
     temp_df = temp_df.drop(columns = [col for col in temp_df.columns if "diagnostics" in col])

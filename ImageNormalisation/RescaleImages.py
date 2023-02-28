@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 import sys
-from radiomics import featureextractor
+from tqdm import tqdm
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -12,68 +12,42 @@ import UsefulFunctions as UF
 import ImageFunctions as IF
 
 
-root = UF.DataRoot(2)
+root = UF.DataRoot(1)
 nifti_dir = root + "\\prostateMR_radiomics\\nifti\\"
 # Get patkey
 PatKey = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\AllPatientKey_s.csv")
-Extraction = True
-e_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\MedianSignal.yaml"
-extractor = featureextractor.RadiomicsFeatureExtractor(e_params)
 
-masks = ["Pros", "glute", "psoas"]
-
+masks = ["Pros", "psoas"]
+PatKey = PatKey.loc[PatKey["Treatment"] == "SABR"]
 PatIDs = PatKey["PatID"].unique()
 
+Signal_df = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\MedianSignal.csv")
 
-def CalcSignal(ImagePath, MaskPath, MaskValue):
-    # Get image
-    temp_df = pd.DataFrame()
-    temp_res = pd.Series(extractor.execute(ImagePath, MaskPath, MaskValue))
-    temp_df = temp_df.append(temp_res, ignore_index=True)
-
-    return temp_df
-
-for PatID in PatIDs:
+for PatID in tqdm(PatIDs):
 
     pat_key = PatKey[PatKey["PatID"] == PatID]
-    dir = pat_key["FileDir"].values[0]
+    Pat_df = Signal_df.loc[Signal_df["PatID"] == PatID]
+    t_dir = pat_key["FileDir"].values[0]
 
-    PatID = UF.FixPatID(PatID, dir)
+    PatID = UF.FixPatID(PatID, t_dir)
     Scans = pat_key["Scan"].unique()
 
+    Base_pros = Pat_df.loc[Pat_df["Mask"] == "shrunk_pros"]["Median"].values[0]
+    Base_psoas = Pat_df.loc[Pat_df["Mask"] == "psoas"]["Median"].values[0]
+
     for Scan in Scans:
-        print(PatID, Scan)
 
-        if Extraction == True:
+    
+        ImageFile = PatID + "_" + Scan + "_Raw.nii"
 
-            for Mask in masks:
-                if Mask == "Pros":
-                    Mask = "shrunk_pros"
+        Val_pros = Pat_df.loc[(Pat_df["Mask"] == "shrunk_pros") & (Pat_df["Scan"] == Scan)]["Median"].values[0]
+        Val_psoas = Pat_df.loc[(Pat_df["Mask"] == "psoas") & (Pat_df["Scan"] == Scan)]["Median"].values[0]
 
+        factor_pros = Base_pros / Val_pros
+        factor_psoas = Base_psoas / Val_psoas
 
-                ImagePath = os.path.join(nifti_dir, dir, PatID, Scan, "Raw\\", PatID + "_" + Scan + "_Raw.nii")
-                MaskPath = os.path.join(nifti_dir, dir, PatID, Scan, "Mask\\", PatID + "_" + Scan + "_" + Mask + ".nii")
-                MaskValue = IF.MaskValue(Mask)
-
-                temp_df = CalcSignal(ImagePath, MaskPath, MaskValue)
-                print(temp_df)
-
-
-
-
-
-
-
-
-            
-
-
-                
-
-                
-                    
-
-
-
-
+        pat_path = os.path.join(nifti_dir, t_dir, PatID, Scan)
+        
+        IF.RescaleImage(pat_path, factor_pros, PatID, Scan, "Pros")
+        IF.RescaleImage(pat_path, factor_psoas, PatID, Scan, "Psoas")
 
