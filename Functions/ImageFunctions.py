@@ -8,6 +8,7 @@ import sys
 import seaborn as sns
 import pandas as pd
 from datetime import datetime
+from radiomics import featureextractor
 
 ####################################################
 
@@ -138,5 +139,31 @@ def MaskValue(mask_name):
         value = int(13)
     
     return value
+
+####################################################
+
+def CalcMedianSignal(t_dir, PatID, Scan, Mask):
+    # Get image
+    e_params = "D:\\data\\Aaron\\ProstateMRL\Code\Features\\Parameters\\MedianSignal.yaml"
+    extractor = featureextractor.RadiomicsFeatureExtractor(e_params)
+
+    nifti_dir = "D:\\data\\prostateMR_radiomics\\nifti\\"
+
+    ImagePath = os.path.join(nifti_dir, t_dir, PatID, Scan, "Raw\\", PatID + "_" + Scan + "_Raw.nii")
+    MaskPath = os.path.join(nifti_dir, t_dir, PatID, Scan, "Mask\\", PatID + "_" + Scan + "_" + Mask + ".nii")
+    MaskValue = MaskValue(Mask)
+
+    temp_df = pd.DataFrame()
+    temp_res = pd.Series(extractor.execute(ImagePath, MaskPath, MaskValue))
+    temp_df = temp_df.append(temp_res, ignore_index=True)
+
+    temp_df = temp_df.drop(columns = [col for col in temp_df.columns if "diagnostics" in col])
+    temp_df = temp_df.rename(columns = lambda x : x.replace("original_firstorder_", ""))
+
+    temp_df["PatID"] = PatID
+    temp_df["Scan"] = Scan
+    temp_df["Mask"] = Mask
+    
+    return temp_df
 
 ####################################################

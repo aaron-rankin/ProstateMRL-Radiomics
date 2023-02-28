@@ -1,66 +1,70 @@
 import SimpleITK as sitk
-from matplotlib.pyplot import contour
 import numpy as np
 import pandas as pd
 import os
+import sys
+from radiomics import featureextractor
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent + "\\Functions\\")
 import UsefulFunctions as UF
 import ImageFunctions as IF
 
-nifti_dir = "D:\\data\\prostateMR_radiomics\\nifti\\"
 
-csv_dir = "D:\\data\\Aaron\\ProstateMRL\\Data\\MRLPacks\\RawStats\\"
-csvs = os.listdir(csv_dir)
+root = UF.DataRoot(2)
+nifti_dir = root + "\\prostateMR_radiomics\\nifti\\"
+# Get patkey
+PatKey = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\AllPatientKey_s.csv")
+Extraction = True
+e_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\MedianSignal.yaml"
+extractor = featureextractor.RadiomicsFeatureExtractor(e_params)
 
-masks = ["Pros", "Glute", "Psoas"]
+masks = ["Pros", "glute", "psoas"]
 
-
-
-for i in csvs:
-    pat_df = pd.read_csv(csv_dir + i)
-    
-    t = pat_df.Treatment.unique()[0]
-
-    patID = pat_df.PatID.unique()[0]
-
-    patID = UF.FixPatID(patID,t)
-
-    scans = pat_df.Scan.unique()
-    print("####################################################")
-    print("Patient: {}".format(patID))
-
-    base_df = pat_df.loc[pat_df["DaysDiff"] == 0]
-    
-    base_pros_mean, base_pros_med = base_df["Mean"].iloc[0], base_df["Median"].iloc[0]
-    base_glute_mean,  base_glute_med = base_df["Mean"].iloc[1], base_df["Median"].iloc[1]
-    base_psoas_mean, base_psoas_med = base_df["Mean"].iloc[2], base_df["Median"].iloc[2]    
-    
-    base_vals = [base_pros_mean, base_pros_med, base_glute_mean, base_glute_med, base_psoas_mean, base_psoas_med]
+PatIDs = PatKey["PatID"].unique()
 
 
-    for MRscan in scans:
-        print("Scan: {}".format(MRscan))
-        pat_path = os.path.join(nifti_dir, t, patID, MRscan)
-        
-        scan_df = pat_df.loc[pat_df["Scan"] == (MRscan)]
-        
-        scan_pros_mean, scan_pros_med = scan_df["Mean"].iloc[0], scan_df["Median"].iloc[0]
-        scan_glute_mean,  scan_glute_med = scan_df["Mean"].iloc[1], scan_df["Median"].iloc[1]
-        scan_psoas_mean, scan_psoas_med = scan_df["Mean"].iloc[2], scan_df["Median"].iloc[2]  
+def CalcSignal(ImagePath, MaskPath, MaskValue):
+    # Get image
+    temp_df = pd.DataFrame()
+    temp_res = pd.Series(extractor.execute(ImagePath, MaskPath, MaskValue))
+    temp_df = temp_df.append(temp_res, ignore_index=True)
 
-        scan_vals = [scan_pros_mean, scan_pros_med, scan_glute_mean, scan_glute_med, scan_psoas_mean, scan_psoas_med]
-        
-        scan_path = pat_path + "\\RawImages\\" + patID + "_" + MRscan + "_Raw.nii"
+    return temp_df
 
-        for j in range(0, 6, 2):
-            mask = masks[int(j/2)]
+for PatID in PatIDs:
 
-            mean_factor = base_vals[j] / scan_vals[j]
-            mean_path = pat_path + "\\Norm-" + mask + "\\" + patID + "_" + MRscan + "_Norm-" + mask + ".nii"
-            IF.RescaleImage(scan_path, mean_factor, mean_path)
+    pat_key = PatKey[PatKey["PatID"] == PatID]
+    dir = pat_key["FileDir"].values[0]
 
-            med_factor = base_vals[j+1] / scan_vals[j+1]
-            med_path = pat_path + "\\Med-" + mask + "\\" + patID + "_" + MRscan + "_Med-" + mask + ".nii"
-            IF.RescaleImage(scan_path, med_factor, med_path)
+    PatID = UF.FixPatID(PatID, dir)
+    Scans = pat_key["Scan"].unique()
+
+    for Scan in Scans:
+        print(PatID, Scan)
+
+        if Extraction == True:
+
+            for Mask in masks:
+                if Mask == "Pros":
+                    Mask = "shrunk_pros"
+
+
+                ImagePath = os.path.join(nifti_dir, dir, PatID, Scan, "Raw\\", PatID + "_" + Scan + "_Raw.nii")
+                MaskPath = os.path.join(nifti_dir, dir, PatID, Scan, "Mask\\", PatID + "_" + Scan + "_" + Mask + ".nii")
+                MaskValue = IF.MaskValue(Mask)
+
+                temp_df = CalcSignal(ImagePath, MaskPath, MaskValue)
+                print(temp_df)
+
+
+
+
+
+
+
+
             
 
 

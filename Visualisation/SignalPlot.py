@@ -10,7 +10,7 @@ import UsefulFunctions as UF
 root = UF.DataRoot(2)
 
 df_fts = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\Raw\\Features\\Longitudinal_All_fts.csv")
-print(df_fts.head())
+#print(df_fts.head())
 
 
 # filter for only original_firstorder_median
