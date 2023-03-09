@@ -9,7 +9,7 @@ from tqdm import tqdm
 import sys
 
 
-def ICC(DataRoot, Norm, Model):
+def ICC(DataRoot, Norm, Model, output=False):
     root = DataRoot
     # load in patient data
     df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_Limbus_fts.csv")
@@ -67,11 +67,12 @@ def ICC(DataRoot, Norm, Model):
     # return rows with poor ICC
     df_poor = df_res[df_res["ICC_Class"] == "Poor"]
     fts_remove = df_poor["Feature"].unique()
-    print("\nICC redudant features: " + str(len(fts_remove)) + "/" + str(len(fts)))
-    # print features to remove one by one
+    if output == True:
+        print("\nICC redudant features: " + str(len(fts_remove)) + "/" + str(len(fts)))
+        # print features to remove one by one
 
-    for ft in fts_remove:
-        print(ft)
+        for ft in fts_remove:
+            print(ft)
 
     # remove poor features from df_all
     df_all = df_all[~df_all["Feature"].isin(fts_remove)]
@@ -90,7 +91,7 @@ def ICC(DataRoot, Norm, Model):
 
 
 
-def Volume(DataRoot, Norm, Model):
+def Volume(DataRoot, Norm, Model, output = False):
 
     root = DataRoot
      # read in fts from csv
@@ -145,12 +146,13 @@ def Volume(DataRoot, Norm, Model):
     # remove features
     fts_remove = df_mean[abs(df_mean["rho"]) > 0.6]["Feature"].values
     df_all = df_all[~df_all["Feature"].isin(fts_remove)]
-    print("\nVolume redundant features: " + str(len(fts_remove)) + "/" + str(len(fts)) )
+    if output == True:
+        print("\nVolume redundant features: " + str(len(fts_remove)) + "/" + str(len(fts)) )
 
-    for ft in fts_remove:
-        print(ft)
+        for ft in fts_remove:
+            print(ft)
 
-    print("Remaining features: " + str(len(df_all["Feature"].unique())) + "/" + str(len(fts)) + "\n")
+        print("Remaining features: " + str(len(df_all["Feature"].unique())) + "/" + str(len(fts)) + "\n")
 
     fts_remove = pd.DataFrame({"Feature": fts_remove})
     fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_FeaturesRemoved_Volume.csv", index=False)
