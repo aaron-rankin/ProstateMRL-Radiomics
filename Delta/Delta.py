@@ -14,7 +14,16 @@ import UsefulFunctions as UF
 
 def CorrMatrix(root, Norm):
     # read in fts from csv
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_fts_pVol.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_All_fts.csv")
+
+    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_FeaturesRemoved_ICC.csv")
+    fts_ICC = fts_ICC["Feature"].unique()
+    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_FeaturesRemoved_Volume.csv")
+    fts_Vol = fts_Vol["Feature"].unique()
+
+    df_all = df_all[~df_all["Feature"].isin(fts_ICC)]
+    df_all = df_all[~df_all["Feature"].isin(fts_Vol)]
+    
     fts = df_all["Feature"].unique()
 
     df_res = pd.DataFrame()

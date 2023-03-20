@@ -17,6 +17,8 @@ def ICC(DataRoot, Norm, Model, output=False):
     df_all = df_all[df_all["Feature"] != "original_firstorder_Minimum"]
     df_all = df_all[df_all["Feature"] != "original_firstorder_Maximum"]
 
+    print("Calculating ICC...")
+    
     if Model == "Longitudinal":
         fractions = df_all["Fraction"].unique()
         for fr in fractions:
@@ -87,7 +89,7 @@ def ICC(DataRoot, Norm, Model, output=False):
     df_all_r = df_all_r[~df_all_r["Feature"].isin(fts_remove["Feature"])]
 
     # save df_all_r
-    df_all_r.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pICC.csv", index = False)
+    #df_all_r.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pICC.csv", index = False)
 
 
 
@@ -95,11 +97,15 @@ def Volume(DataRoot, Norm, Model, output = False):
 
     root = DataRoot
      # read in fts from csv
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pICC.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_All_fts.csv")
+    df_all = df_all[df_all["Feature"] != "original_firstorder_Minimum"]
+    df_all = df_all[df_all["Feature"] != "original_firstorder_Maximum"]
+    
     fractions = df_all["Fraction"].unique()
     fts = df_all["Feature"].unique()
 
     df_res = pd.DataFrame()
+    print("Correlating features to volume...")
 
     if Model == "Longitudinal":
         for fr in fractions:
@@ -158,6 +164,6 @@ def Volume(DataRoot, Norm, Model, output = False):
     fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_FeaturesRemoved_Volume.csv", index=False)
 
     # save to csv
-    df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pVol.csv", index=False)
+    #df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pVol.csv", index=False)
 
         

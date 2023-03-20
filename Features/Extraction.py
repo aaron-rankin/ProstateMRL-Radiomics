@@ -31,7 +31,7 @@ def All(DataRoot, Norm):
     results_df = pd.DataFrame()
 
 
-    extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All.yaml"
+    extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All_Filters.yaml"
     extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
     for pat in tqdm(patIDs):

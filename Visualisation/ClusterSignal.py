@@ -9,7 +9,7 @@ Norm = "HM-FS"
 csvs = os.listdir("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels\\")
 #csvs = [csv for csv in csvs if "HM" in csv]
 
-fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\SelectedFeatures_Longitudinal.csv")
+fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_SelectedFeatures.csv")
 fts_s = fts_s["Feature"].values
 for csv in tqdm(csvs):
     df = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels\\" + csv)
@@ -30,8 +30,8 @@ for csv in tqdm(csvs):
             sf_str = "No features selected"
         
         number_fts = "Total number of features in Cluster {}: {}\nNumber of selected features: {}\n".format(c, df_c["Feature"].nunique(), len(selected_fts) )
-        # text_str = selected_fts
-        # text_str = '\n'.join(text_str)
+        text_str = selected_fts
+        text_str = '\n'.join(text_str)
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.7)
         fts = df_c["Feature"].values
         plt.figure(figsize=(10, 10))
@@ -52,7 +52,7 @@ for csv in tqdm(csvs):
         plt.xlim(1, 5)
         #plt.ylim(-1, 1)
         # add text box
-        plt.text(0.05, 0.95, (number_fts), transform=plt.gca().transAxes, fontsize=20, verticalalignment='top', bbox=props)
+        plt.text(0.05, 0.95, (number_fts + text_str), transform=plt.gca().transAxes, fontsize=20, verticalalignment='top', bbox=props)
         
         #plt.legend(title = "Feature Selected", bbox_to_anchor=(1, 0.6), labels = ["Yes", "No"])
         plt.title("Patient - " + str(pat) + " Cluster - " + str(c), fontsize = 30)

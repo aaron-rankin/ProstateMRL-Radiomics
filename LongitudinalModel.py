@@ -41,12 +41,12 @@ def LongitudinalModel(DataRoot, Norm, Extract, t_val, output=False):# Make Direc
         print("------------------------------------")
         print("------------------------------------")
 
-    FR.Volume(DataRoot, Norm, "Longitudinal", output)
+    #FR.Volume(DataRoot, Norm, "Longitudinal", output)
     if output == True:
         print("------------------------------------")
         print("ICC Feature Reduction: ")
         print("------------------------------------\n ")
-    FR.ICC(DataRoot, Norm, "Longitudinal", output)
+    #FR.ICC(DataRoot, Norm, "Longitudinal", output)
     # Clustering
     if output == True:
         print("------------------------------------")
@@ -55,7 +55,7 @@ def LongitudinalModel(DataRoot, Norm, Extract, t_val, output=False):# Make Direc
         print("------------------------------------")
         print("Creating Distance Matrices: ")
         print("------------------------------------")
-    Cl.DistanceMatrix(DataRoot, Norm, output)
+    #Cl.DistanceMatrix(DataRoot, Norm, output)
     
     if output == True:
         print("------------------------------------")

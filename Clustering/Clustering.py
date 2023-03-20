@@ -7,6 +7,8 @@ from tqdm import tqdm
 from scipy.cluster.hierarchy import dendrogram
 import scipy.cluster.hierarchy as spch
 import sys
+import statsmodels.tsa.stattools as sts
+
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent + "\\Functions\\")
@@ -16,10 +18,20 @@ from scipy.spatial import distance
 
 def DistanceMatrix(DataRoot, Norm, output):
     root = DataRoot
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_fts_pVol.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts.csv")
+
+    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_ICC.csv")
+    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_Volume.csv")
+
+    df_all = df_all[~df_all["Feature"].isin(fts_ICC["Feature"])]
+    df_all = df_all[~df_all["Feature"].isin(fts_Vol["Feature"])]
 
     patIDs = df_all["PatID"].unique()
     fts = df_all["Feature"].unique()
+
+    print("Volume Redundant features: {}".format(len(fts_Vol)))
+    print("ICC Redundant features: {}".format(len(fts_ICC)))
+    print("Remainder of features: {}".format(len(fts)))
     # loop through patients
     for pat in tqdm(patIDs):
         df_pat = df_all[df_all["PatID"] == pat]
@@ -48,14 +60,39 @@ def DistanceMatrix(DataRoot, Norm, output):
         plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\DM\\Figs\\" + str(pat) + ".png")
 
 
-def ClusterFeatures(DataRoot, Norm, t_val, output):
+def ClusterCheck(df, t_val, df_DM):
+        df_c = df
+        df_new = pd.DataFrame()
+        # feature names
+        df_new["FeatureName"] = df_c.index
+        # cluster labels
+        c = df_c["Cluster"].values[0]
+        
+        # need to filter distance matrix to only include features in cluster
+        df_DM_c = df_DM[df_c.index]
+        # only keep features in cluster
+        df_DM_c = df_DM_c[df_DM_c.index.isin(df_c.index)]
+        
+        # convert to numpy array
+        arr_DM_c = df_DM_c.to_numpy()
+        
+        # cluster
+        df_new["Cluster"] = spch.fclusterdata(arr_DM_c, t=t_val, criterion="distance", method="ward")
+        df_new["Cluster"] = c*100 + df_new["Cluster"]
+        df_new["Cluster"] = df_new["Cluster"].astype(int)
+        df_new["NumFts"] = df_new.groupby("Cluster")["Cluster"].transform("count")
+        number_fts = df_new["NumFts"].unique()
+        #print(t_val, number_fts)#, df_new)
+        return number_fts, df_new
+
+
+def ClusterFeatures(DataRoot, Norm, s_t_val, output):
     root = DataRoot
     DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\DM\\csvs\\"
-    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels\\"
+    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels2\\"
 
-    t_val = t_val
     patIDs = UF.SABRPats()
-    cluster_method = "ward"
+    cluster_method = "weighted"
 
     for pat in tqdm(patIDs):
         df_DM = pd.read_csv(DM_dir + pat + ".csv")
@@ -68,9 +105,38 @@ def ClusterFeatures(DataRoot, Norm, t_val, output):
         df_labels["FeatureName"] = fts
 
         # cluster function using DM, need to experiment with t_val and method
-        df_labels["Cluster"] = spch.fclusterdata(arr_DM, t=t_val, criterion="distance", method=cluster_method)
+        df_labels["Cluster"] = spch.fclusterdata(arr_DM, t=s_t_val, criterion="distance", method=cluster_method)
         df_labels.set_index("FeatureName", inplace=True)
         
+        # check number of features in each cluster
+        df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
+        df_labels["Cluster"] = df_labels["Cluster"].astype(int)
+        print(df_labels.loc[df_labels["NumFts"] > 10])
+        # loop through clusters 
+        for c in df_labels["Cluster"].unique():
+                df_c = df_labels[df_labels["Cluster"] == c]
+                number_fts = len(df_c)
+                # check numnber of features in cluster
+                if number_fts > 5:
+                        # if more than 10 features in cluster, reduce t_val and recluster
+                        t_val = s_t_val - 0.2
+                        number_fts, df_labels2 = ClusterCheck(df_c, t_val, df_DM)
+                        tries = 1
+                        new_fts = df_labels2["FeatureName"].unique()
+                        df_labels.loc[new_fts, "Cluster"] = df_labels2["Cluster"].values
+                        df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
+
+                        while number_fts.max() > 5:
+                                t_val = t_val - 0.2
+                                tries += 1
+                                print("Tries: {} T_val: {}".format(tries, t_val))
+                                number_fts, df_labels2 = ClusterCheck(df_c, t_val, df_DM)
+                                print(df_labels2)
+
+                        print(df_labels2)
+
+
+
         # read in df with ft vals and merge
         ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_fts_pVol.csv")
         ft_vals["PatID"] = ft_vals["PatID"].astype(str)
@@ -81,13 +147,13 @@ def ClusterFeatures(DataRoot, Norm, t_val, output):
         pat_ft_vals.to_csv(out_dir + pat + ".csv")
 
 def ClusterCount(root, Norm, output):
-    dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\")
+    dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\")
 
     df_result = pd.DataFrame()
 
     for f in dir:
     
-        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\" + f)
+        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\" + f)
         df = df[["Feature", "Cluster"]]
         df = df.drop_duplicates()
         # sort by cluster
@@ -131,11 +197,53 @@ def ClusterCount(root, Norm, output):
         print("Mean features per cluster per patient: ", df_numfts["MeanFeaturesperCluster"].mean())
 
 
+
+def ClusterCC(Cluster_ft_df):
+    '''
+    Input - df filtered for norm, patient, cluster
+    Output - performs cross-correlation within clustered fts and returns ft most strongly correlated with the rest, if more than 2 fts present
+    '''
+    fts = Cluster_ft_df.Feature.unique()
+    num_fts = len(fts)
+   
+    if num_fts > 2:
+        vals = {} # stores fts and values
+        ccfs = {} # stores cc values for each feature
+        mean_ccfs = {} # stores the mean cc value for every feature
+        num_sel = 1 #np.rint(len(fts) * 0.2)
+        
+        for f in fts:
+            ft_df = Cluster_ft_df[Cluster_ft_df["Feature"] == f]
+            ft_vals = ft_df.FeatureChange.values
+            vals[f] = ft_vals
+        
+        for v in vals:
+            ft_1 = vals[v]
+            ccfs[v] = v
+            ccfs_vals = []
+
+            for u in vals:
+                ft_2 = vals[u]
+                corr = sts.ccf(ft_1, ft_2)[0] # cross correlation value, index [0] for for 0 lag in csc function
+                ccfs_vals.append(corr)
+            
+            mean_ccfs[v] = np.array(ccfs_vals).mean() # get mean across all cc values for each ft
+
+        s_mean_ccfs = sorted(mean_ccfs.items(), key=lambda x:x[1], reverse=True)
+        sorted_temp = s_mean_ccfs[0:int(num_sel)]
+        ft_selected = [seq[0] for seq in sorted_temp]
+
+    else: 
+        ft_selected = 0
+
+    return ft_selected
+
+
 def ClusterSelection(DataRoot, Norm, output):
     root = DataRoot
     patIDs = UF.SABRPats()
 
-    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\"
+    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\"
     out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Features\\"
     # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
     t_val = 2
@@ -155,7 +263,7 @@ def ClusterSelection(DataRoot, Norm, output):
             # function loops through each cluster and gets feature values
             # performs cross-correlation and returns feature with highest mean correlation to all other features
             # returns NULL if < 3 features in cluster 
-            ft_selected = UF.ClusterFtSelection2(df_cluster)
+            ft_selected = ClusterCC(df_cluster)
 
             if ft_selected != 0:
                 for f in ft_selected:
@@ -174,7 +282,7 @@ def ClusterSelection(DataRoot, Norm, output):
     df_result = df_result.Feature.value_counts().rename_axis("Feature").reset_index(name="Counts")
     # get number of counts at 10th row
     counts = df_result.iloc[10]["Counts"]
-
+    print(df_result)
     # get features with counts >= counts
     fts = df_result[df_result["Counts"] >= counts]["Feature"].values
     if output == True:
@@ -185,5 +293,5 @@ def ClusterSelection(DataRoot, Norm, output):
 
     # drop counts
     df_result.drop(columns=["Counts"], inplace=True)
-    df_result.to_csv(out_dir + "Longitudinal_SelectedFeatures.csv")
+    df_result.to_csv(out_dir + "Longitudinal_SelectedFeatures2.csv")
 
