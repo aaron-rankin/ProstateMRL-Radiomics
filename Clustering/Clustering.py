@@ -14,7 +14,7 @@ import UsefulFunctions as UF
 import ImageFunctions as IF
 from scipy.spatial import distance
 
-def DistanceMatrix(DataRoot, Norm):
+def DistanceMatrix(DataRoot, Norm, output):
     root = DataRoot
     df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_fts_pVol.csv")
 
@@ -48,7 +48,7 @@ def DistanceMatrix(DataRoot, Norm):
         plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\DM\\Figs\\" + str(pat) + ".png")
 
 
-def ClusterFeatures(DataRoot, Norm, t_val):
+def ClusterFeatures(DataRoot, Norm, t_val, output):
     root = DataRoot
     DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\DM\\csvs\\"
     out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels\\"
@@ -80,7 +80,7 @@ def ClusterFeatures(DataRoot, Norm, t_val):
         # output is feature values w/ cluster labels
         pat_ft_vals.to_csv(out_dir + pat + ".csv")
 
-def ClusterCount(root, Norm):
+def ClusterCount(root, Norm, output):
     dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\")
 
     df_result = pd.DataFrame()
@@ -125,20 +125,13 @@ def ClusterCount(root, Norm):
     df_numclust = pd.merge(df_numclust, df_numfts, on="PatID")
     df_numclust = pd.merge(df_numclust, df_medianfts, on="PatID")
 
-    #print(df_numclust, "\n")
-    print("Mean number of stable clusters per patient: ", meanstable)
-    print("Mean number of clusters per patient: ", df_numclust["NumClusters"].mean())
-    # print("Median number of cluster per patient: ", df_numclust["NumClusters"].median())
-
-    # print("Mean fts over all clusters: ", meanftscluster)
-    # print("Median fts over all clusters: ", medianftscluster)
-
-    print("Mean features per cluster per patient: ", df_numfts["MeanFeaturesperCluster"].mean())
-    # print("Median mean fts per cluster per patient: ", df_medianfts["MedianFeaturesperCluster"].median())
+    if output == True:
+        print("Mean number of stable clusters per patient: ", meanstable)
+        print("Mean number of clusters per patient: ", df_numclust["NumClusters"].mean())
+        print("Mean features per cluster per patient: ", df_numfts["MeanFeaturesperCluster"].mean())
 
 
-
-def ClusterSelection(DataRoot, Norm):
+def ClusterSelection(DataRoot, Norm, output):
     root = DataRoot
     patIDs = UF.SABRPats()
 
@@ -169,7 +162,6 @@ def ClusterSelection(DataRoot, Norm):
                     fts_selected.append(f)
         
         # filter through all feature values and select only new features
-        
             row = {}
 
         for f in fts_selected:
@@ -177,21 +169,18 @@ def ClusterSelection(DataRoot, Norm):
             row["Feature"] = f
             df_result_pat = df_result_pat.append(row, ignore_index=True)
         
-        #df_result_pat.to_csv(out_dir + pat + ".csv")
         df_result = df_result.append(df_result_pat, ignore_index=True)
 
     df_result = df_result.Feature.value_counts().rename_axis("Feature").reset_index(name="Counts")
-    #print("Selected Features: \n", df_result)
-    print(df_result)
     # get number of counts at 10th row
     counts = df_result.iloc[10]["Counts"]
 
-    #print("Counts: ", counts)
     # get features with counts >= counts
     fts = df_result[df_result["Counts"] >= counts]["Feature"].values
-    print("\nSelected Features: ({})".format(len(fts)))
-    for f in fts:
-        print(f)
+    if output == True:
+        print("\nSelected Features: ({})".format(len(fts)))
+        for f in fts:
+            print(f)
     df_result = df_result[df_result["Counts"] >= counts]
 
     # drop counts

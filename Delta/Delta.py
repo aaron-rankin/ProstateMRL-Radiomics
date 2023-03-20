@@ -50,8 +50,7 @@ def CorrMatrix(root, Norm):
     sns.heatmap(df_res, cmap="RdBu_r", vmin=0, vmax=0.5, square=True)
     plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_masked.png")
 
-
-def FeatureSelection(root, Norm):
+def FeatureSelection(root, Norm, output=False):
     # read in fts from csv
     df_corr = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix.csv")
 
@@ -106,8 +105,9 @@ def FeatureSelection(root, Norm):
 
     # save results
     df_fts = pd.DataFrame(fts_keep2, columns=["Feature"])
-    print("Selected Features: ({})".format(str(len(fts_keep2))))
-    fts = df_fts["Feature"].values
-    for ft in fts:
-        print(ft)
+    if output == True:
+        print("Selected Features: ({})".format(str(len(fts_keep2))))
+        fts = df_fts["Feature"].values
+        for ft in fts:
+            print(ft)
     df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_SelectedFeatures.csv", index=False)
