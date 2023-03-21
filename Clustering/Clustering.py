@@ -8,6 +8,7 @@ from scipy.cluster.hierarchy import dendrogram
 import scipy.cluster.hierarchy as spch
 import sys
 import statsmodels.tsa.stattools as sts
+from scipy import stats
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -51,18 +52,18 @@ def DistanceMatrix(DataRoot, Norm, output):
                 vals_ft2 = df_pat[df_pat["Feature"] == fts[ft2]]["FeatureChange"].values
 
                 # calculate correlation
-                mat[ft1, ft2] = distance.euclidean(vals_ft1, vals_ft2)
-        
+                mat[ft1, ft2] = stats.pearsonr(vals_ft1, vals_ft2)[0]
+
         # save matrix
         df_dist = pd.DataFrame(mat, columns = fts, index = fts)  
-        df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm +"\\Longitudinal\\DM\\csvs\\" + str(pat) + ".csv")
+        df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm +"\\Longitudinal\\Test\\DM\\csvs\\" + str(pat) + ".csv")
 
         # plot matrix
         plt.figure(figsize=(20,20))
         sns.set_theme(style="white")
         plt.title("DM - {}".format(pat), fontsize=40)
         sns.heatmap(df_dist, cmap='viridis', cbar_kws={'label': 'Euclidean Distance'})
-        plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\DM\\Figs\\" + str(pat) + ".png")
+        plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\Test\\DM\\Figs\\" + str(pat) + ".png")
 
 ####################################################
 
@@ -87,7 +88,7 @@ def ClusterCheck(df, fts, t_val, tries, df_DM):
         
         # cluster
         df_new["Cluster"] = spch.fclusterdata(arr_DM_c, t=t_val, criterion="distance", method="ward")
-        df_new["Cluster"] = str(c) + str(tries) + df_new["Cluster"].astype(str)
+        df_new["Cluster"] = str(c*100) + str(tries) + df_new["Cluster"].astype(str)
         df_new["Cluster"] = df_new["Cluster"].astype(int)
         df_new["NumFts"] = df_new.groupby("Cluster")["Cluster"].transform("count")
         number_fts = df_new["NumFts"].unique()
@@ -105,8 +106,8 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, output):
     performs clustering until all clusters have less than 10 features
     '''
     root = DataRoot
-    DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\DM\\csvs\\"
-    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels2\\"
+    DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\DM\\csvs\\"
+    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\Test\\ClusterLabels\\"
 
     patIDs = UF.SABRPats()
 
@@ -172,13 +173,13 @@ def ClusterCount(root, Norm, output):
     '''
     Summarises clustering results
     '''
-    dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\")
+    dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\")
 
     df_result = pd.DataFrame()
 
     for f in dir:
 
-        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\" + f)
+        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\" + f)
         df = df[["Feature", "Cluster"]]
         df = df.drop_duplicates()
         # sort by cluster
@@ -197,11 +198,11 @@ def ClusterCount(root, Norm, output):
     df_stable = df_stable.groupby("PatID")["Cluster"].count()
     # get mean number of stable clusters
     meanstable = df_stable.mean()
-    print(df_result)
-    df_numclust= df_result.groupby("PatID")["Cluster"].max()
-    print(df_numclust)
+    #print(df_result)
+    df_numclust= df_result.groupby("PatID")["Cluster"].count()
+    #print(df_numclust)
     df_numclust = df_numclust.rename_axis("PatID").reset_index(name="NumClusters")
-    print(df_numclust)
+    #print(df_numclust)
     # group by patient and get mean number of clusters
     df_numfts = df_result.groupby("PatID")["Counts"].mean()
     df_numfts = df_numfts.rename_axis("PatID").reset_index(name="MeanFeaturesperCluster")
@@ -275,7 +276,7 @@ def ClusterSelection(DataRoot, Norm, output):
     root = DataRoot
     patIDs = UF.SABRPats()
 
-    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\"
+    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\"
     out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Features\\"
     # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
     t_val = 2
@@ -284,12 +285,12 @@ def ClusterSelection(DataRoot, Norm, output):
         # read in feature vals and associated cluster labels
         df_pat = pd.read_csv(labels_dir + pat + ".csv")
 
-        cluster_num = df_pat["Cluster"].max()
+        cluster_num = df_pat["Cluster"].unique()
         fts_selected = []
         df_result_pat = pd.DataFrame()
 
         # for each patient loop through each cluster to get 'best' feature
-        for c in range(1, cluster_num):
+        for c in cluster_num:
             df_cluster = df_pat[df_pat["Cluster"] == c]
 
             # function loops through each cluster and gets feature values
