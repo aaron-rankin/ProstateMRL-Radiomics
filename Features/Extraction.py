@@ -110,7 +110,7 @@ def All(DataRoot, Norm):
 
         df_out = df_out.append(df_pat)
 
-    df_out.to_csv(outDir + "\\Longitudinal_All_fts.csv", index=False)
+    df_out.to_csv(outDir + "\\Longitudinal_All_fts_filters.csv", index=False)
 
     return results_df_w, df_out
 
@@ -128,7 +128,7 @@ def Limbus(DataRoot, Norm):
     PatIDs = patKey["PatID"].unique()[0:10]
     results_df = pd.DataFrame()
 
-    extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All.yaml"
+    extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All_Filters.yaml"
     extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
     for pat in tqdm(PatIDs):
@@ -149,6 +149,7 @@ def Limbus(DataRoot, Norm):
             scan = scans[j]
             frac = fractions[j]
             day = days[j]
+            print(pat, j)
 
             # get the scan directory
             scanDir = patDir + scan + "\\"
@@ -215,7 +216,7 @@ def Limbus(DataRoot, Norm):
 
             df_out = df_out.append(df_pat_m)
 
-    df_out.to_csv(outDir + "Longitudinal_Limbus_fts.csv" , index=False)
+    df_out.to_csv(outDir + "Longitudinal_Limbus_fts_filters.csv" , index=False)
 
     return results_df_w, df_out
 
@@ -237,7 +238,7 @@ def DeltaValues(root, Norm):
     df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_All_fts.csv", index = False)
 
 
-    df_lim = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_Limbus_fts.csv")
+    df_lim = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_Limbus_fts_filters.csv")
     PatIDs = df_lim["PatID"].unique()
     fts = df_lim["Feature"].unique()
 
@@ -252,4 +253,4 @@ def DeltaValues(root, Norm):
         
         df_out = df_out.append(df_pat)
 
-    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_Limbus_fts.csv", index = False)
+    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_Limbus_fts_filters.csv", index = False)

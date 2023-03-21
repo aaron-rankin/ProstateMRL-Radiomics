@@ -3,7 +3,7 @@ from DeltaModel import DeltaModel as DM
 from Functions import UsefulFunctions as UF
 import pandas as pd
 
-DataRoot = UF.DataRoot(2)
+DataRoot = UF.DataRoot(1)
 #Norm = "HM-FS"
 Extract = "Yes"
 
