@@ -31,6 +31,9 @@ def DataRoot(root):
 #####################################################
 
 def CD(DataRoot, Norm):
+    '''
+    Checks if folders exist and creates them if not
+    '''
     root_dir = DataRoot + "Aaron\ProstateMRL\Data\Paper1\\"
 
     if not os.path.exists(root_dir + Norm):
@@ -117,6 +120,7 @@ def GetRegion(mask_name):
 
 def FixPatID(patID, treatment_group):
     '''
+    Patient IDs are not consistent across the data
     '''
     if "new" in treatment_group:
         newID = str(patID)
@@ -134,6 +138,7 @@ def FixPatID(patID, treatment_group):
 
 def FixDate(date):
     '''
+    Reformats date to YYYYMMDD
     '''
     date_string = str(date)
     if len(date_string) != 8:
@@ -145,6 +150,7 @@ def FixDate(date):
 
 def GetNiftiPaths(patient_path, treatment):
     """
+    Returns the paths to the nifti files
     """
     mask_path = os.path.join(patient_path, "Masks\\")
 
@@ -196,6 +202,7 @@ def GetNiftiPathsProsSens(patient_path, treatment):
 
 def GetImageFile(image_path, patient, scan, image_label):
     """
+    Returns the path to the image file
     """
     label = image_label
     #if image_label.__contains__("Raw"):
@@ -290,36 +297,7 @@ def ClusterFtSelection2(Cluster_ft_df):
 
     return ft_selected
 
-####################################################
-def ClusterLinkedFts(ft, df):
-    c = df[df["FeatureName"] == ft]["Cluster"].values[0]
 
-    linked_fts = df[df["Cluster"] == c]["FeatureName"].values
-    linked_fts = np.delete(linked_fts, np.where(linked_fts == ft))
-
-    return linked_fts
-
-####################################################
-def ClusterSimilarity(fts_1, fts_2):
-    '''
-    
-    '''
-    fts_1, fts_2 = list(fts_1), list(fts_2)
-    sim_fts = set(fts_1) & set(fts_2)
-    num_sim_fts = len(sim_fts)
-    
-    if len(fts_1) != 0 and len(fts_2) != 0:
-        
-        ratio_a  = len(sim_fts) / len(fts_1)
-        ratio_b = len(sim_fts) / len(fts_2)
-
-        ratio = (ratio_a - ratio_b) 
-    else: 
-        ratio, ratio_a, ratio_b = 1,1,1
-    
-    return(num_sim_fts, ratio_a, ratio_b, ratio)
-
-####################################################
 
 def ICC_Class(icc_val):
     '''

@@ -6,13 +6,13 @@ import seaborn as sns
 from tqdm import tqdm
 Norm = "HM-FS"
 
-csvs = os.listdir("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels\\")
+csvs = os.listdir("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels2\\")
 #csvs = [csv for csv in csvs if "HM" in csv]
 
-fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_SelectedFeatures.csv")
+fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_SelectedFeatures2.csv")
 fts_s = fts_s["Feature"].values
 for csv in tqdm(csvs):
-    df = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels\\" + csv)
+    df = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels2\\" + csv)
     pat = str(csv)[:-4]
     df["Selected"] = df["Feature"].apply(lambda x: x in fts_s)
     # print where selected is True
@@ -56,7 +56,7 @@ for csv in tqdm(csvs):
         
         #plt.legend(title = "Feature Selected", bbox_to_anchor=(1, 0.6), labels = ["Yes", "No"])
         plt.title("Patient - " + str(pat) + " Cluster - " + str(c), fontsize = 30)
-        plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterPlots\\" + str(pat) + "_Cluster" + str(c) + ".png", bbox_inches = "tight")
+        plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterPlots2\\" + str(pat) + "_Cluster" + str(c) + ".png", bbox_inches = "tight")
         #plt.show()
         plt.close()
 

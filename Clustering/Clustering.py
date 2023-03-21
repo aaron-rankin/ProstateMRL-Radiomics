@@ -16,7 +16,12 @@ import UsefulFunctions as UF
 import ImageFunctions as IF
 from scipy.spatial import distance
 
+####################################################
+
 def DistanceMatrix(DataRoot, Norm, output):
+    '''
+    Calculates Eucledian distance between all features for each patient
+    '''
     root = DataRoot
     df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts.csv")
 
@@ -59,39 +64,52 @@ def DistanceMatrix(DataRoot, Norm, output):
         sns.heatmap(df_dist, cmap='viridis', cbar_kws={'label': 'Euclidean Distance'})
         plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\DM\\Figs\\" + str(pat) + ".png")
 
+####################################################
 
-def ClusterCheck(df, t_val, df_DM):
+def ClusterCheck(df, fts, t_val, tries, df_DM):
+        '''
+        If cluster has more than 10 features, re-cluster with smaller t_val
+        '''
         df_c = df
         df_new = pd.DataFrame()
         # feature names
-        df_new["FeatureName"] = df_c.index
+        df_new["FeatureName"] = fts
         # cluster labels
         c = df_c["Cluster"].values[0]
         
         # need to filter distance matrix to only include features in cluster
-        df_DM_c = df_DM[df_c.index]
+        df_DM_c = df_DM[fts]
         # only keep features in cluster
-        df_DM_c = df_DM_c[df_DM_c.index.isin(df_c.index)]
+        df_DM_c = df_DM_c[df_DM_c.index.isin(fts)]
         
         # convert to numpy array
         arr_DM_c = df_DM_c.to_numpy()
         
         # cluster
         df_new["Cluster"] = spch.fclusterdata(arr_DM_c, t=t_val, criterion="distance", method="ward")
-        df_new["Cluster"] = c*100 + df_new["Cluster"]
+        df_new["Cluster"] = str(c) + str(tries) + df_new["Cluster"].astype(str)
         df_new["Cluster"] = df_new["Cluster"].astype(int)
         df_new["NumFts"] = df_new.groupby("Cluster")["Cluster"].transform("count")
         number_fts = df_new["NumFts"].unique()
+        fts_check = df_new.loc[df_new["NumFts"] > 10]["FeatureName"].values
         #print(t_val, number_fts)#, df_new)
-        return number_fts, df_new
+        return number_fts, df_new, fts_check
 
+####################################################
 
 def ClusterFeatures(DataRoot, Norm, s_t_val, output):
+    '''
+    Cluster features using distance matrix, 
+    t_val is threshold for clustering, 
+    method is clustering forumula
+    performs clustering until all clusters have less than 10 features
+    '''
     root = DataRoot
     DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\DM\\csvs\\"
     out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels2\\"
 
     patIDs = UF.SABRPats()
+
     cluster_method = "weighted"
 
     for pat in tqdm(patIDs):
@@ -111,34 +129,36 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, output):
         # check number of features in each cluster
         df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
         df_labels["Cluster"] = df_labels["Cluster"].astype(int)
-        print(df_labels.loc[df_labels["NumFts"] > 10])
+        #print("---------------------------")
+        #print("Patient: {}".format(pat))
+        #print(df_labels.loc[df_labels["NumFts"] > 10])
         # loop through clusters 
         for c in df_labels["Cluster"].unique():
                 df_c = df_labels[df_labels["Cluster"] == c]
                 number_fts = len(df_c)
                 # check numnber of features in cluster
-                if number_fts > 5:
+                if number_fts > 10:
                         # if more than 10 features in cluster, reduce t_val and recluster
                         t_val = s_t_val - 0.2
-                        number_fts, df_labels2 = ClusterCheck(df_c, t_val, df_DM)
+                        check_fts = df_c.index.values
                         tries = 1
+                        number_fts, df_labels2, check_fts = ClusterCheck(df_c, check_fts, t_val, tries, df_DM)
                         new_fts = df_labels2["FeatureName"].unique()
                         df_labels.loc[new_fts, "Cluster"] = df_labels2["Cluster"].values
                         df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
 
-                        while number_fts.max() > 5:
+                        while number_fts.max() > 10:
                                 t_val = t_val - 0.2
                                 tries += 1
-                                print("Tries: {} T_val: {}".format(tries, t_val))
-                                number_fts, df_labels2 = ClusterCheck(df_c, t_val, df_DM)
-                                print(df_labels2)
-
-                        print(df_labels2)
-
-
+                                #print("Cluster: {} Tries: {} T_val: {}".format(c, tries, t_val))
+                                number_fts, df_labels2, check_fts = ClusterCheck(df_c, check_fts, t_val, tries, df_DM)
+                                new_fts = df_labels2["FeatureName"].unique()
+                                df_labels.loc[new_fts, "Cluster"] = df_labels2["Cluster"].values
+                        
+        df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
 
         # read in df with ft vals and merge
-        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_fts_pVol.csv")
+        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts.csv")
         ft_vals["PatID"] = ft_vals["PatID"].astype(str)
         pat_ft_vals = ft_vals[ft_vals["PatID"] == pat]
         pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")
@@ -146,13 +166,18 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, output):
         # output is feature values w/ cluster labels
         pat_ft_vals.to_csv(out_dir + pat + ".csv")
 
+####################################################
+
 def ClusterCount(root, Norm, output):
+    '''
+    Summarises clustering results
+    '''
     dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\")
 
     df_result = pd.DataFrame()
 
     for f in dir:
-    
+
         df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels2\\" + f)
         df = df[["Feature", "Cluster"]]
         df = df.drop_duplicates()
@@ -172,10 +197,11 @@ def ClusterCount(root, Norm, output):
     df_stable = df_stable.groupby("PatID")["Cluster"].count()
     # get mean number of stable clusters
     meanstable = df_stable.mean()
-
+    print(df_result)
     df_numclust= df_result.groupby("PatID")["Cluster"].max()
+    print(df_numclust)
     df_numclust = df_numclust.rename_axis("PatID").reset_index(name="NumClusters")
-
+    print(df_numclust)
     # group by patient and get mean number of clusters
     df_numfts = df_result.groupby("PatID")["Counts"].mean()
     df_numfts = df_numfts.rename_axis("PatID").reset_index(name="MeanFeaturesperCluster")
@@ -196,7 +222,7 @@ def ClusterCount(root, Norm, output):
         print("Mean number of clusters per patient: ", df_numclust["NumClusters"].mean())
         print("Mean features per cluster per patient: ", df_numfts["MeanFeaturesperCluster"].mean())
 
-
+####################################################
 
 def ClusterCC(Cluster_ft_df):
     '''
@@ -210,7 +236,7 @@ def ClusterCC(Cluster_ft_df):
         vals = {} # stores fts and values
         ccfs = {} # stores cc values for each feature
         mean_ccfs = {} # stores the mean cc value for every feature
-        num_sel = 1 #np.rint(len(fts) * 0.2)
+        num_sel = np.rint(len(fts) * 0.2)
         
         for f in fts:
             ft_df = Cluster_ft_df[Cluster_ft_df["Feature"] == f]
@@ -238,8 +264,14 @@ def ClusterCC(Cluster_ft_df):
 
     return ft_selected
 
+####################################################
 
 def ClusterSelection(DataRoot, Norm, output):
+    '''
+    Loops through each patient  to select the 'best' feature for each cluster by performing cross-correlation
+    Discards clusters with less than 3 features
+    Selects features which are ranked in top 10 across all patients
+    '''
     root = DataRoot
     patIDs = UF.SABRPats()
 
@@ -295,3 +327,57 @@ def ClusterSelection(DataRoot, Norm, output):
     df_result.drop(columns=["Counts"], inplace=True)
     df_result.to_csv(out_dir + "Longitudinal_SelectedFeatures2.csv")
 
+####################################################
+def ModelCompact(DataRoot, Norm, Extract, t_val, output=False):
+    print("------------------------------------")
+    print("------------------------------------")
+    print("Root: {} Norm: {}".format(DataRoot, Norm))
+
+    print("Creating Distance Matrices: ")
+    print("------------------------------------")
+    DistanceMatrix(DataRoot, Norm, output)
+    
+    print("------------------------------------")
+    print("Clustering Distance Matrices: ")
+    print("------------------------------------")
+    ClusterFeatures(DataRoot, Norm, t_val, output)
+    ClusterCount(DataRoot, Norm, output)
+    print("Feature Selection: ")
+    print("------------------------------------")
+    ClusterSelection(DataRoot, Norm, output)
+    print("------------------------------------")
+    print("------------------------------------\n ")
+
+####################################################
+def ClusterLinkedFts(ft, df):
+    '''
+    Given a feature, returns all features in the same cluster
+    '''
+    c = df[df["FeatureName"] == ft]["Cluster"].values[0]
+
+    linked_fts = df[df["Cluster"] == c]["FeatureName"].values
+    linked_fts = np.delete(linked_fts, np.where(linked_fts == ft))
+
+    return linked_fts
+
+####################################################
+def ClusterSimilarity(fts_1, fts_2):
+    '''
+    Calculates the similarity between two sets of features
+    '''
+    fts_1, fts_2 = list(fts_1), list(fts_2)
+    sim_fts = set(fts_1) & set(fts_2)
+    num_sim_fts = len(sim_fts)
+    
+    if len(fts_1) != 0 and len(fts_2) != 0:
+        
+        ratio_a  = len(sim_fts) / len(fts_1)
+        ratio_b = len(sim_fts) / len(fts_2)
+
+        ratio = (ratio_a - ratio_b) 
+    else: 
+        ratio, ratio_a, ratio_b = 1,1,1
+    
+    return(num_sim_fts, ratio_a, ratio_b, ratio)
+
+####################################################
