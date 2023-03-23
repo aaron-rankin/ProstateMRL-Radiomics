@@ -336,7 +336,7 @@ def ModelCompact(DataRoot, Norm, Extract, t_val, output=False):
 
     print("Creating Distance Matrices: ")
     print("------------------------------------")
-    DistanceMatrix(DataRoot, Norm, output)
+    #DistanceMatrix(DataRoot, Norm, output)
     
     print("------------------------------------")
     print("Clustering Distance Matrices: ")
