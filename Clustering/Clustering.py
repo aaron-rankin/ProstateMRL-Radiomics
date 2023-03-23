@@ -114,7 +114,7 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, output):
     cluster_method = "weighted"
 
     for pat in tqdm(patIDs):
-        df_DM = pd.read_csv(DM_dir + pat + ".csv")
+        df_DM = pd.read_csv(DM_dir + pat + "_Rescaled.csv")
         df_DM.set_index("Unnamed: 0", inplace=True)
         arr_DM = df_DM.to_numpy()
         fts = df_DM.columns

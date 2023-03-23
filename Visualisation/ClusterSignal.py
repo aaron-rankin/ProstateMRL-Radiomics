@@ -56,7 +56,7 @@ for csv in tqdm(csvs):
         
         #plt.legend(title = "Feature Selected", bbox_to_anchor=(1, 0.6), labels = ["Yes", "No"])
         plt.title("Patient - " + str(pat) + " Cluster - " + str(c), fontsize = 30)
-        plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterPlots\\" + str(pat) + "_Cluster" + str(c) + ".png", bbox_inches = "tight")
+        plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterPlots\\" + str(pat) + "_Cluster" + str(c) + "_RS.png", bbox_inches = "tight")
         #plt.show()
         plt.close()
 
