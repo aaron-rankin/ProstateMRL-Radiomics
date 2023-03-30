@@ -7,10 +7,10 @@ from tqdm import tqdm
 import pingouin as pg
 from scipy import stats
 import sys
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent + "\\Functions\\")
-import UsefulFunctions as UF
+from Functions import UsefulFunctions as UF
+from Features import Extraction as FE
+from Features import Reduction as FR
+####################################################
 
 def CorrMatrix(root, Norm):
     # read in fts from csv
@@ -58,6 +58,8 @@ def CorrMatrix(root, Norm):
     plt.figure(figsize=(20,20))
     sns.heatmap(df_res, cmap="RdBu_r", vmin=0, vmax=0.5, square=True)
     plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_masked.png")
+
+####################################################
 
 def FeatureSelection(root, Norm, output=False):
     # read in fts from csv
@@ -120,3 +122,50 @@ def FeatureSelection(root, Norm, output=False):
         for ft in fts:
             print(ft)
     df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_SelectedFeatures.csv", index=False)
+
+####################################################
+
+def DeltaModel(DataRoot, Norm, output=False):
+    # Make Directories if they don't exist
+    print("------------------------------------")
+    print("------------------------------------")
+    print("Root: {} Norm: {}".format(DataRoot, Norm))
+    UF.CD(DataRoot, Norm)
+
+    # Get Delta Features
+    if output == True:
+        print("------------------------------------")
+        print("------------------------------------")
+        print("Calculating Delta Features...")
+        print("------------------------------------")
+    FE.DeltaValues(DataRoot, Norm)
+
+    # Feature Reduction
+    if output == True:
+        print("------------------------------------")
+        print("------------------------------------")
+        print("Reducing Features...")
+        print("------------------------------------")
+        print("ICC Feature Reduction: ")
+        print("------------------------------------")
+    FR.ICC(DataRoot, Norm, "Delta", output)
+    FR.Volume(DataRoot, Norm, "Delta", output)
+    if output == True:
+        print("------------------------------------")
+        print("------------------------------------\n ")
+        print("------------------------------------")
+        print("------------------------------------")
+        print("Feature Selection...")
+        print("------------------------------------")
+        print("Creating Correlation Matrix:")
+        print("------------------------------------")
+    CorrMatrix(DataRoot, Norm)
+    if output == True:
+        print("------------------------------------")
+        print("Feature Selection:")
+        print("------------------------------------")
+    FeatureSelection(DataRoot, Norm, output)
+    print("------------------------------------")
+    print("------------------------------------\n ")
+
+####################################################

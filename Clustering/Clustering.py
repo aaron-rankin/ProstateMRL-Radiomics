@@ -9,13 +9,11 @@ import scipy.cluster.hierarchy as spch
 import sys
 import statsmodels.tsa.stattools as sts
 from scipy import stats
-
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent + "\\Functions\\")
-import UsefulFunctions as UF
-import ImageFunctions as IF
+from Functions import UsefulFunctions as UF
+from Functions import ImageFunctions as IF
 from scipy.spatial import distance
+from Features import Reduction as FR
+from Features import Extraction as FE
 
 ####################################################
 
@@ -329,7 +327,71 @@ def ClusterSelection(DataRoot, Norm, output):
     df_result.to_csv(out_dir + "Longitudinal_SelectedFeatures2.csv")
 
 ####################################################
-def ModelCompact(DataRoot, Norm, Extract, t_val, output=False):
+
+def LongitudinalModel(DataRoot, Norm, Extract, t_val, output=False):
+    # Make Directories if they don't exist
+    #print("------------------------------------")
+    #print("------------------------------------")
+    # print("Checking Directories...")
+    print("Root: {} Norm: {}".format(DataRoot, Norm))
+    UF.CD(DataRoot, Norm)
+    # print("------------------------------------")
+    # print("------------------------------------\n ")
+
+    # Extract Features
+    if Extract == "Yes":
+        print("------------------------------------")
+        print("------------------------------------")
+        print("Extracting Features...")
+        FE.All(DataRoot, Norm)
+        print("Extracted - All")
+        print("------------------------------------")
+        FE.Limbus(DataRoot, Norm)
+        print("Extracted - Limbus")
+        print("------------------------------------")
+        print("------------------------------------\n ")
+
+    # Feature Reduction
+    if output == True:
+        print("------------------------------------")
+        print("------------------------------------")
+        print("Reducing Features...")
+        print("Volume Correlation Feature Reduction: ")
+        print("------------------------------------")
+        print("------------------------------------")
+
+    FR.Volume(DataRoot, Norm, "Longitudinal", output)
+    if output == True:
+        print("------------------------------------")
+        print("ICC Feature Reduction: ")
+        print("------------------------------------\n ")
+    FR.ICC(DataRoot, Norm, "Longitudinal", output)
+    # Clustering
+    if output == True:
+        print("------------------------------------")
+        print("------------------------------------")
+        print("Clustering...")
+        print("------------------------------------")
+        print("Creating Distance Matrices: ")
+        print("------------------------------------")
+    DistanceMatrix(DataRoot, Norm, output)
+    
+    if output == True:
+        print("------------------------------------")
+        print("Clustering Distance Matrices: ")
+        print("------------------------------------")
+    ClusterFeatures(DataRoot, Norm, t_val, output)
+    ClusterCount(DataRoot, Norm, output)
+    if output == True:
+        print("Feature Selection: ")
+        print("------------------------------------")
+    ClusterSelection(DataRoot, Norm, output)
+    print("------------------------------------")
+    print("------------------------------------\n ")
+
+####################################################
+
+def ModelCompact(DataRoot, Norm, t_val, output=False):
     print("------------------------------------")
     print("------------------------------------")
     print("Root: {} Norm: {}".format(DataRoot, Norm))
