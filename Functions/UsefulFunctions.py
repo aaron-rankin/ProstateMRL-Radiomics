@@ -30,6 +30,37 @@ def DataRoot(root):
 
 #####################################################
 
+def CD(DataRoot, Norm):
+    '''
+    Checks if folders exist and creates them if not
+    '''
+    root_dir = DataRoot + "Aaron\ProstateMRL\Data\Paper1\\"
+
+    if not os.path.exists(root_dir + Norm):
+        os.makedirs(root_dir + Norm)
+
+    root_dir = os.path.join(root_dir, Norm)
+
+    # Delta folder
+    if not os.path.exists(root_dir + "\\Delta"):
+        os.makedirs(root_dir + "\\Delta")
+
+    # Longitudinal folder
+    if not os.path.exists(root_dir + "\\Longitudinal"):
+        os.makedirs(root_dir + "\\Longitudinal")
+        os.makedirs(root_dir + "\\Longitudinal\\DM")
+        os.makedirs(root_dir + "\\Longitudinal\\DM\\csvs")
+        os.makedirs(root_dir + "\\Longitudinal\\DM\\Figs")
+        os.makedirs(root_dir + "\\Longitudinal\\ClusterLabels")
+        os.makedirs(root_dir + "\\Longitudinal\\ClusterPlots")
+
+    # Features folder
+    if not os.path.exists(root_dir + "\\Features"):
+        os.makedirs(root_dir + "\\Features")
+
+#####################################################
+
+
 def SABRPats():
     '''
     Returns array of patIDs for SABR 
@@ -89,6 +120,7 @@ def GetRegion(mask_name):
 
 def FixPatID(patID, treatment_group):
     '''
+    Patient IDs are not consistent across the data
     '''
     if "new" in treatment_group:
         newID = str(patID)
@@ -106,6 +138,7 @@ def FixPatID(patID, treatment_group):
 
 def FixDate(date):
     '''
+    Reformats date to YYYYMMDD
     '''
     date_string = str(date)
     if len(date_string) != 8:
@@ -117,6 +150,7 @@ def FixDate(date):
 
 def GetNiftiPaths(patient_path, treatment):
     """
+    Returns the paths to the nifti files
     """
     mask_path = os.path.join(patient_path, "Masks\\")
 
@@ -168,6 +202,7 @@ def GetNiftiPathsProsSens(patient_path, treatment):
 
 def GetImageFile(image_path, patient, scan, image_label):
     """
+    Returns the path to the image file
     """
     label = image_label
     #if image_label.__contains__("Raw"):
@@ -263,35 +298,6 @@ def ClusterFtSelection2(Cluster_ft_df):
     return ft_selected
 
 ####################################################
-def ClusterLinkedFts(ft, df):
-    c = df[df["FeatureName"] == ft]["Cluster"].values[0]
-
-    linked_fts = df[df["Cluster"] == c]["FeatureName"].values
-    linked_fts = np.delete(linked_fts, np.where(linked_fts == ft))
-
-    return linked_fts
-
-####################################################
-def ClusterSimilarity(fts_1, fts_2):
-    '''
-    
-    '''
-    fts_1, fts_2 = list(fts_1), list(fts_2)
-    sim_fts = set(fts_1) & set(fts_2)
-    num_sim_fts = len(sim_fts)
-    
-    if len(fts_1) != 0 and len(fts_2) != 0:
-        
-        ratio_a  = len(sim_fts) / len(fts_1)
-        ratio_b = len(sim_fts) / len(fts_2)
-
-        ratio = (ratio_a - ratio_b) 
-    else: 
-        ratio, ratio_a, ratio_b = 1,1,1
-    
-    return(num_sim_fts, ratio_a, ratio_b, ratio)
-
-####################################################
 
 def ICC_Class(icc_val):
     '''
@@ -312,3 +318,87 @@ def ICC_Class(icc_val):
     return icc_class
 
 ####################################################
+
+def CompareFeatureLists(root, Norm, stages, tag):
+    '''
+    Given feature lists from different methods, returns the features that are in common
+    '''
+    fts_1 = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + stages[0] + "_" + tag + ".csv")
+    fts_2 = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + stages[1] + "_" + tag + ".csv")
+
+    fts_1 = set(fts_1["Feature"].unique())
+    fts_2 = set(fts_2["Feature"].unique())
+
+    common_fts = fts_1.intersection(fts_2)
+
+    return common_fts
+    
+####################################################
+
+def ModelSummary(root, Norm, tag):
+    dir = root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\"
+    out = open(root + "Aaron\ProstateMRL\Data\Paper1\\NormSummary\\" + Norm + "_" + tag + ".txt", "w")
+
+    out.write("Model Summary - " + Norm)
+    out.write("\n")
+    out.write("-------------------------\n")
+    out.write("ICC Reduction\n")
+    out.write("Features Before: 105\n")
+
+    L_ICC = pd.read_csv(dir + "Longitudinal_FeaturesRemoved_ICC_" + tag + ".csv")
+    L_ICC_fts = len(L_ICC["Feature"].unique())
+    out.write("Longitudinal Features Removed: " + str(L_ICC_fts) + "\n")
+    out.write("\n")
+    D_ICC = pd.read_csv(dir + "Delta_FeaturesRemoved_ICC_" + tag + ".csv")
+    D_ICC_fts = len(D_ICC["Feature"].unique())
+    out.write("Delta Features Removed: " + str(D_ICC_fts) + "\n")
+
+    out.write("-------------------------\n")
+    out.write("Volume Reduction\n")
+    out.write("\n")
+    out.write("Longitudinal Features Before: " + str(105 - L_ICC_fts) + "\n")
+    L_Vol = pd.read_csv(dir + "Longitudinal_FeaturesRemoved_Volume_" + tag + ".csv")
+    L_Vol_fts = len(L_Vol["Feature"].unique())
+    out.write("Longitudinal Features Removed: " + str(L_Vol_fts)+ "\n")
+
+    out.write("\n")
+    out.write("Delta Features Before: " + str(105 - D_ICC_fts)+ "\n")
+    D_Vol = pd.read_csv(dir + "Delta_FeaturesRemoved_Volume_" + tag + ".csv")
+    D_Vol_fts = len(D_Vol["Feature"].unique())
+    out.write("Delta Features Removed: " + str(D_Vol_fts) + "\n")
+
+    out.write("-------------------------\n")
+    L_both = CompareFeatureLists(root, Norm, ["Longitudinal_FeaturesRemoved_ICC", "Longitudinal_FeaturesRemoved_Volume"], tag)
+    out.write("Longitudinal - Number of features both Vol & ICC redudant: " + str(len(L_both)) + "\n")
+    out.write("\n")
+    D_both = CompareFeatureLists(root, Norm, ["Delta_FeaturesRemoved_ICC", "Delta_FeaturesRemoved_Volume"], tag)
+    out.write("Delta - Number of features both Vol & ICC redudant: " + str(len(D_both)) + "\n")
+
+    out.write("-------------------------\n")
+
+    out.write("Feature Selection\n")
+    out.write("\n")
+    out.write("Longitudinal Features Before: " + str(105 - L_ICC_fts - L_Vol_fts) + "\n")
+    L_Select = pd.read_csv(dir + "Longitudinal_SelectedFeatures_" + tag + ".csv")
+    L_Select_fts = L_Select["Feature"].unique()
+    out.write("Longitudinal Features Selected: " + str(len(L_Select_fts)) + "\n")
+
+    out.write("\n")
+    out.write("Delta Features Before: " + str(105 - D_ICC_fts - D_Vol_fts)+ "\n")
+    D_Select = pd.read_csv(dir + "Delta_SelectedFeatures_" + tag + ".csv")
+    D_Select_fts = D_Select["Feature"].unique()
+    out.write("Delta Features Selected: " + str(len(D_Select_fts))+ "\n")
+
+    # check if any features are selected in both longitudinal and delta
+    out.write("\n")
+    out.write("Features Selected in Both Longitudinal and Delta: " + str(len(set(L_Select_fts) & set(D_Select_fts)))+ "\n")
+    out.write("-------------------------")
+
+    out.close()
+
+    # print out contents of file
+    with open(root + "Aaron\ProstateMRL\Data\Paper1\\NormSummary\\" + Norm + "_" + tag + ".txt", "r") as f:
+        print(f.read())
+
+####################################################
+
