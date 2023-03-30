@@ -1,25 +1,22 @@
-from LongitudinalModel import LongitudinalModel as LM
-from DeltaModel import DeltaModel as DM
 from Functions import UsefulFunctions as UF
-import pandas as pd
+from Functions import VisualisationFunctions as VF
 from Clustering import Clustering as Cl
+from Delta import Delta as Dl
+####################################################
+
 DataRoot = UF.DataRoot(2)
-#Norm = "HM-FS"
+Norm = "HM-FS"
 Extract = "No"
+tag = "Baseline" # if using Filters, specify "Filters_" in tag
+output = False 
 
+####################################################
 
-#Norms = ["Raw", "HM-FS", "HM-TP", "HM-FSTP", "Med-Pros", "Med-Psoas"]
-n= "HM-FS"
-#for n in Norms:
-#LM(DataRoot, n, Extract, 2, output=True)
-#print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#DM(DataRoot, n, output=False)
-#print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#ModelSummary(DataRoot, n)
-    # read in model summary
-    #f = open(DataRoot + "Aaron\ProstateMRL\Data\Paper1\\NormSummary\\" + n + ".txt", "r")
-    #print(f.read())
+# Cl.LongitudinalModel(DataRoot, Norm, Extract, 2, tag, output)
+# Dl.DeltaModel(DataRoot, Norm, tag, output)
+# UF.ModelSummary(DataRoot, Norm, tag)
 
-Cl.ModelCompact(DataRoot, n, Extract, 2, output=True)
+####################################################
 
-
+VF.MedianSignalPlot(DataRoot, Norm)
+VF.ClusterSignalPlots(DataRoot, Norm, tag)

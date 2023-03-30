@@ -7,16 +7,11 @@ import radiomics
 from radiomics import featureextractor
 import sys
 from tqdm import tqdm
+from Functions import UsefulFunctions as UF
 
-import sys
+####################################################
 
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent + "\\Functions\\")
-import UsefulFunctions as UF
-import ImageFunctions as IF
-
-def All(DataRoot, Norm):
+def All(DataRoot, Norm, tag):
 
     root = DataRoot
     # Patient Key
@@ -30,8 +25,10 @@ def All(DataRoot, Norm):
     patIDs = UF.SABRPats()  
     results_df = pd.DataFrame()
 
-
-    extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All_Filters.yaml"
+    if "Filter" in tag:
+        extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All_Filters.yaml"
+    else:
+        extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All.yaml"
     extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
     for pat in tqdm(patIDs):
@@ -110,11 +107,13 @@ def All(DataRoot, Norm):
 
         df_out = df_out.append(df_pat)
 
-    df_out.to_csv(outDir + "\\Longitudinal_All_fts_filters.csv", index=False)
+    df_out.to_csv(outDir + "\\Longitudinal_All_fts_filters_" + tag + ".csv", index=False)
 
     return results_df_w, df_out
 
-def Limbus(DataRoot, Norm):
+####################################################
+
+def Limbus(DataRoot, Norm, tag):
     # Patient Key
     root = DataRoot
     patKey = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Code\\PatKeys\\LimbusKey_s.csv")
@@ -128,7 +127,10 @@ def Limbus(DataRoot, Norm):
     PatIDs = patKey["PatID"].unique()[0:10]
     results_df = pd.DataFrame()
 
-    extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All_Filters.yaml"
+    if "Filters" in tag:
+        extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All_Filters.yaml"
+    else:
+        extractor_params = root + "Aaron\\ProstateMRL\Code\Features\\Parameters\\All.yaml"
     extractor = featureextractor.RadiomicsFeatureExtractor(extractor_params)
 
     for pat in tqdm(PatIDs):
@@ -216,12 +218,12 @@ def Limbus(DataRoot, Norm):
 
             df_out = df_out.append(df_pat_m)
 
-    df_out.to_csv(outDir + "Longitudinal_Limbus_fts_filters.csv" , index=False)
+    df_out.to_csv(outDir + "Longitudinal_Limbus_fts_filters_" + tag + ".csv" , index=False)
 
     return results_df_w, df_out
 
-def DeltaValues(root, Norm):
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Longitudinal_All_fts.csv")
+def DeltaValues(root, Norm, tag):
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Longitudinal_All_fts_" + tag + ".csv")
     PatIDs = df_all["PatID"].unique()
     fts = df_all["Feature"].unique()
 
@@ -235,10 +237,10 @@ def DeltaValues(root, Norm):
         
         df_out = df_out.append(df_pat)
 
-    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_All_fts.csv", index = False)
+    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_All_fts_" + tag + ".csv", index = False)
 
 
-    df_lim = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_Limbus_fts_filters.csv")
+    df_lim = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_Limbus_fts_" + tag + ".csv")
     PatIDs = df_lim["PatID"].unique()
     fts = df_lim["Feature"].unique()
 
@@ -253,4 +255,4 @@ def DeltaValues(root, Norm):
         
         df_out = df_out.append(df_pat)
 
-    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_Limbus_fts_filters.csv", index = False)
+    df_out.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\Delta_Limbus_fts_" + tag + ".csv", index = False)

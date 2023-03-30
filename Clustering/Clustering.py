@@ -4,9 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from tqdm import tqdm
-from scipy.cluster.hierarchy import dendrogram
 import scipy.cluster.hierarchy as spch
-import sys
 import statsmodels.tsa.stattools as sts
 from scipy import stats
 from Functions import UsefulFunctions as UF
@@ -17,15 +15,15 @@ from Features import Extraction as FE
 
 ####################################################
 
-def DistanceMatrix(DataRoot, Norm, output):
+def DistanceMatrix(DataRoot, Norm, tag):
     '''
     Calculates Eucledian distance between all features for each patient
     '''
     root = DataRoot
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
 
-    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_ICC.csv")
-    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_Volume.csv")
+    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_ICC_" + tag + ".csv")
+    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_Volume_" + tag + ".csv")
 
     df_all = df_all[~df_all["Feature"].isin(fts_ICC["Feature"])]
     df_all = df_all[~df_all["Feature"].isin(fts_Vol["Feature"])]
@@ -50,18 +48,19 @@ def DistanceMatrix(DataRoot, Norm, output):
                 vals_ft2 = df_pat[df_pat["Feature"] == fts[ft2]]["FeatureChange"].values
 
                 # calculate correlation
-                mat[ft1, ft2] = stats.pearsonr(vals_ft1, vals_ft2)[0]
+                # mat[ft1, ft2] = stats.pearsonr(vals_ft1, vals_ft2)[0]
+                mat[ft1, ft2] = distance.euclidean(vals_ft1, vals_ft2)
 
         # save matrix
         df_dist = pd.DataFrame(mat, columns = fts, index = fts)  
-        df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm +"\\Longitudinal\\Test\\DM\\csvs\\" + str(pat) + ".csv")
+        df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm +"\\Longitudinal\\Test\\DM\\csvs\\" + str(pat) + "_" + tag + ".csv")
 
         # plot matrix
         plt.figure(figsize=(20,20))
         sns.set_theme(style="white")
         plt.title("DM - {}".format(pat), fontsize=40)
         sns.heatmap(df_dist, cmap='viridis', cbar_kws={'label': 'Euclidean Distance'})
-        plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\Test\\DM\\Figs\\" + str(pat) + ".png")
+        plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\Test\\DM\\Figs\\" + str(pat) + "_" + tag + ".png")
 
 ####################################################
 
@@ -96,7 +95,7 @@ def ClusterCheck(df, fts, t_val, tries, df_DM):
 
 ####################################################
 
-def ClusterFeatures(DataRoot, Norm, s_t_val, output):
+def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
     '''
     Cluster features using distance matrix, 
     t_val is threshold for clustering, 
@@ -112,7 +111,7 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, output):
     cluster_method = "weighted"
 
     for pat in tqdm(patIDs):
-        df_DM = pd.read_csv(DM_dir + pat + "_Rescaled.csv")
+        df_DM = pd.read_csv(DM_dir + pat + "_" + tag + ".csv")
         df_DM.set_index("Unnamed: 0", inplace=True)
         arr_DM = df_DM.to_numpy()
         fts = df_DM.columns
@@ -157,17 +156,17 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, output):
         df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
 
         # read in df with ft vals and merge
-        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts.csv")
+        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
         ft_vals["PatID"] = ft_vals["PatID"].astype(str)
         pat_ft_vals = ft_vals[ft_vals["PatID"] == pat]
         pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")
 
         # output is feature values w/ cluster labels
-        pat_ft_vals.to_csv(out_dir + pat + ".csv")
+        pat_ft_vals.to_csv(out_dir + pat + "_" + tag + ".csv")
 
 ####################################################
 
-def ClusterCount(root, Norm, output):
+def ClusterCount(root, Norm, output, tag):
     '''
     Summarises clustering results
     '''
@@ -265,7 +264,7 @@ def ClusterCC(Cluster_ft_df):
 
 ####################################################
 
-def ClusterSelection(DataRoot, Norm, output):
+def ClusterSelection(DataRoot, Norm, tag, output):
     '''
     Loops through each patient  to select the 'best' feature for each cluster by performing cross-correlation
     Discards clusters with less than 3 features
@@ -276,12 +275,11 @@ def ClusterSelection(DataRoot, Norm, output):
 
     labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\"
     out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Features\\"
-    # t val specifies threshold used for hierarchical clustering distance - needs a sensitivity test
-    t_val = 2
+    
     df_result = pd.DataFrame()
     for pat in tqdm(patIDs):
         # read in feature vals and associated cluster labels
-        df_pat = pd.read_csv(labels_dir + pat + ".csv")
+        df_pat = pd.read_csv(labels_dir + pat + "_" + tag + ".csv")
 
         cluster_num = df_pat["Cluster"].unique()
         fts_selected = []
@@ -313,7 +311,7 @@ def ClusterSelection(DataRoot, Norm, output):
     df_result = df_result.Feature.value_counts().rename_axis("Feature").reset_index(name="Counts")
     # get number of counts at 10th row
     counts = df_result.iloc[10]["Counts"]
-    print(df_result)
+    #print(df_result)
     # get features with counts >= counts
     fts = df_result[df_result["Counts"] >= counts]["Feature"].values
     if output == True:
@@ -324,19 +322,21 @@ def ClusterSelection(DataRoot, Norm, output):
 
     # drop counts
     df_result.drop(columns=["Counts"], inplace=True)
-    df_result.to_csv(out_dir + "Longitudinal_SelectedFeatures2.csv")
+    df_result.to_csv(out_dir + "Longitudinal_SelectedFeatures_" + tag + ".csv")
 
 ####################################################
 
-def LongitudinalModel(DataRoot, Norm, Extract, t_val, output=False):
+def LongitudinalModel(DataRoot, Norm, Extract, t_val, tag, output=False):
     # Make Directories if they don't exist
     #print("------------------------------------")
     #print("------------------------------------")
     # print("Checking Directories...")
-    print("Root: {} Norm: {}".format(DataRoot, Norm))
+    print("Root: {} Norm: {}, Tag: {}".format(DataRoot, Norm, tag))
     UF.CD(DataRoot, Norm)
-    # print("------------------------------------")
-    # print("------------------------------------\n ")
+    
+    print("------------------------------------\n")
+    print("         Longitudinal Model         \n")
+    print("------------------------------------\n")
 
     # Extract Features
     if Extract == "Yes":
@@ -360,12 +360,12 @@ def LongitudinalModel(DataRoot, Norm, Extract, t_val, output=False):
         print("------------------------------------")
         print("------------------------------------")
 
-    FR.Volume(DataRoot, Norm, "Longitudinal", output)
+    FR.Volume(DataRoot, Norm, "Longitudinal", tag, output)
     if output == True:
         print("------------------------------------")
         print("ICC Feature Reduction: ")
         print("------------------------------------\n ")
-    FR.ICC(DataRoot, Norm, "Longitudinal", output)
+    FR.ICC(DataRoot, Norm, "Longitudinal", tag, output)
     # Clustering
     if output == True:
         print("------------------------------------")
@@ -374,40 +374,40 @@ def LongitudinalModel(DataRoot, Norm, Extract, t_val, output=False):
         print("------------------------------------")
         print("Creating Distance Matrices: ")
         print("------------------------------------")
-    DistanceMatrix(DataRoot, Norm, output)
+    DistanceMatrix(DataRoot, Norm, tag)
     
     if output == True:
         print("------------------------------------")
         print("Clustering Distance Matrices: ")
         print("------------------------------------")
-    ClusterFeatures(DataRoot, Norm, t_val, output)
-    ClusterCount(DataRoot, Norm, output)
+    ClusterFeatures(DataRoot, Norm, t_val, tag)
+    #ClusterCount(DataRoot, Norm, output)
     if output == True:
         print("Feature Selection: ")
         print("------------------------------------")
-    ClusterSelection(DataRoot, Norm, output)
+    ClusterSelection(DataRoot, Norm, tag, output)
     print("------------------------------------")
     print("------------------------------------\n ")
 
 ####################################################
 
-def ModelCompact(DataRoot, Norm, t_val, output=False):
+def ModelCompact(DataRoot, Norm, t_val, tag, output=False):
     print("------------------------------------")
     print("------------------------------------")
-    print("Root: {} Norm: {}".format(DataRoot, Norm))
+    print("Root: {} Norm: {} Tag: {}".format(DataRoot, Norm, tag))
 
     print("Creating Distance Matrices: ")
     print("------------------------------------")
-    #DistanceMatrix(DataRoot, Norm, output)
+    DistanceMatrix(DataRoot, Norm, tag, output)
     
     print("------------------------------------")
     print("Clustering Distance Matrices: ")
     print("------------------------------------")
-    ClusterFeatures(DataRoot, Norm, t_val, output)
-    ClusterCount(DataRoot, Norm, output)
+    ClusterFeatures(DataRoot, Norm, t_val, tag, output)
+    ClusterCount(DataRoot, Norm, tag, output)
     print("Feature Selection: ")
     print("------------------------------------")
-    ClusterSelection(DataRoot, Norm, output)
+    ClusterSelection(DataRoot, Norm, tag, output)
     print("------------------------------------")
     print("------------------------------------\n ")
 

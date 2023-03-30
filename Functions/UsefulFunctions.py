@@ -297,7 +297,7 @@ def ClusterFtSelection2(Cluster_ft_df):
 
     return ft_selected
 
-
+####################################################
 
 def ICC_Class(icc_val):
     '''
@@ -319,10 +319,25 @@ def ICC_Class(icc_val):
 
 ####################################################
 
+def CompareFeatureLists(root, Norm, stages, tag):
+    '''
+    Given feature lists from different methods, returns the features that are in common
+    '''
+    fts_1 = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + stages[0] + "_" + tag + ".csv")
+    fts_2 = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + stages[1] + "_" + tag + ".csv")
 
-def ModelSummary(root, Norm):
+    fts_1 = set(fts_1["Feature"].unique())
+    fts_2 = set(fts_2["Feature"].unique())
+
+    common_fts = fts_1.intersection(fts_2)
+
+    return common_fts
+    
+####################################################
+
+def ModelSummary(root, Norm, tag):
     dir = root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\"
-    out = open(root + "Aaron\ProstateMRL\Data\Paper1\\NormSummary\\" + Norm + "2.txt", "w")
+    out = open(root + "Aaron\ProstateMRL\Data\Paper1\\NormSummary\\" + Norm + "_" + tag + ".txt", "w")
 
     out.write("Model Summary - " + Norm)
     out.write("\n")
@@ -330,11 +345,11 @@ def ModelSummary(root, Norm):
     out.write("ICC Reduction\n")
     out.write("Features Before: 105\n")
 
-    L_ICC = pd.read_csv(dir + "Longitudinal_FeaturesRemoved_ICC.csv")
+    L_ICC = pd.read_csv(dir + "Longitudinal_FeaturesRemoved_ICC_" + tag + ".csv")
     L_ICC_fts = len(L_ICC["Feature"].unique())
     out.write("Longitudinal Features Removed: " + str(L_ICC_fts) + "\n")
     out.write("\n")
-    D_ICC = pd.read_csv(dir + "Delta_FeaturesRemoved_ICC.csv")
+    D_ICC = pd.read_csv(dir + "Delta_FeaturesRemoved_ICC_" + tag + ".csv")
     D_ICC_fts = len(D_ICC["Feature"].unique())
     out.write("Delta Features Removed: " + str(D_ICC_fts) + "\n")
 
@@ -342,27 +357,35 @@ def ModelSummary(root, Norm):
     out.write("Volume Reduction\n")
     out.write("\n")
     out.write("Longitudinal Features Before: " + str(105 - L_ICC_fts) + "\n")
-    L_Vol = pd.read_csv(dir + "Longitudinal_FeaturesRemoved_Volume.csv")
+    L_Vol = pd.read_csv(dir + "Longitudinal_FeaturesRemoved_Volume_" + tag + ".csv")
     L_Vol_fts = len(L_Vol["Feature"].unique())
     out.write("Longitudinal Features Removed: " + str(L_Vol_fts)+ "\n")
 
     out.write("\n")
     out.write("Delta Features Before: " + str(105 - D_ICC_fts)+ "\n")
-    D_Vol = pd.read_csv(dir + "Delta_FeaturesRemoved_Volume.csv")
+    D_Vol = pd.read_csv(dir + "Delta_FeaturesRemoved_Volume_" + tag + ".csv")
     D_Vol_fts = len(D_Vol["Feature"].unique())
     out.write("Delta Features Removed: " + str(D_Vol_fts) + "\n")
 
     out.write("-------------------------\n")
+    L_both = CompareFeatureLists(root, Norm, ["Longitudinal_FeaturesRemoved_ICC", "Longitudinal_FeaturesRemoved_Volume"], tag)
+    out.write("Longitudinal - Number of features both Vol & ICC redudant: " + str(len(L_both)) + "\n")
+    out.write("\n")
+    D_both = CompareFeatureLists(root, Norm, ["Delta_FeaturesRemoved_ICC", "Delta_FeaturesRemoved_Volume"], tag)
+    out.write("Delta - Number of features both Vol & ICC redudant: " + str(len(D_both)) + "\n")
+
+    out.write("-------------------------\n")
+
     out.write("Feature Selection\n")
     out.write("\n")
     out.write("Longitudinal Features Before: " + str(105 - L_ICC_fts - L_Vol_fts) + "\n")
-    L_Select = pd.read_csv(dir + "Longitudinal_SelectedFeatures.csv")
+    L_Select = pd.read_csv(dir + "Longitudinal_SelectedFeatures_" + tag + ".csv")
     L_Select_fts = L_Select["Feature"].unique()
     out.write("Longitudinal Features Selected: " + str(len(L_Select_fts)) + "\n")
 
     out.write("\n")
     out.write("Delta Features Before: " + str(105 - D_ICC_fts - D_Vol_fts)+ "\n")
-    D_Select = pd.read_csv(dir + "Delta_SelectedFeatures.csv")
+    D_Select = pd.read_csv(dir + "Delta_SelectedFeatures_" + tag + ".csv")
     D_Select_fts = D_Select["Feature"].unique()
     out.write("Delta Features Selected: " + str(len(D_Select_fts))+ "\n")
 
@@ -370,3 +393,12 @@ def ModelSummary(root, Norm):
     out.write("\n")
     out.write("Features Selected in Both Longitudinal and Delta: " + str(len(set(L_Select_fts) & set(D_Select_fts)))+ "\n")
     out.write("-------------------------")
+
+    out.close()
+
+    # print out contents of file
+    with open(root + "Aaron\ProstateMRL\Data\Paper1\\NormSummary\\" + Norm + "_" + tag + ".txt", "r") as f:
+        print(f.read())
+
+####################################################
+

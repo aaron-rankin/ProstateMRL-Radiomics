@@ -1,18 +1,15 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
 import pingouin as pg
 from scipy import stats
 from tqdm import tqdm
-import sys
 
+####################################################
 
-def ICC(DataRoot, Norm, Model, output=False):
+def ICC(DataRoot, Norm, Model, tag, output=False):
     root = DataRoot
     # load in patient data
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_Limbus_fts.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_Limbus_fts_" + tag + ".csv")
     # remove rows with original_firstorder_Minimum/Maximum
     df_all = df_all[df_all["Feature"] != "original_firstorder_Minimum"]
     df_all = df_all[df_all["Feature"] != "original_firstorder_Maximum"]
@@ -82,22 +79,22 @@ def ICC(DataRoot, Norm, Model, output=False):
     fts_remove = np.append(fts_remove, "original_firstorder_Minimum")
     fts_remove = np.append(fts_remove, "original_firstorder_Maximum")
     fts_remove = pd.DataFrame(fts_remove, columns = ["Feature"])
-    fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_FeaturesRemoved_ICC.csv", index = False)
+    fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_FeaturesRemoved_ICC_" + tag + ".csv", index = False)
 
     # read in all features
-    df_all_r = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_All_fts.csv")
+    df_all_r = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_All_fts_" + tag + ".csv")
     df_all_r = df_all_r[~df_all_r["Feature"].isin(fts_remove["Feature"])]
 
     # save df_all_r
-    #df_all_r.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pICC.csv", index = False)
+    #df_all_r.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pICC_" + tag + ".csv", index = False)
 
+####################################################
 
-
-def Volume(DataRoot, Norm, Model, output = False):
+def Volume(DataRoot, Norm, Model, tag, output = False):
 
     root = DataRoot
      # read in fts from csv
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_All_fts.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_All_fts_" + tag + ".csv")
     df_all = df_all[df_all["Feature"] != "original_firstorder_Minimum"]
     df_all = df_all[df_all["Feature"] != "original_firstorder_Maximum"]
     
@@ -128,13 +125,11 @@ def Volume(DataRoot, Norm, Model, output = False):
     elif Model == "Delta":
         df_all = df_all[df_all["Fraction"] != 1]
         
-        df_vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_All_fts.csv")
+        df_vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_All_fts_" + tag + ".csv")
         df_vol = df_vol[df_vol["Feature"] == "original_shape_MeshVolume"]
         df_vol = df_vol[df_vol["Fraction"] != 1]
         vals_vol = df_vol["FeatureValue"].values
         
-
-
         # loop through features
         for ft in tqdm(fts):
             df_ft = df_all[df_all["Feature"] == ft]
@@ -161,9 +156,9 @@ def Volume(DataRoot, Norm, Model, output = False):
         print("Remaining features: " + str(len(df_all["Feature"].unique())) + "/" + str(len(fts)) + "\n")
 
     fts_remove = pd.DataFrame({"Feature": fts_remove})
-    fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_FeaturesRemoved_Volume.csv", index=False)
+    fts_remove.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_FeaturesRemoved_Volume_" + tag + ".csv", index=False)
 
     # save to csv
-    #df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pVol.csv", index=False)
+    #df_all.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_fts_pVol_" + tag + ".csv", index=False)
 
         

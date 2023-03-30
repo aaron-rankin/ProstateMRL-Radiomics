@@ -10,15 +10,16 @@ import sys
 from Functions import UsefulFunctions as UF
 from Features import Extraction as FE
 from Features import Reduction as FR
+
 ####################################################
 
-def CorrMatrix(root, Norm):
+def CorrMatrix(root, Norm, tag):
     # read in fts from csv
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_All_fts.csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_All_fts_" + tag + ".csv")
 
-    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_FeaturesRemoved_ICC.csv")
+    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_FeaturesRemoved_ICC_" + tag + ".csv")
     fts_ICC = fts_ICC["Feature"].unique()
-    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_FeaturesRemoved_Volume.csv")
+    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_FeaturesRemoved_Volume_" + tag + ".csv")
     fts_Vol = fts_Vol["Feature"].unique()
 
     df_all = df_all[~df_all["Feature"].isin(fts_ICC)]
@@ -43,27 +44,29 @@ def CorrMatrix(root, Norm):
     df_res = pd.DataFrame(matrix, index=fts, columns=fts)
     #print(df_res)
 
-    df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix.csv")
+    df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_" + tag + ".csv")
 
     # plot heatmap
-    plt.figure(figsize=(20,20))
-    sns.heatmap(df_res, cmap="RdBu_r", vmin=-1, vmax=1, square=True)
-    plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix.png")
-    plt.clf()
+    # plt.figure(figsize=(20,20))
+    # sns.heatmap(df_res, cmap="RdBu_r", vmin=-1, vmax=1, square=True)
+    # plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix.png")
+    # plt.clf()
 
     # show only values less than or equal to 0.5
-    df_res = abs(df_res)
-    df_res[df_res >= 0.5] = 0
-    df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_masked.csv")
-    plt.figure(figsize=(20,20))
-    sns.heatmap(df_res, cmap="RdBu_r", vmin=0, vmax=0.5, square=True)
-    plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_masked.png")
+    # df_res = abs(df_res)
+    # df_res[df_res >= 0.5] = 0
+    # df_res.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_masked_" + tag + ".csv")
+    # plt.figure(figsize=(20,20))
+    # sns.heatmap(df_res, cmap="RdBu_r", vmin=0, vmax=0.5, square=True)
+    # plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_masked_" + tag + ".png")
+    # plt.clf()
+    # plt.close()
 
 ####################################################
 
-def FeatureSelection(root, Norm, output=False):
+def FeatureSelection(root, Norm, tag, output=False):
     # read in fts from csv
-    df_corr = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix.csv")
+    df_corr = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Delta\\CorrMatrix_" + tag + ".csv")
 
     fts = df_corr["Unnamed: 0"].values
 
@@ -121,16 +124,20 @@ def FeatureSelection(root, Norm, output=False):
         fts = df_fts["Feature"].values
         for ft in fts:
             print(ft)
-    df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_SelectedFeatures.csv", index=False)
+    df_fts.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Delta_SelectedFeatures_" + tag + ".csv", index=False)
 
 ####################################################
 
-def DeltaModel(DataRoot, Norm, output=False):
+def DeltaModel(DataRoot, Norm, tag, output=False):
     # Make Directories if they don't exist
     print("------------------------------------")
     print("------------------------------------")
-    print("Root: {} Norm: {}".format(DataRoot, Norm))
+    print("Root: {} Norm: {} Tag: {}".format(DataRoot, Norm, tag))
     UF.CD(DataRoot, Norm)
+
+    print("------------------------------------\n")
+    print("             Delta Model            \n")
+    print("------------------------------------\n")
 
     # Get Delta Features
     if output == True:
@@ -138,7 +145,7 @@ def DeltaModel(DataRoot, Norm, output=False):
         print("------------------------------------")
         print("Calculating Delta Features...")
         print("------------------------------------")
-    FE.DeltaValues(DataRoot, Norm)
+    FE.DeltaValues(DataRoot, Norm, tag)
 
     # Feature Reduction
     if output == True:
@@ -148,8 +155,8 @@ def DeltaModel(DataRoot, Norm, output=False):
         print("------------------------------------")
         print("ICC Feature Reduction: ")
         print("------------------------------------")
-    FR.ICC(DataRoot, Norm, "Delta", output)
-    FR.Volume(DataRoot, Norm, "Delta", output)
+    FR.ICC(DataRoot, Norm, "Delta", tag, output)
+    FR.Volume(DataRoot, Norm, "Delta", tag, output)
     if output == True:
         print("------------------------------------")
         print("------------------------------------\n ")
@@ -159,12 +166,12 @@ def DeltaModel(DataRoot, Norm, output=False):
         print("------------------------------------")
         print("Creating Correlation Matrix:")
         print("------------------------------------")
-    CorrMatrix(DataRoot, Norm)
+    CorrMatrix(DataRoot, Norm, tag,)
     if output == True:
         print("------------------------------------")
         print("Feature Selection:")
         print("------------------------------------")
-    FeatureSelection(DataRoot, Norm, output)
+    FeatureSelection(DataRoot, Norm, tag, output)
     print("------------------------------------")
     print("------------------------------------\n ")
 
