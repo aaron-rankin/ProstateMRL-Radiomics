@@ -7,7 +7,12 @@ import sys
 from Functions import UsefulFunctions as UF
 from tqdm import tqdm
 
+####################################################
+
 def MedianSignalPlot(root, Norm):
+    '''
+    Plot the median signal intensity for each patient within prostate in facetgrid
+    '''
     
     df_fts = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts_Baseline.csv")
 
@@ -28,10 +33,12 @@ def MedianSignalPlot(root, Norm):
     g.set_titles("{col_name}")
     plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\SignalPlots\\MedianSignal.png")
 
+####################################################
 
 def ClusterSignalPlots(root, Norm, tag):
-    
-    csvs = os.listdir("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\ClusterLabels\\")
+    '''
+    Indivudal plots for each patient and cluster, selected features are highlighted
+    '''    
     #csvs = [csv for csv in csvs if "HM" in csv]
 
     fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_SelectedFeatures_" + tag + ".csv")
@@ -39,7 +46,7 @@ def ClusterSignalPlots(root, Norm, tag):
     patIDs = UF.SABRPats()
 
     for pat in tqdm(patIDs):
-        df = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\" + pat + "_" + tag + ".csv")
+        df = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\" + pat + "_" + tag + ".csv")
         
         df["Selected"] = df["Feature"].apply(lambda x: x in fts_s)
         # print where selected is True
@@ -83,6 +90,39 @@ def ClusterSignalPlots(root, Norm, tag):
             
             #plt.legend(title = "Feature Selected", bbox_to_anchor=(1, 0.6), labels = ["Yes", "No"])
             plt.title("Patient - " + str(pat) + " Cluster - " + str(c), fontsize = 30)
-            plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterPlots\\" + str(pat) + "_Cluster" + str(c) + "_" + tag + ".png", bbox_inches = "tight")
+            plt.savefig("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\ClusterPlots\\" + str(pat) + "_Cluster" + str(c) + "_" + tag + ".png", bbox_inches = "tight")
             #plt.show()
             plt.close()
+
+####################################################
+
+def SelectedFeatures(root, Norm, tag, Model):
+    '''
+    Plots selected features given Norm and tag using Seaborn facet grid
+    Compares different patients
+    '''
+    # get selected features
+    fts_s = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_SelectedFeatures_" + tag + ".csv")
+    fts_s = fts_s["Feature"].values
+    patIDs = UF.SABRPats()
+    df_all = pd.read_csv("E:\\Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
+    df_all = df_all[df_all["Feature"].isin(fts_s)]
+
+    g = sns.FacetGrid(df_all, col="Feature", col_wrap=4, height=2, aspect=1.5)
+    # set color palette
+    g = g.map_dataframe(sns.lineplot, x="Fraction", y="FeatureValue", hue="PatID", palette = "pastel", markers=True, dashes=False)
+    # dont share y axis
+    
+    g.set_axis_labels("Fraction", "Feature Change", fontsize=16)
+    # change fontsize of x and y labels
+    # change fontsize of x and y ticks
+    plt.tick_params(labelsize=16)
+    # set title of total figure
+    g.fig.suptitle("Selected Features", fontsize=30, y=1.0)
+    g.figure.subplots_adjust(top=0.9)
+    g.set_titles("{col_name}")
+    g.add_legend()
+    g.legend.set_title("Patient")
+    g.legend.set_bbox_to_anchor((1.1, 0.5))
+    
+    plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\SignalPlots\\SelectedFeatures2_" + tag + ".png")

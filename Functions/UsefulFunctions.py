@@ -30,7 +30,7 @@ def DataRoot(root):
 
 #####################################################
 
-def CD(DataRoot, Norm):
+def CD(DataRoot, Norm, tag):
     '''
     Checks if folders exist and creates them if not
     '''
@@ -58,6 +58,11 @@ def CD(DataRoot, Norm):
     if not os.path.exists(root_dir + "\\Features"):
         os.makedirs(root_dir + "\\Features")
 
+    if not os.path.exists(root_dir + "\\Features\\Longitudinal_All_fts_" + tag + ".csv"):
+        df_fts = pd.read_csv(root_dir + "\\Features\\Longitudinal_All_fts_Baseline.csv")
+        df_fts.to_csv(root_dir + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
+        df_l = pd.read_csv(root_dir + "\\Features\\Longitudinal_Limbus_fts_Baseline.csv")
+        df_l.to_csv(root_dir + "\\Features\\Longitudinal_Limbus_fts_" + tag + ".csv")
 #####################################################
 
 
@@ -370,7 +375,6 @@ def ModelSummary(root, Norm, tag):
     out.write("-------------------------\n")
     L_both = CompareFeatureLists(root, Norm, ["Longitudinal_FeaturesRemoved_ICC", "Longitudinal_FeaturesRemoved_Volume"], tag)
     out.write("Longitudinal - Number of features both Vol & ICC redudant: " + str(len(L_both)) + "\n")
-    out.write("\n")
     D_both = CompareFeatureLists(root, Norm, ["Delta_FeaturesRemoved_ICC", "Delta_FeaturesRemoved_Volume"], tag)
     out.write("Delta - Number of features both Vol & ICC redudant: " + str(len(D_both)) + "\n")
 
@@ -391,7 +395,8 @@ def ModelSummary(root, Norm, tag):
 
     # check if any features are selected in both longitudinal and delta
     out.write("\n")
-    out.write("Features Selected in Both Longitudinal and Delta: " + str(len(set(L_Select_fts) & set(D_Select_fts)))+ "\n")
+    Selected_both = set(L_Select_fts).intersection(set(D_Select_fts))
+    out.write("Features Selected in Both Longitudinal and Delta: " + str(len(Selected_both))+ "\n")
     out.write("-------------------------")
 
     out.close()

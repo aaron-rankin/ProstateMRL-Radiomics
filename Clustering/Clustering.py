@@ -53,14 +53,14 @@ def DistanceMatrix(DataRoot, Norm, tag):
 
         # save matrix
         df_dist = pd.DataFrame(mat, columns = fts, index = fts)  
-        df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm +"\\Longitudinal\\Test\\DM\\csvs\\" + str(pat) + "_" + tag + ".csv")
+        df_dist.to_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm +"\\Longitudinal\\DM\\csvs\\" + str(pat) + "_" + tag + ".csv")
 
         # plot matrix
         plt.figure(figsize=(20,20))
         sns.set_theme(style="white")
         plt.title("DM - {}".format(pat), fontsize=40)
         sns.heatmap(df_dist, cmap='viridis', cbar_kws={'label': 'Euclidean Distance'})
-        plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\Test\\DM\\Figs\\" + str(pat) + "_" + tag + ".png")
+        plt.savefig(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\DM\\Figs\\" + str(pat) + "_" + tag + ".png")
 
 ####################################################
 
@@ -103,8 +103,8 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
     performs clustering until all clusters have less than 10 features
     '''
     root = DataRoot
-    DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\DM\\csvs\\"
-    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\Test\\ClusterLabels\\"
+    DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\DM\\csvs\\"
+    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels\\"
 
     patIDs = UF.SABRPats()
 
@@ -170,13 +170,13 @@ def ClusterCount(root, Norm, output, tag):
     '''
     Summarises clustering results
     '''
-    dir = os.listdir(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\")
-
+    dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\"
+    patIDs = UF.SABRPats()
     df_result = pd.DataFrame()
 
-    for f in dir:
+    for pat in patIDs:
 
-        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\" + f)
+        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\" + pat + "_" + tag + ".csv")
         df = df[["Feature", "Cluster"]]
         df = df.drop_duplicates()
         # sort by cluster
@@ -273,7 +273,7 @@ def ClusterSelection(DataRoot, Norm, tag, output):
     root = DataRoot
     patIDs = UF.SABRPats()
 
-    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Test\\ClusterLabels\\"
+    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\"
     out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Features\\"
     
     df_result = pd.DataFrame()
@@ -332,7 +332,7 @@ def LongitudinalModel(DataRoot, Norm, Extract, t_val, tag, output=False):
     #print("------------------------------------")
     # print("Checking Directories...")
     print("Root: {} Norm: {}, Tag: {}".format(DataRoot, Norm, tag))
-    UF.CD(DataRoot, Norm)
+    UF.CD(DataRoot, Norm, tag)
     
     print("------------------------------------\n")
     print("         Longitudinal Model         \n")

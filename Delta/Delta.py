@@ -86,8 +86,8 @@ def FeatureSelection(root, Norm, tag, output=False):
                 results[i,j] = 1
 
     df_res = pd.DataFrame(results, columns=fts, index=fts)
-    plt.figure(figsize=(20,20))
-    sns.heatmap(df_res, cmap="RdBu_r", vmin=0, vmax=0.5, square=False)
+    # plt.figure(figsize=(20,20))
+    # sns.heatmap(df_res, cmap="RdBu_r", vmin=0, vmax=0.5, square=False)
     # plt.show()
 
     # loop through results with ft pairs and select ft with lowest mean value
@@ -133,7 +133,7 @@ def DeltaModel(DataRoot, Norm, tag, output=False):
     print("------------------------------------")
     print("------------------------------------")
     print("Root: {} Norm: {} Tag: {}".format(DataRoot, Norm, tag))
-    UF.CD(DataRoot, Norm)
+    UF.CD(DataRoot, Norm, tag)
 
     print("------------------------------------\n")
     print("             Delta Model            \n")
