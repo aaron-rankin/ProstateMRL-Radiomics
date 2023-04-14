@@ -26,38 +26,37 @@ PatKey = PatKey.loc[PatKey["Treatment"] == "SABR"]
 PatIDs = PatKey["PatID"].unique()
 
 Signal_df = pd.DataFrame()
-Norm = "Raw"
 
-# Norms = ["Raw", "HM-FS", "HM-TP", "HM-FSTP", "Med-Pros", "Med-Psoas"]
-# for Norm in Norms:
-for PatID in tqdm(PatIDs):
+Norms = ["Raw", "HM-FS", "HM-TP", "HM-FSTP", "Med-Pros", "Med-Psoas"]
+for Norm in Norms:
+    for PatID in tqdm(PatIDs):
 
-    pat_key = PatKey[PatKey["PatID"] == PatID]
-    t_dir = pat_key["FileDir"].values[0]
+        pat_key = PatKey[PatKey["PatID"] == PatID]
+        t_dir = pat_key["FileDir"].values[0]
 
-    PatID = UF.FixPatID(PatID, t_dir)
-    Scans = pat_key["Scan"].unique()
+        PatID = UF.FixPatID(PatID, t_dir)
+        Scans = pat_key["Scan"].unique()
 
-    for Scan in Scans:
+        for Scan in Scans:
 
-        for Mask in masks:
-            if Mask == "Pros":
-                Mask = "shrunk_pros"
+            for Mask in masks:
+                if Mask == "Pros":
+                    Mask = "shrunk_pros"
 
-            ImageFile = PatID + "_" + Scan + "_Raw.nii"
-            MaskFile = PatID + "_" + Scan + "_" + Mask + ".nii"
-            ImagePath = os.path.join(nifti_dir, t_dir, PatID, Scan, Norm, ImageFile)
-            MaskPath = os.path.join(nifti_dir, t_dir, PatID, Scan, "Masks\\", MaskFile)
-            Median = IF.MaskedMeanMed(ImagePath, MaskPath)[1]
+                ImageFile = PatID + "_" + Scan + "_" + Norm + ".nii"
+                MaskFile = PatID + "_" + Scan + "_" + Mask + ".nii"
+                ImagePath = os.path.join(nifti_dir, t_dir, PatID, Scan, Norm, ImageFile)
+                MaskPath = os.path.join(nifti_dir, t_dir, PatID, Scan, "Masks\\", MaskFile)
+                Median = IF.MaskedMeanMed(ImagePath, MaskPath)[1]
 
-            data = [[PatID, Norm, Scan, Mask, Median]]
-            temp_df = pd.DataFrame(data, columns = ["PatID", "Raw", "Scan", "Mask", "Median"])
-            
-            Signal_df = Signal_df.append(temp_df, ignore_index=True)
+                data = [[PatID, Norm, Scan, Mask, Median]]
+                temp_df = pd.DataFrame(data, columns = ["PatID", "Norm", "Scan", "Mask", "Median"])
+                
+                Signal_df = Signal_df.append(temp_df, ignore_index=True)
 
-Signal_df.to_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\MedianSignalRaw.csv")
-            
-    
+    Signal_df.to_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\MedianSignalNorms.csv")
+                
+        
 
 
 
