@@ -26,8 +26,8 @@ PatKey = PatKey.loc[PatKey["Treatment"] == "SABR"]
 PatIDs = PatKey["PatID"].unique()
 
 Signal_df = pd.DataFrame()
-
-Norms = ["Raw", "HM-FS", "HM-TP", "HM-FSTP", "Med-Pros", "Med-Psoas"]
+Norms = ["Med-Glute"]
+#Norms = ["Raw", "HM-FS", "HM-TP", "HM-FSTP", "Med-Pros", "Med-Psoas"]
 for Norm in Norms:
     for PatID in tqdm(PatIDs):
 
@@ -54,7 +54,7 @@ for Norm in Norms:
                 
                 Signal_df = Signal_df.append(temp_df, ignore_index=True)
 
-    Signal_df.to_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\MedianSignalNorms.csv")
+    Signal_df.to_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\MedianSignalMG.csv")
                 
         
 
