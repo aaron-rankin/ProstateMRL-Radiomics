@@ -30,7 +30,7 @@ def DataRoot(root):
 
 #####################################################
 
-def CD(DataRoot, Norm, tag):
+def CD(DataRoot, Extract, Norm, tag):
     '''
     Checks if folders exist and creates them if not
     '''
@@ -57,12 +57,12 @@ def CD(DataRoot, Norm, tag):
     # Features folder
     if not os.path.exists(root_dir + "\\Features"):
         os.makedirs(root_dir + "\\Features")
-
-    if not os.path.exists(root_dir + "\\Features\\Longitudinal_All_fts_" + tag + ".csv"):
-        df_fts = pd.read_csv(root_dir + "\\Features\\Longitudinal_All_fts_Baseline.csv")
-        df_fts.to_csv(root_dir + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
-        df_l = pd.read_csv(root_dir + "\\Features\\Longitudinal_Limbus_fts_Baseline.csv")
-        df_l.to_csv(root_dir + "\\Features\\Longitudinal_Limbus_fts_" + tag + ".csv")
+    if Extract == "No":
+        if not os.path.exists(root_dir + "\\Features\\Longitudinal_All_fts_" + tag + ".csv"):
+            df_fts = pd.read_csv(root_dir + "\\Features\\Longitudinal_All_fts_Baseline.csv")
+            df_fts.to_csv(root_dir + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
+            df_l = pd.read_csv(root_dir + "\\Features\\Longitudinal_Limbus_fts_Baseline.csv")
+            df_l.to_csv(root_dir + "\\Features\\Longitudinal_Limbus_fts_" + tag + ".csv")
 #####################################################
 
 

@@ -65,6 +65,7 @@ def All(DataRoot, Norm, tag):
 
             feat_df = pd.DataFrame()
             # extract features
+            print("Pat: {} Scan: {}".format(pat, scan))
             temp_results = pd.Series(extractor.execute(imgFile, RP_mask, label=255))
             feat_df = feat_df.append(temp_results, ignore_index=True)
             # merge new row with feature dataframe with new row first
@@ -107,7 +108,7 @@ def All(DataRoot, Norm, tag):
 
         df_out = df_out.append(df_pat)
 
-    df_out.to_csv(outDir + "\\Longitudinal_All_fts_filters_" + tag + ".csv", index=False)
+    df_out.to_csv(outDir + "\\Longitudinal_All_fts_" + tag + ".csv", index=False)
 
     return results_df_w, df_out
 
@@ -218,7 +219,7 @@ def Limbus(DataRoot, Norm, tag):
 
             df_out = df_out.append(df_pat_m)
 
-    df_out.to_csv(outDir + "Longitudinal_Limbus_fts_filters_" + tag + ".csv" , index=False)
+    df_out.to_csv(outDir + "Longitudinal_Limbus_fts_" + tag + ".csv" , index=False)
 
     return results_df_w, df_out
 

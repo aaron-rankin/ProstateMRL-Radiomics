@@ -133,7 +133,7 @@ def DeltaModel(DataRoot, Norm, tag, output=False):
     print("------------------------------------")
     print("------------------------------------")
     print("Root: {} Norm: {} Tag: {}".format(DataRoot, Norm, tag))
-    UF.CD(DataRoot, Norm, tag)
+    UF.CD(DataRoot, "No", Norm, tag)
 
     print("------------------------------------\n")
     print("             Delta Model            \n")

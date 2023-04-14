@@ -17,13 +17,13 @@ nifti_dir = root + "\\prostateMR_radiomics\\nifti\\"
 # Get patkey
 PatKey = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\AllPatientKey_s.csv")
 
-masks = ["Pros", "psoas"]
+masks = ["glute"]
 PatKey = PatKey.loc[PatKey["Treatment"] == "SABR"]
 PatIDs = PatKey["PatID"].unique()
 
-Signal_df = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\MedianSignal.csv")
+Signal_df = pd.read_csv(root + "Aaron\ProstateMRL\Code\PatKeys\\MedianSignalRaw.csv")
 
-for PatID in tqdm(PatIDs):
+for PatID in PatIDs:
 
     pat_key = PatKey[PatKey["PatID"] == PatID]
     Pat_df = Signal_df.loc[Signal_df["PatID"] == PatID]
@@ -34,20 +34,21 @@ for PatID in tqdm(PatIDs):
 
     Base_pros = Pat_df.loc[Pat_df["Mask"] == "shrunk_pros"]["Median"].values[0]
     Base_psoas = Pat_df.loc[Pat_df["Mask"] == "psoas"]["Median"].values[0]
+    Base_glute = Pat_df.loc[Pat_df["Mask"] == "glute"]["Median"].values[0]
 
     for Scan in Scans:
 
     
         ImageFile = PatID + "_" + Scan + "_Raw.nii"
 
-        Val_pros = Pat_df.loc[(Pat_df["Mask"] == "shrunk_pros") & (Pat_df["Scan"] == Scan)]["Median"].values[0]
-        Val_psoas = Pat_df.loc[(Pat_df["Mask"] == "psoas") & (Pat_df["Scan"] == Scan)]["Median"].values[0]
-
-        factor_pros = Base_pros / Val_pros
-        factor_psoas = Base_psoas / Val_psoas
-
+        #Val_pros = Pat_df.loc[(Pat_df["Mask"] == "shrunk_pros") & (Pat_df["Scan"] == Scan)]["Median"].values[0]
+        #Val_psoas = Pat_df.loc[(Pat_df["Mask"] == "psoas") & (Pat_df["Scan"] == Scan)]["Median"].values[0]
+        Val_glute = Pat_df.loc[(Pat_df["Mask"] == "glute") & (Pat_df["Scan"] == Scan)]["Median"].values[0]
+        #factor_pros = Base_pros / Val_pros
+        #factor_psoas = Base_psoas / Val_psoas
+        factor_glute = Base_glute / Val_glute
         pat_path = os.path.join(nifti_dir, t_dir, PatID, Scan)
         
-        IF.RescaleImage(pat_path, factor_pros, PatID, Scan, "Pros")
-        IF.RescaleImage(pat_path, factor_psoas, PatID, Scan, "Psoas")
+        IF.RescaleImage(pat_path, factor_glute, PatID, Scan, "Glute")
+        
 

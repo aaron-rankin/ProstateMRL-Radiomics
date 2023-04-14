@@ -5,16 +5,16 @@ from Delta import Delta as Dl
 
 ####################################################
 
-DataRoot = UF.DataRoot(2)
-Norm = "HM-FS"
+DataRoot = UF.DataRoot(1)
+Norm = "Med-Glute"
 Extract = "No"
-tag = "t_val_15" # if using Filters, specify "Filters_" in tag
+tag = "Baseline" # if using Filters, specify "Filters_" in tag
 output = False 
-t_val = 1.5
+t_val = 2
 
 ####################################################
 
-Cl.LongitudinalModel(DataRoot, Norm, Extract, t_val, tag, output)
+#Cl.LongitudinalModel(DataRoot, Norm, Extract, t_val, tag, output)
 Dl.DeltaModel(DataRoot, Norm, tag, output)
 UF.ModelSummary(DataRoot, Norm, tag)
 
