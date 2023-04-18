@@ -104,11 +104,12 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
     '''
     root = DataRoot
     DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\DM\\csvs\\"
-    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels\\"
+    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\Ttest\\ClusterLabels\\"
 
     patIDs = UF.SABRPats()
 
     cluster_method = "weighted"
+    df_all_clustertries = pd.DataFrame()
 
     for pat in tqdm(patIDs):
         df_DM = pd.read_csv(DM_dir + pat + "_" + tag + ".csv")
@@ -127,13 +128,13 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
         # check number of features in each cluster
         df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
         df_labels["Cluster"] = df_labels["Cluster"].astype(int)
-        #print("---------------------------")
-        #print("Patient: {}".format(pat))
-        #print(df_labels.loc[df_labels["NumFts"] > 10])
+
+        df_pat_clustertries = pd.DataFrame()
         # loop through clusters 
         for c in df_labels["Cluster"].unique():
                 df_c = df_labels[df_labels["Cluster"] == c]
                 number_fts = len(df_c)
+                in_num_fts = number_fts
                 # check numnber of features in cluster
                 if number_fts > 10:
                         # if more than 10 features in cluster, reduce t_val and recluster
@@ -152,9 +153,11 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
                                 number_fts, df_labels2, check_fts = ClusterCheck(df_c, check_fts, t_val, tries, df_DM)
                                 new_fts = df_labels2["FeatureName"].unique()
                                 df_labels.loc[new_fts, "Cluster"] = df_labels2["Cluster"].values
-                        
+                df_pat_temp = pd.DataFrame([pat, c, s_t_val, t_val, tries+1, in_num_fts, number_fts.max()], index=["PatID", "Cluster", "StartTval", "EndTval", "Tries", "InNumFts", "OutNumFts"]).T
+                #df_pat_clustertries = df_pat_clustertries.append(df_pat_temp)
+                df_all_clustertries = df_all_clustertries.append(df_pat_temp)
         df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
-
+        df_all_clustertries.to_csv(root + "Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "Longitudinal\\Test\\ClusterTries_" + tag + ".csv")
         # read in df with ft vals and merge
         ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
         ft_vals["PatID"] = ft_vals["PatID"].astype(str)
@@ -170,13 +173,12 @@ def ClusterCount(root, Norm, output, tag):
     '''
     Summarises clustering results
     '''
-    dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\"
     patIDs = UF.SABRPats()
     df_result = pd.DataFrame()
 
     for pat in patIDs:
 
-        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\" + pat + "_" + tag + ".csv")
+        df = pd.read_csv(root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Ttest\\ClusterLabels\\" + pat + "_" + tag + ".csv")
         df = df[["Feature", "Cluster"]]
         df = df.drop_duplicates()
         # sort by cluster
@@ -273,8 +275,8 @@ def ClusterSelection(DataRoot, Norm, tag, output):
     root = DataRoot
     patIDs = UF.SABRPats()
 
-    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\"
-    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Features\\"
+    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Ttest\\ClusterLabels\\"
+    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\Ttest\\Selected\\"
     
     df_result = pd.DataFrame()
     for pat in tqdm(patIDs):
@@ -396,9 +398,9 @@ def ModelCompact(DataRoot, Norm, t_val, tag, output=False):
     print("------------------------------------")
     print("Root: {} Norm: {} Tag: {}".format(DataRoot, Norm, tag))
 
-    print("Creating Distance Matrices: ")
-    print("------------------------------------")
-    DistanceMatrix(DataRoot, Norm, tag, output)
+    # print("Creating Distance Matrices: ")
+    # print("------------------------------------")
+    # DistanceMatrix(DataRoot, Norm, tag, output)
     
     print("------------------------------------")
     print("Clustering Distance Matrices: ")
@@ -444,3 +446,23 @@ def ClusterSimilarity(fts_1, fts_2):
     return(num_sim_fts, ratio_a, ratio_b, ratio)
 
 ####################################################
+
+def TvalTest(DataRoot, Norm, t_val, tag, output=False):
+    print("------------------------------------")
+    print("------------------------------------")
+    print("Root: {} Norm: {} Tag: {}".format(DataRoot, Norm, tag))
+
+    # print("Creating Distance Matrices: ")
+    # print("------------------------------------")
+    # DistanceMatrix(DataRoot, Norm, tag, output)
+    
+    print("------------------------------------")
+    print("Clustering Distance Matrices: ")
+    print("------------------------------------")
+    ClusterFeatures(DataRoot, Norm, t_val, tag, output)
+    ClusterCount(DataRoot, Norm, tag, output)
+    print("Feature Selection: ")
+    print("------------------------------------")
+    ClusterSelection(DataRoot, Norm, tag, output)
+    print("------------------------------------")
+    print("------------------------------------\n ")
