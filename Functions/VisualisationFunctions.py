@@ -126,3 +126,34 @@ def SelectedFeatures(root, Norm, tag, Model):
     g.legend.set_bbox_to_anchor((1.1, 0.5))
     
     plt.savefig(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Longitudinal\\SignalPlots\\SelectedFeatures2_" + tag + ".png")
+
+####################################################
+
+def CompareNormBarPlot(root, tag):
+    '''
+    Plots the number of features removed / selected for each Normalisation
+    '''
+    Norms = UF.NormArray()
+
+    # loop through norms and get number of features removed / selected
+    df = pd.DataFrame(columns = ["Norm", "Stage", "Features"])
+    for Norm in Norms:
+        fts_s = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\OldFeatureFiles\\" + Norm + "\\Features\\Longitudinal_SelectedFeatures.csv")
+        fts_s = fts_s["Feature"].values
+        fts_vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\OldFeatureFiles\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_Volume.csv")
+        fts_vol = fts_vol["Feature"].values
+        fts_icc = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\OldFeatureFiles\\" + Norm + "\\Features\\Longitudinal_RemovedFeatures_ICC.csv")
+        fts_icc = fts_icc["Feature"].values
+        df = df.append({"Norm": Norm, "Stage": "Volume", "Features": len(fts_vol)}, ignore_index = True)
+        df = df.append({"Norm": Norm, "Stage": "ICC", "Features": len(fts_icc)}, ignore_index = True)
+        df = df.append({"Norm": Norm, "Stage": "Selected", "Features": len(fts_s)}, ignore_index = True)
+
+    # plot
+    sns.set_theme(style="whitegrid")
+    sns.set_context("paper", font_scale=1.5, rc={"lines.linewidth": 2.5})
+    plt.figure(figsize=(10, 10))
+    sns.barplot(x="Norm", y="Features", hue="Stage", data=df)
+    plt.title("Number of Features Removed / Selected", fontsize = 30)
+    plt.xlabel("Normalisation", fontsize = 20)
+    plt.ylabel("Number of Features", fontsize = 20)
+    plt.show()
