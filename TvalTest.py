@@ -16,6 +16,6 @@ for t_val in t_vals:
 
     ####################################################
 
-    Cl.LongitudinalModel(DataRoot, Norm, Extract, t_val, tag, output)
+    Cl.TvalTest(DataRoot, Norm, t_val, tag, output)
     #Dl.DeltaModel(DataRoot, Norm, tag, output)
-    UF.ModelSummary(DataRoot, Norm, tag)
+    #UF.ModelSummary(DataRoot, Norm, tag)

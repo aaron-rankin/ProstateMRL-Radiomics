@@ -20,10 +20,10 @@ def DistanceMatrix(DataRoot, Norm, tag):
     Calculates Eucledian distance between all features for each patient
     '''
     root = DataRoot
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_All_fts_Baseline.csv")
 
-    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_ICC_" + tag + ".csv")
-    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_Volume_" + tag + ".csv")
+    fts_ICC = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_ICC_Baseline.csv")
+    fts_Vol = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\Longitudinal_FeaturesRemoved_Volume_Baseline.csv")
 
     df_all = df_all[~df_all["Feature"].isin(fts_ICC["Feature"])]
     df_all = df_all[~df_all["Feature"].isin(fts_Vol["Feature"])]
@@ -112,7 +112,7 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
     df_all_clustertries = pd.DataFrame()
 
     for pat in tqdm(patIDs):
-        df_DM = pd.read_csv(DM_dir + pat + "_" + tag + ".csv")
+        df_DM = pd.read_csv(DM_dir + pat + "_Baseline.csv")
         df_DM.set_index("Unnamed: 0", inplace=True)
         arr_DM = df_DM.to_numpy()
         fts = df_DM.columns
@@ -153,13 +153,17 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
                                 number_fts, df_labels2, check_fts = ClusterCheck(df_c, check_fts, t_val, tries, df_DM)
                                 new_fts = df_labels2["FeatureName"].unique()
                                 df_labels.loc[new_fts, "Cluster"] = df_labels2["Cluster"].values
-                df_pat_temp = pd.DataFrame([pat, c, s_t_val, t_val, tries+1, in_num_fts, number_fts.max()], index=["PatID", "Cluster", "StartTval", "EndTval", "Tries", "InNumFts", "OutNumFts"]).T
+                else:
+                    t_val = s_t_val
+                    tries = 0
+
+                df_pat_temp = pd.DataFrame([pat, c, s_t_val, t_val, tries+1, in_num_fts], index=["PatID", "Cluster", "StartTval", "EndTval", "Tries", "InNumFts"]).T
                 #df_pat_clustertries = df_pat_clustertries.append(df_pat_temp)
                 df_all_clustertries = df_all_clustertries.append(df_pat_temp)
         df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
-        df_all_clustertries.to_csv(root + "Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "Longitudinal\\Test\\ClusterTries_" + tag + ".csv")
+        df_all_clustertries.to_csv(root + "Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Ttest\\Tries\\ClusterTries_" + tag + ".csv")
         # read in df with ft vals and merge
-        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
+        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts_Baseline.csv")
         ft_vals["PatID"] = ft_vals["PatID"].astype(str)
         pat_ft_vals = ft_vals[ft_vals["PatID"] == pat]
         pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")
@@ -459,8 +463,7 @@ def TvalTest(DataRoot, Norm, t_val, tag, output=False):
     print("------------------------------------")
     print("Clustering Distance Matrices: ")
     print("------------------------------------")
-    ClusterFeatures(DataRoot, Norm, t_val, tag, output)
-    ClusterCount(DataRoot, Norm, tag, output)
+    ClusterFeatures(DataRoot, Norm, t_val, tag)
     print("Feature Selection: ")
     print("------------------------------------")
     ClusterSelection(DataRoot, Norm, tag, output)
