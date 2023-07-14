@@ -3,7 +3,7 @@ import numpy as np
 import SimpleITK as sitk
 import pandas as pd
 from tqdm import tqdm
-from Functions import UsefulFunctions as UF
+from ImageNormalisation import UsefulFunctions as UF
 
 def dice_score(mask1_path, mask2_path):
     # Load the masks as SimpleITK images

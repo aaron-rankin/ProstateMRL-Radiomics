@@ -7,7 +7,7 @@ from tqdm import tqdm
 import scipy.cluster.hierarchy as spch
 import statsmodels.tsa.stattools as sts
 from scipy import stats
-from Functions import UsefulFunctions as UF
+from ImageNormalisation import UsefulFunctions as UF
 from Functions import ImageFunctions as IF
 from scipy.spatial import distance
 from Features import Reduction as FR
@@ -103,8 +103,10 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
     performs clustering until all clusters have less than 10 features
     '''
     root = DataRoot
+
     DM_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\DM\\csvs\\"
-    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\Ttest\\ClusterLabels\\"
+    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Longitudinal\\ClusterLabels\\"
+
 
     patIDs = UF.SABRPats()
 
@@ -112,7 +114,7 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
     df_all_clustertries = pd.DataFrame()
 
     for pat in tqdm(patIDs):
-        df_DM = pd.read_csv(DM_dir + pat + "_Baseline.csv")
+        df_DM = pd.read_csv(DM_dir + pat + "_" + tag + ".csv")
         df_DM.set_index("Unnamed: 0", inplace=True)
         arr_DM = df_DM.to_numpy()
         fts = df_DM.columns
@@ -163,7 +165,7 @@ def ClusterFeatures(DataRoot, Norm, s_t_val, tag):
         df_labels["NumFts"] = df_labels.groupby("Cluster")["Cluster"].transform("count")
         df_all_clustertries.to_csv(root + "Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Ttest\\Tries\\ClusterTries_" + tag + ".csv")
         # read in df with ft vals and merge
-        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts_Baseline.csv")
+        ft_vals = pd.read_csv(root +"Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm + "\\Features\\Longitudinal_All_fts_" + tag + ".csv")
         ft_vals["PatID"] = ft_vals["PatID"].astype(str)
         pat_ft_vals = ft_vals[ft_vals["PatID"] == pat]
         pat_ft_vals = pat_ft_vals.merge(df_labels, left_on="Feature", right_on="FeatureName")
@@ -279,8 +281,8 @@ def ClusterSelection(DataRoot, Norm, tag, output):
     root = DataRoot
     patIDs = UF.SABRPats()
 
-    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\Ttest\\ClusterLabels\\"
-    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Longitudinal\\Ttest\\Selected\\"
+    labels_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\" + Norm + "\\Longitudinal\\ClusterLabels\\"
+    out_dir = root + "\\Aaron\\ProstateMRL\\Data\\Paper1\\"+ Norm +"\\Features\\"
     
     df_result = pd.DataFrame()
     for pat in tqdm(patIDs):
@@ -317,6 +319,7 @@ def ClusterSelection(DataRoot, Norm, tag, output):
     df_result = df_result.Feature.value_counts().rename_axis("Feature").reset_index(name="Counts")
     # get number of counts at 10th row
     counts = df_result.iloc[10]["Counts"]
+    print(df_result)
     #print(df_result)
     # get features with counts >= counts
     fts = df_result[df_result["Counts"] >= counts]["Feature"].values
@@ -409,8 +412,8 @@ def ModelCompact(DataRoot, Norm, t_val, tag, output=False):
     print("------------------------------------")
     print("Clustering Distance Matrices: ")
     print("------------------------------------")
-    ClusterFeatures(DataRoot, Norm, t_val, tag, output)
-    ClusterCount(DataRoot, Norm, tag, output)
+    ClusterFeatures(DataRoot, Norm, t_val, tag)
+    #ClusterCount(DataRoot, Norm, tag, output)
     print("Feature Selection: ")
     print("------------------------------------")
     ClusterSelection(DataRoot, Norm, tag, output)

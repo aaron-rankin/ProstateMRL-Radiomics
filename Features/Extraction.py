@@ -7,7 +7,7 @@ import radiomics
 from radiomics import featureextractor
 import sys
 from tqdm import tqdm
-from Functions import UsefulFunctions as UF
+from ImageNormalisation import UsefulFunctions as UF
 
 ####################################################
 

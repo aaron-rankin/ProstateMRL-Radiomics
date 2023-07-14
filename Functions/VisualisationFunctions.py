@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import sys
-from Functions import UsefulFunctions as UF
+from ImageNormalisation import UsefulFunctions as UF
 from tqdm import tqdm
 
 ####################################################

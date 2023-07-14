@@ -1,4 +1,4 @@
-from Functions import UsefulFunctions as UF
+from ImageNormalisation import UsefulFunctions as UF
 from Functions import VisualisationFunctions as VF
 from Clustering import Clustering as Cl
 import numpy as np

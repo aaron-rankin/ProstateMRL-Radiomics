@@ -9,7 +9,8 @@ from tqdm import tqdm
 def ICC(DataRoot, Norm, Model, tag, output=False):
     root = DataRoot
     # load in patient data
-    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_Limbus_fts_" + tag + ".csv")
+    # df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_Limbus_fts_" + tag + ".csv")
+    df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_Limbus_fts_Baseline.csv")
     # remove rows with original_firstorder_Minimum/Maximum
     df_all = df_all[df_all["Feature"] != "original_firstorder_Minimum"]
     df_all = df_all[df_all["Feature"] != "original_firstorder_Maximum"]
@@ -93,7 +94,7 @@ def ICC(DataRoot, Norm, Model, tag, output=False):
 def Volume(DataRoot, Norm, Model, tag, output = False):
 
     root = DataRoot
-     # read in fts from csv
+    # read in fts from csv
     df_all = pd.read_csv(root + "Aaron\ProstateMRL\Data\Paper1\\" + Norm + "\\Features\\" + Model + "_All_fts_" + tag + ".csv")
     df_all = df_all[df_all["Feature"] != "original_firstorder_Minimum"]
     df_all = df_all[df_all["Feature"] != "original_firstorder_Maximum"]

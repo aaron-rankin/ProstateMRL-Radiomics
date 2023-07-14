@@ -9,11 +9,11 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent + "\\Functions\\")
 import UsefulFunctions as UF
-import ImageFunctions as IF
+# from Functions import ImageFunctions as IF
 
 root = UF.DataRoot(1)
 # Patient Key
-patKey = pd.read_csv(root + "Aaron\\ProstateMRL\\Code\\PatKeys\\AllPatientKey_s.csv")
+patKey = pd.read_csv(root + "Aaron\\ProstateMRL\\Data\\PatientKey_new.csv")
 niftiDir = root + "prostateMR_radiomics\\nifti\\"
 
 HM_type = "HM-FSTP"
@@ -23,7 +23,7 @@ patKey = patKey[patKey["Treatment"] == "SABR"]
 PatIDs = patKey["PatID"].unique()
 
 if HM_type == "HM-FSTP":
-    refTP = "D:\data\prostateMR_radiomics\\nifti\SABR_new\\1431\\MR1\\RawImages\\1431_MR1_Raw.nii"
+    refTP = "D:\data\prostateMR_radiomics\\nifti\SABR_new\\1431\\MR1\\Raw\\1431_MR1_Raw.nii"
     TPimg = sitk.ReadImage(refTP)
 
 for pat in tqdm(PatIDs):
@@ -35,15 +35,15 @@ for pat in tqdm(PatIDs):
     
     scans = p_df["Scan"].values
     FS = scans[0]
-    print("Pat - {}, Scans - {}, FS - {}".format(pat, scans, FS))
+    # print("Pat - {}, Scans - {}, FS - {}".format(pat, scans, FS))
 
-    imgFS = patDir + "{}\\RawImages\\{}_{}_Raw.nii".format(FS, pat, FS)
+    imgFS = patDir + "{}\\Raw\\{}_{}_Raw.nii".format(FS, pat, FS)
     refimg = sitk.ReadImage(imgFS)
 
     for scan in scans:
         scanDir = patDir + "\\" + scan + "\\"
 
-        rawimg = scanDir + "RawImages\\{}_{}_Raw.nii".format(pat, scan)
+        rawimg = scanDir + "Raw\\{}_{}_Raw.nii".format(pat, scan)
         rawimg = sitk.ReadImage(rawimg)
         matcher = sitk.HistogramMatchingImageFilter()
         matcher.SetNumberOfHistogramLevels(512)
@@ -54,7 +54,8 @@ for pat in tqdm(PatIDs):
 
         if HM_type == "HM-FSTP":
             HMimg = matcher.Execute(HMimg, TPimg)
-
+        if os.path.exists(scanDir + HM_type) == False:
+            os.mkdir(scanDir + HM_type)
         sitk.WriteImage(HMimg, scanDir + "{}\\{}_{}_{}.nii".format(HM_type, pat, scan, HM_type))
 
         

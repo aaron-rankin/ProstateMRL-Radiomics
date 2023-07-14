@@ -7,7 +7,7 @@ from tqdm import tqdm
 import pingouin as pg
 from scipy import stats
 import sys
-from Functions import UsefulFunctions as UF
+from ImageNormalisation import UsefulFunctions as UF
 from Features import Extraction as FE
 from Features import Reduction as FR
 
